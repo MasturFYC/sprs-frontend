@@ -15,44 +15,40 @@ const Aside = () => {
         Master
       </Link></View>
       {showMaster &&
-        <Flex direction={'column'} rowGap='size-200' marginX={'size-200'}>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/wheel">Jenis Roda</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/merk">Merk Kendaraan</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/vehicle">Tipe Kendaraan</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/branch">Cabang Kantor</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/warehouse">Gudang</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary' UNSAFE_style={{ lineHeight: '120%' }}>
-              <RouterLink to="/finance">Pengelola Keuangan (Finance)</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary' UNSAFE_style={{ lineHeight: '120%' }}>
-              <RouterLink to="/action">Tindakan</RouterLink>
-            </Link>
-          </View>
-        </Flex>
+          <Flex direction={'column'} rowGap='size-200' marginX={'size-200'}>
+            <View>
+              <Link isQuiet variant='primary'>
+                <RouterLink to="/wheel">Jenis Roda</RouterLink>
+              </Link>
+            </View>
+            <View>
+              <Link isQuiet variant='primary'>
+                <RouterLink to="/merk">Merk Kendaraan</RouterLink>
+              </Link>
+            </View>
+            <View>
+              <Link isQuiet variant='primary'>
+                <RouterLink to="/vehicle">Tipe Kendaraan</RouterLink>
+              </Link>
+            </View>
+            <View>
+              <Link isQuiet variant='primary'>
+                <RouterLink to="/branch">Cabang Kantor</RouterLink>
+              </Link>
+            </View>
+            <View>
+              <Link isQuiet variant='primary'>
+                <RouterLink to="/warehouse">Gudang</RouterLink>
+              </Link>
+            </View>
+            <View>
+              <Link isQuiet variant='primary' UNSAFE_style={{ lineHeight: '120%' }}>
+                <RouterLink to="/finance">Pengelola Keuangan (Finance)</RouterLink>
+              </Link>
+            </View>
+          </Flex>
       }
+          <View><Link isQuiet variant='primary'><RouterLink to="/order">Order (SPK)</RouterLink></Link></View>
     </Flex>
   )
 }

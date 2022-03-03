@@ -67,3 +67,24 @@ export interface iAction {
     descriptions?: string
     orderId: number
 }
+
+export interface iOrder {
+    id: number
+    name: string
+    orderAt: string
+    printedAt: string
+    btFinance: number
+    btPercent: number
+    btMatel: number
+    ppn: number
+    nominal: number
+    subtotal: number
+    userName: string
+    verifiedBy?: string
+    validatedBy?: string
+    financeId: number
+    branchId: number
+    
+    branch?: iBranch
+    finance?: iFinance
+}

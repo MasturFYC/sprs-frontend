@@ -30,7 +30,7 @@ const Layout = () => {
     <Router>
     <Grid
       areas={{
-        base: ["header sidebar", "content content", "footer footer"],
+        base: ["header header", "content content", "footer footer"],
         M: ["header  sidebar", "content content", "footer  footer"],
         L: ["header  header", "sidebar content", "footer  footer"],
       }}
@@ -50,7 +50,7 @@ const Layout = () => {
           flex={{base: 1, M: 1, L:"none"}} marginTop={{base: "size-10", L:"size-25"}}>
             <img src={logo} alt="logo" style={{width: "32px"}} />
           </View>
-          <View flex isHidden={{base: true,L:false}} alignSelf={"center"}>
+          <View flex alignSelf={"center"}>
             <View>
               <p>Top Menu</p>
             </View>
@@ -58,6 +58,7 @@ const Layout = () => {
         </Flex>
       </View>
       <View
+        isHidden={{base: true,L:false}} 
         gridArea="sidebar"
         backgroundColor={"gray-50"}
         padding={"size-100"}

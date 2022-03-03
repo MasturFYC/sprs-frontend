@@ -10,6 +10,7 @@ import Branch from './Branch'
 import Warehouse from './Warehouse'
 import Finance from './Finance'
 import Action from './Action'
+import Order from '../Order'
 
 const Main = () => {
   return (
@@ -21,10 +22,9 @@ const Main = () => {
       <Route path="/branch" element={<Branch />} />
       <Route path="/warehouse" element={<Warehouse />} />
       <Route path="/finance" element={<Finance />} />
-      <Route path="/action" element={<Action />} />
+      <Route path="/order" element={<Order />} />
     </Routes>
   );
-
 }
 
 function ShowFirstPage() {
