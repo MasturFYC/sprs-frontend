@@ -1,9 +1,10 @@
-import React, { FormEvent } from 'react';
-import { dateParam, dateOnly, iBranch, iFinance, iOrder } from '../component/interfaces'
-import { Button, ComboBox, Flex, Picker, TextField, useAsyncList, View, Text, NumberField, Checkbox } from '@adobe/react-spectrum';
+import React, { FormEvent, Fragment } from 'react';
+import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit } from '../component/interfaces'
+import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, TabPanels, Divider } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 import { Item } from "@react-spectrum/combobox";
-import { serialize } from 'v8';
+import CustomerForm, { initCustomer } from './CustomerForm';
+import UnitForm, { initUnit } from './UnitForm';
 
 export const initOrder: iOrder = {
 	id: 0,
@@ -25,12 +26,14 @@ export const initOrder: iOrder = {
 
 type OrderFormOptions = {
 	order: iOrder,
+	updateChild: (data: iOrder) => void,
 	callback: (params: { method: string, data?: iOrder }) => void
 }
 
 const OrderForm = (props: OrderFormOptions) => {
-	const { order, callback } = props;
+	const { order, callback, updateChild } = props;
 	const [data, setData] = React.useState<iOrder>(initOrder)
+	let [tabId, setTabId] = React.useState(1);
 
 	const isNameValid = React.useMemo(
 		() => data && data.name && data.name.length > 0,
@@ -111,176 +114,209 @@ const OrderForm = (props: OrderFormOptions) => {
 	}, [order])
 
 	return (
-		<form onSubmit={(e) => handleSubmit(e)}>
-			<View backgroundColor={'gray-100'}
-				borderColor={'blue-400'}
-				borderRadius={'medium'}
-				borderWidth={'thin'}
+		<View backgroundColor={'gray-100'}
+			borderColor={'blue-400'}
+			borderRadius={'medium'}
+			borderWidth={'thin'}
+		>
+			<View
 				paddingX={{ base: 'size-100', M: 'size-400' }}
 				paddingY={{ base: 'size-50', M: 'size-50' }}
 			>
-				<h3>DATA ORDER</h3>
-				<Flex gap='size-100' direction={'column'}>
+				<form onSubmit={(e) => handleSubmit(e)}>
+					<h3>DATA ORDER</h3>
+					<Flex gap='size-100' direction={'column'}>
+						<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-50'}>
+							<Flex flex direction={'row'} columnGap={'size-100'}>
+								<Button type='submit' variant='cta'>Save</Button>
+								<Button type='button' variant='primary'
+									onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+							</Flex>
+							{data.id > 0 &&
+								<View>
+									<Button type='button' alignSelf={'flex-end'} variant='negative'
+										onPress={() => deleteData(data)}>Remove</Button>
+								</View>
+							}
+						</Flex>
 
-					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
-						<TextField
-							autoFocus
-							validationState={isNameValid ? 'valid' : 'invalid'}
-							label='Nomor'
-							flex
-							width={{ base: 'auto' }}
-							value={data.name}
-							maxLength={50}
-							onChange={(e) => setData(prev => ({ ...prev, name: e }))}
-						/>
-						<TextField
-							flex={{ base: '1', M: 'none' }}
-							type={'date'}
-							label='Tanggal'
-							width={{ base: 'auto', M: '25%' }}
-							value={dateOnly(data.orderAt)}
-							maxLength={10}
-							onChange={(e) => setData((prev) => ({ ...prev, orderAt: e }))}
-						/>
-						<TextField
-							type={'date'}
-							label='Tanggal Cetak'
-							width={{ base: 'auto', M: '25%' }}
-							value={dateOnly(data.printedAt)}
-							maxLength={10}
-							onChange={(e) => setData((prev) => ({ ...prev, printedAt: e }))}
-						/>
-					</Flex>
-					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
-						<NumberField
-							flex
-							hideStepper={true}
-							validationState={isBtFinanceValid ? 'valid' : 'invalid'}
-							width={"auto"}
-							label={"BT Finance"}
-							onChange={(e) => setFinance(e)}
-							value={data.btFinance} />
-						<NumberField
-							hideStepper={true}
-							validationState={isBtPercentValid ? 'valid' : 'invalid'}
-							width={{ base: "auto", M: "15%" }}
-							label={"Prosentase (%)"}
-							onChange={(e) => setPercent(e)}
-							value={data.btPercent} />
-						<NumberField
-							flex
-							hideStepper={true}
-							isReadOnly
-							onChange={(e) => setData((prev) => ({ ...prev, btMatel: e }))}
-							width={"auto"}
-							label={"BT Matel"}
-							value={data.btMatel} />
-					</Flex>
-					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
-						<NumberField
-							hideStepper={true}
-							validationState={isPpnValid ? 'valid' : 'invalid'}
-							width={{ base: "auto", M: "15%" }}
-							label={"PPN (%)"}
-							onChange={(e) => setPpn(e)}
-							value={data.ppn} />
-						<NumberField
-							flex
-							hideStepper={true}
-							isReadOnly
-							width={"auto"}
-							onChange={(e) => setData((prev) => ({ ...prev, nominal: e }))}
-							label={"Nominal"}
-							value={data.nominal} />
-						<NumberField
-							flex
-							hideStepper={true}
-							isReadOnly
-							width={"auto"}
-							onChange={(e) => setData((prev) => ({ ...prev, subtotal: e }))}
-							label={"Subtotal"}
-							value={data.subtotal} />
-					</Flex>
-					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
-						<ComboBox
-							menuTrigger="focus"
-							flex
-							validationState={isFinanceValid ? "valid" : "invalid"}
-							width={'auto'}
-							label={"Finance"}
-							placeholder={"e.g. Adira"}
-							defaultItems={finances.items}
-							selectedKey={data.financeId}
-							onSelectionChange={(e) => setData((o) => ({
-								...o,
-								financeId: +e,
-								finance: finances.getItem(+e)
-							}))}
-						>
-							{(item) => <Item textValue={item.shortName}>
-								<Text>{item.shortName}</Text>
-								<Text slot='description'>{item.name}</Text>
-							</Item>}
-						</ComboBox>
-						<ComboBox
-							menuTrigger="focus"
-							flex
-							validationState={isBranchValid ? "valid" : "invalid"}
-							width={'auto'}
-							label={"Cabang"}
-							placeholder={"e.g. Pusat"}
-							defaultItems={branchs.items}
-							selectedKey={data.branchId}
-							onSelectionChange={(e) => setData((o) => ({
-								...o,
-								branchId: +e,
-								branch: branchs.getItem(+e)
-							}))}
-						>
-							{(item) => <Item textValue={item.name}>
-								<Text>{item.name}</Text>
-								<Text slot='description'>{item?.street}{item.city ? `, ${item.city}` : ''}
-									{item.zip ? ` - ${item.zip}` : ''}<br />
-									{item.phone ? `Telp. ${item.phone}` : ''}
-									{item.cell && item.phone ? ` / ` : ''}
-									{item.cell && item.phone === '' ? `Cellular: ` : ''}
-									{item.cell ?? ''}<br />{item.email ? `e-mail: ${item.email}` : ''}</Text>
-							</Item>}
-						</ComboBox>
-					</Flex>
+						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
+							<TextField
+								autoFocus
+								validationState={isNameValid ? 'valid' : 'invalid'}
+								label='Nomor SPK'
+								flex
+								width={{ base: 'auto' }}
+								value={data.name}
+								maxLength={50}
+								onChange={(e) => setData(prev => ({ ...prev, name: e }))}
+							/>
+							<TextField
+								flex={{ base: '1', M: 'none' }}
+								type={'date'}
+								label='Tanggal'
+								width={{ base: 'auto', M: '25%' }}
+								value={dateOnly(data.orderAt)}
+								maxLength={10}
+								onChange={(e) => setData((prev) => ({ ...prev, orderAt: e }))}
+							/>
+							<TextField
+								type={'date'}
+								label='Tanggal Cetak'
+								width={{ base: 'auto', M: '25%' }}
+								value={dateOnly(data.printedAt)}
+								maxLength={10}
+								onChange={(e) => setData((prev) => ({ ...prev, printedAt: e }))}
+							/>
+						</Flex>
+						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
+							<NumberField
+								flex
+								hideStepper={true}
+								validationState={isBtFinanceValid ? 'valid' : 'invalid'}
+								width={"auto"}
+								label={"BT Finance"}
+								onChange={(e) => setFinance(e)}
+								value={data.btFinance} />
+							<NumberField
+								hideStepper={true}
+								validationState={isBtPercentValid ? 'valid' : 'invalid'}
+								width={{ base: "auto", M: "15%" }}
+								label={"Prosentase (%)"}
+								onChange={(e) => setPercent(e)}
+								value={data.btPercent} />
+							<NumberField
+								flex
+								hideStepper={true}
+								isReadOnly
+								onChange={(e) => setData((prev) => ({ ...prev, btMatel: e }))}
+								width={"auto"}
+								label={"BT Matel"}
+								value={data.btMatel} />
+						</Flex>
+						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
+							<NumberField
+								hideStepper={true}
+								validationState={isPpnValid ? 'valid' : 'invalid'}
+								width={{ base: "auto", M: "15%" }}
+								label={"PPN (%)"}
+								onChange={(e) => setPpn(e)}
+								value={data.ppn} />
+							<NumberField
+								flex
+								hideStepper={true}
+								isReadOnly
+								width={"auto"}
+								onChange={(e) => setData((prev) => ({ ...prev, nominal: e }))}
+								label={"Nominal"}
+								value={data.nominal} />
+							<NumberField
+								flex
+								hideStepper={true}
+								isReadOnly
+								width={"auto"}
+								onChange={(e) => setData((prev) => ({ ...prev, subtotal: e }))}
+								label={"Subtotal"}
+								value={data.subtotal} />
+						</Flex>
+						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-100'>
+							<ComboBox
+								menuTrigger="focus"
+								flex
+								validationState={isFinanceValid ? "valid" : "invalid"}
+								width={'auto'}
+								label={"Finance"}
+								placeholder={"e.g. Adira"}
+								defaultItems={finances.items}
+								selectedKey={data.financeId}
+								onSelectionChange={(e) => setData((o) => ({
+									...o,
+									financeId: +e,
+									finance: finances.getItem(+e)
+								}))}
+							>
+								{(item) => <Item textValue={item.shortName}>
+									<Text>{item.shortName}</Text>
+									<Text slot='description'>{item.name}</Text>
+								</Item>}
+							</ComboBox>
+							<ComboBox
+								menuTrigger="focus"
+								flex
+								validationState={isBranchValid ? "valid" : "invalid"}
+								width={'auto'}
+								label={"Cabang penerima order"}
+								placeholder={"e.g. Pusat"}
+								defaultItems={branchs.items}
+								selectedKey={data.branchId}
+								onSelectionChange={(e) => setData((o) => ({
+									...o,
+									branchId: +e,
+									branch: branchs.getItem(+e)
+								}))}
+							>
+								{(item) => <Item textValue={item.name}>
+									<Text>{item.name}</Text>
+									<Text slot='description'>
+										Kepala Cabang: <span style={{fontWeight: 700}}>{item.headBranch}</span><br />
+										{item?.street}{item.city ? `, ${item.city}` : ''}
+										{item.zip ? ` - ${item.zip}` : ''}<br />
+										{item.phone ? `Telp. ${item.phone}` : ''}
+										{item.cell && item.phone ? ` / ` : ''}
+										{item.cell && item.phone === '' ? `Cellular: ` : ''}
+										{item.cell ?? ''}<br />{item.email ? `e-mail: ${item.email}` : ''}</Text>
+								</Item>}
+							</ComboBox>
+						</Flex>
 
-					<Flex direction="row">
-						<Checkbox isSelected={data.verifiedBy ? data.verifiedBy?.length > 0 : false}
-							onChange={(e) => setData(o => ({ ...o, verifiedBy: e ? o.userName : '' }))}>
-							Verified
-						</Checkbox>
-						<Checkbox isSelected={data.validatedBy ? data.validatedBy?.length > 0 : false}
-							onChange={(e) => setData(o => ({ ...o, validatedBy: e ? o.userName : '' }))}>
-							Validated
-						</Checkbox>
-					</Flex>
+						<Flex direction="row">
+							<Checkbox isSelected={data.verifiedBy ? data.verifiedBy?.length > 0 : false}
+								onChange={(e) => setData(o => ({ ...o, verifiedBy: e ? o.userName : '' }))}>
+								Verified
+							</Checkbox>
+							<Checkbox isSelected={data.validatedBy ? data.validatedBy?.length > 0 : false}
+								onChange={(e) => setData(o => ({ ...o, validatedBy: e ? o.userName : '' }))}>
+								Validated
+							</Checkbox>
+						</Flex>
 
-				</Flex>
-				<Flex direction={'row'} gap='size-100' marginBottom={'size-400'} marginTop={'size-400'}>
-					<Flex flex direction={'row'} columnGap={'size-100'}>
-						<Button type='submit' variant='cta'>Save</Button>
-						<Button type='button' variant='primary'
-							onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
 					</Flex>
-					{data.id > 0 &&
-						<View>
-							<Button type='button' alignSelf={'flex-end'} variant='negative'
-								onPress={() => deleteData(data)}>Remove</Button>
-						</View>
-					}
-				</Flex>
+				</form>
 			</View>
-		</form>
+			{data.id > 0 &&
+				<View backgroundColor={'gray-50'} paddingX={'size-400'} paddingY={'size-200'} borderRadius={'medium'}>
+					<Tabs
+						aria-label="Tab-Order"
+						density='compact'						
+						onSelectionChange={(e) => setTabId(+e)}>
+						<TabList aria-label="Tab-Order-List">
+							<Item key={0}>Data Konsumen</Item>
+							<Item key={1}>Data Asset</Item>
+							<Item key={2}>Data Tunggakan</Item>
+							<Item key={3}>Tindakan Yg Pernah Dilakukan</Item>
+							<Item key={4}>Data Alamat</Item>
+							<Item key={5}>Perintah Pemberian Tugas</Item>
+						</TabList>
+					</Tabs>
+					<View marginY={'size-100'}>
+						{tabId === 0 && <CustomerForm
+							customer={data.customer ? { ...data.customer, orderId: data.id } : { ...initCustomer, orderId: data.id }}
+							isNew={data.customer ? data.customer.orderId === 0 : true}
+							callback={(e) => responseCustomerChange(e)} />}
+						{tabId === 1 && <UnitForm
+							unit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
+							isNew={data.unit ? data.unit.orderId === 0 : true}
+							callback={(e) => responseUnitChange(e)} />}
+					</View>
+				</View>
+			}
+		</View>
+
 	);
 
 	function setFinance(v: number) {
 		const matel = v - (v * (data.btPercent / 100))
-		const nominal = matel * (data.ppn / 100.0 )
+		const nominal = matel * (data.ppn / 100.0)
 
 		setData(o => ({
 			...o,
@@ -304,7 +340,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		}))
 	}
 
-	
+
 	function setPpn(v: number) {
 		const nominal = data.btMatel * (v / 100.0)
 		setData(o => ({
@@ -328,7 +364,6 @@ const OrderForm = (props: OrderFormOptions) => {
 		}
 	}
 
-
 	async function updateData(p: iOrder) {
 		const headers = {
 			Accept: 'application/json',
@@ -341,7 +376,7 @@ const OrderForm = (props: OrderFormOptions) => {
 			.put(`/orders/${p.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
+				//console.log(data)
 				callback({ method: 'save', data: p })
 			})
 			.catch(error => {
@@ -368,7 +403,6 @@ const OrderForm = (props: OrderFormOptions) => {
 			})
 	}
 
-
 	async function deleteData(p: iOrder) {
 		const headers = {
 			Accept: 'application/json',
@@ -384,6 +418,24 @@ const OrderForm = (props: OrderFormOptions) => {
 			.catch(error => {
 				console.log(error)
 			})
+	}
+
+	function responseUnitChange(params: { method: string, unit?: iUnit }) {
+		const { method, unit } = params
+
+		const u = method === 'remove' ? initUnit : unit;
+
+		setData(o => ({ ...o, unit: u }))
+		updateChild({ ...order, unit: u })
+	}
+
+	function responseCustomerChange(params: { method: string, customer?: iCustomer }) {
+		const { method, customer } = params
+
+		const cust = method === 'remove' ? initCustomer : customer;
+
+		setData(o => ({ ...o, customer: cust }))
+		updateChild({ ...order, customer: cust })
 	}
 
 }

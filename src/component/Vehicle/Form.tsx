@@ -1,24 +1,24 @@
 import React, { FormEvent } from 'react';
-import { iVehicle, iWheel, iMerk } from '../interfaces'
+import { iType, iWheel, iMerk } from '../interfaces'
 import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
 import axios from '../axios-base';
 import { Item } from "@react-spectrum/combobox";
 
-export const initVehicle: iVehicle = {
+export const initVehicle: iType = {
 	id: 0,
 	name: '',
 	wheelId: 0,
 	merkId: 0
 }
 
-type VehicleFormOptions = {
-	vehicle: iVehicle,
-	callback: (params: { method: string, data?: iVehicle }) => void
+type TypeFormOptions = {
+	vehicle: iType,
+	callback: (params: { method: string, data?: iType }) => void
 }
 
-const VehicleForm = (props: VehicleFormOptions) => {
+const TypeForm = (props: TypeFormOptions) => {
 	const { vehicle, callback } = props;
-	const [data, setData] = React.useState<iVehicle>(initVehicle)
+	const [data, setData] = React.useState<iType>(initVehicle)
 	const isNameValid = React.useMemo(
 		() => data && data.name && data.name.length > 0,
 		[data]
@@ -171,7 +171,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 		}
 	}
 
-	async function updateData(vehicle: iVehicle) {
+	async function updateData(vehicle: iType) {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -191,7 +191,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 			})
 	}
 
-	async function inserData(vehicel: iVehicle) {
+	async function inserData(vehicel: iType) {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -212,7 +212,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 	}
 
 
-	async function deleteData(vehicel: iVehicle) {
+	async function deleteData(vehicel: iType) {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -232,4 +232,4 @@ const VehicleForm = (props: VehicleFormOptions) => {
 
 }
 
-export default VehicleForm;
+export default TypeForm;

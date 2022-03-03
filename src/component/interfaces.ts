@@ -20,7 +20,7 @@ export interface iWheel {
     shortName: string
 }
 
-export interface iVehicle {
+export interface iType {
     id: number
     name: string
     wheelId: number
@@ -87,4 +87,29 @@ export interface iOrder {
     
     branch?: iBranch
     finance?: iFinance
+    customer?: iCustomer
+    unit?: iUnit
+}
+
+export interface iCustomer {
+    orderId: number
+    name: string
+    agreementNumber: string
+    paymentType: string
+}
+
+export interface iUnit {
+    orderId: number
+    nopol: string
+    year: number
+    frameNumber?: string
+    machineNumber?: string
+    bpkbName?: string
+    color?: string
+    dealer?: string
+    surveyor?: string
+    typeId: number
+    warehouseId: number
+    warehouse?: iWarehouse
+    type?: iType
 }
