@@ -1,20 +1,20 @@
 import React, { Fragment } from "react";
 import axios from "../axios-base";
-import WheelForm, { initWheel } from './Form'
-import { iWheel } from '../interfaces'
+import WheelForm, { initWarehouse } from './Form'
+import { iWarehouse } from '../interfaces'
 import { View } from "@react-spectrum/view";
 import { Link, useAsyncList } from "@adobe/react-spectrum";
 
 const Wheel = () => {
     const [selectedId, setSelectedId] = React.useState<number>(-1);
-    let wheels = useAsyncList<iWheel>({
+    let warehouses = useAsyncList<iWarehouse>({
         async load({ signal }) {
             const headers = {
                 'Content-Type': 'application/json'
             }
 
             let res = await axios
-                .get("/wheels/", { headers: headers })
+                .get("/warehouses/", { headers: headers })
                 .then(response => response.data)
                 .then(data => {
                     return data ? data : []
@@ -23,39 +23,40 @@ const Wheel = () => {
                     console.log(error)
                 })
 
-            return { items: [initWheel, ...res] }
+            return { items: [initWarehouse, ...res] }
         },
-        getKey: (item: iWheel) => item.id
+        getKey: (item: iWarehouse) => item.id
     })
 
     return (
         <Fragment>
-            <h1>Jenis Roda Kendaraan</h1>
-            {wheels.items.map(o => {
+            <h1>Gudang</h1>
+            {warehouses.items.map(o => {
                 return o.id === selectedId ?
-                    <WheelForm key={o.id} wheel={o} callback={(e) => formResponse(e)} />
+                    <WheelForm key={o.id} warehouse={o} callback={(e) => formResponse(e)} />
                     :
                     <View key={o.id} marginY='size-100' >
-                        <Link isQuiet variant={'primary'} UNSAFE_style={{fontWeight: 700}}
+                        <Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
                             onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
-                            {o.id === 0 ? 'Jenis roda baru' : `(${o.shortName}) - ${o.name}`}
+                            {o.id === 0 ? 'Gudang baru' : o.name }
                         </Link>
+                        <div>{o.descriptions}</div>
                     </View>
             })}
         </Fragment>
     );
 
-    function formResponse(params: { method: string, data?: iWheel }) {
+    function formResponse(params: { method: string, data?: iWarehouse }) {
         const { method, data } = params
 
         if (method === 'save' && data) {
             if (selectedId === 0) {
-                wheels.insert(1, data)
+                warehouses.insert(1, data)
             } else {
-                wheels.update(data.id, data)
+                warehouses.update(data.id, data)
             }
         } else if (method === 'remove' && data) {
-            wheels.remove(data.id)
+            warehouses.remove(data.id)
         }
 
         setSelectedId(-1)

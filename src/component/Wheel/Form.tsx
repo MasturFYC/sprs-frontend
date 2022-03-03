@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
 import { iWheel } from '../interfaces'
 import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
-import axios from 'axios';
+import axios from '../axios-base';
 
 export const initWheel: iWheel = {
     id: 0,
@@ -81,7 +81,7 @@ const WheelForm = (props: WheelFormOptions) => {
         const xData = JSON.stringify(wheel)
 
         await axios
-            .put(`http://pixel.id:8181/api/wheels/${wheel.id}/`, xData, { headers: headers })
+            .put(`/wheels/${wheel.id}/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 console.log(data)
@@ -101,7 +101,7 @@ const WheelForm = (props: WheelFormOptions) => {
         const xData = JSON.stringify(wheel)
 
         await axios
-            .post(`http://pixel.id:8181/api/wheels/`, xData, { headers: headers })
+            .post(`/wheels/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 console.log(data)
@@ -120,7 +120,7 @@ const WheelForm = (props: WheelFormOptions) => {
         }
 
         await axios
-            .delete(`http://pixel.id:8181/api/wheels/${wheel.id}/`, { headers: headers })
+            .delete(`/wheels/${wheel.id}/`, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 console.log(data)

@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
 import { iVehicle, iWheel, iMerk } from '../interfaces'
 import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
-import axios from 'axios';
+import axios from '../axios-base';
 import { Item } from "@react-spectrum/combobox";
 
 export const initVehicle: iVehicle = {
@@ -19,6 +19,19 @@ type VehicleFormOptions = {
 const VehicleForm = (props: VehicleFormOptions) => {
 	const { vehicle, callback } = props;
 	const [data, setData] = React.useState<iVehicle>(initVehicle)
+	const isNameValid = React.useMemo(
+		() => data && data.name && data.name.length > 0,
+		[data]
+	)
+	const isWheelValid = React.useMemo(
+		() => data && data.wheelId && data.wheelId > 0,
+		[data]
+	)
+	const isMerkValid = React.useMemo(
+		() => data && data.merkId && data.merkId > 0,
+		[data]
+	)
+
 	let wheels = useAsyncList<iWheel>({
 		async load({ signal }) {
 			const headers = {
@@ -26,7 +39,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 			}
 
 			let res = await axios
-				.get("http://pixel.id:8181/api/wheels/", { headers: headers })
+				.get("/wheels/", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
 					return data ? data : []
@@ -35,7 +48,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 					console.log(error)
 				})
 
-			return { items: [{ id: 0, name: '', shortName: 'Pilih Roda' }, ...res] }
+			return { items: res }
 		},
 		getKey: (item: iWheel) => item.id
 	})
@@ -46,7 +59,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 			}
 
 			let res = await axios
-				.get("http://pixel.id:8181/api/merks/", { headers: headers })
+				.get("/merks/", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
 					//console.log(data)
@@ -55,7 +68,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 				.catch(error => {
 					console.log(error)
 				})
-			return { items: [{ id: 0, name: 'Pilih merk' }, ...res] }
+			return { items: res }
 		},
 		getKey: (item: iMerk) => item.id
 	})
@@ -73,42 +86,16 @@ const VehicleForm = (props: VehicleFormOptions) => {
 
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
-			<View backgroundColor={'gray-100'} padding={'size-200'}>
+			<View backgroundColor={'gray-100'} padding={{base: 'size-50',M:'size-200'}}>
 				<Flex gap='size-200' direction={'column'}>
-					<TextField label='Nama tipe kendaraan'
-						flex
-						width={'auto'}
-						value={data.name}
-						isRequired
-						maxLength={10}
-						onChange={(e) => setData(prev => ({
-							...prev,
-							name: e,
-						}))}
-					/>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
-						<Picker
-							isRequired
-							label="Merk"
-							flex
-							width={'auto'}
-							selectedKey={data.merkId}
-							items={merks.items}
-							onSelectionChange={(e) =>
-								setData((o) => ({
-									...o,
-									merkId: +e,
-									merk: merks.getItem(e)
-								}))
-							}
-						>
-							{(item) => <Item textValue={item.name}>{item.name}</Item>}
-						</Picker>
-						<Picker
-							isRequired
+						<Picker							
 							width={'auto'}
 							flex
+							validationState={isWheelValid ? "valid" : "invalid"}
+							autoFocus
 							label="Roda"
+							placeholder={'e.g. R2'}
 							selectedKey={data.wheelId}
 							items={wheels.items}
 							onSelectionChange={(e) =>
@@ -121,16 +108,49 @@ const VehicleForm = (props: VehicleFormOptions) => {
 						>
 							{(item) => <Item textValue={item.name}>{item.shortName}</Item>}
 						</Picker>
+						<Picker							
+							label="Merk"
+							flex
+							validationState={isMerkValid ? "valid" : "invalid"}
+							width={'auto'}
+							selectedKey={data.merkId}
+							placeholder={'e.g. Yamaha'}
+							items={merks.items}
+							onSelectionChange={(e) =>
+								setData((o) => ({
+									...o,
+									merkId: +e,
+									merk: merks.getItem(e)
+								}))
+							}
+						>
+							{(item) => <Item textValue={item.name}>{item.name}</Item>}
+						</Picker>
 					</Flex>
+					<TextField
+						flex
+						label='Nama tipe kendaraan'
+						width={'auto'}
+						value={data.name}
+						placeholder={'e.g. NMax 155'}
+						validationState={isNameValid ? "valid" : "invalid"}						
+						maxLength={50}
+						onChange={(e) => setData(prev => ({
+							...prev,
+							name: e,
+						}))}
+					/>
 				</Flex>
-				<Flex direction={'row'} gap='size-100' marginY={'size-200'}>
+				<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
 						<Button type='submit' variant='cta'>Save</Button>
-						<Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+						<Button type='button' variant='primary'
+							onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
 					</Flex>
 					{data.id > 0 &&
 						<View>
-							<Button type='button' alignSelf={'flex-end'} variant='negative' onPress={() => deleteData(data)}>Remove</Button>
+							<Button type='button' alignSelf={'flex-end'} variant='negative'
+								onPress={() => deleteData(data)}>Remove</Button>
 						</View>
 					}
 				</Flex>
@@ -160,7 +180,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 		const xData = JSON.stringify(vehicle)
 
 		await axios
-			.put(`http://pixel.id:8181/api/types/${vehicle.id}/`, xData, { headers: headers })
+			.put(`/types/${vehicle.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				console.log(data)
@@ -180,7 +200,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 		const xData = JSON.stringify(vehicel)
 
 		await axios
-			.post(`http://pixel.id:8181/api/types/`, xData, { headers: headers })
+			.post(`/types/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				console.log(data)
@@ -199,7 +219,7 @@ const VehicleForm = (props: VehicleFormOptions) => {
 		}
 
 		await axios
-			.delete(`http://pixel.id:8181/api/types/${vehicel.id}/`, { headers: headers })
+			.delete(`/types/${vehicel.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				console.log(data)

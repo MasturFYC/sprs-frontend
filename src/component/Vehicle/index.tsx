@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import axios from "axios";
+import axios from "../axios-base";
 import { iVehicle } from '../interfaces'
 import VehicleForm, { initVehicle } from './Form'
 import { View } from "@react-spectrum/view";
@@ -14,7 +14,7 @@ const Vehicle = () => {
             }
 
             let res = await axios
-                .get("http://pixel.id:8181/api/types/", { headers: headers })
+                .get("/types/", { headers: headers })
                 .then(response => response.data)
                 .then(data => {
                     return data ? data : []
@@ -38,7 +38,7 @@ const Vehicle = () => {
                     <View key={o.id} marginY='size-100' >
                         <Link isQuiet variant={'primary'} UNSAFE_style={{fontWeight: 700}}
                             onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
-                            {o.id === 0 ? 'Tipe kendaraan baru' : `(${o.wheel?.name}) - ${o.merk?.name} ${o.name}`}
+                            {o.id === 0 ? 'Tipe kendaraan baru' : `(${o.wheel?.shortName}) - ${o.merk?.name} ${o.name}`}
                         </Link>
                     </View>
             })}

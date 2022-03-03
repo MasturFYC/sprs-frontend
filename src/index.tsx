@@ -7,7 +7,7 @@ import { defaultTheme, Provider } from '@adobe/react-spectrum';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Provider theme={defaultTheme}>
+    <Provider theme={defaultTheme} colorScheme={'light'}>
       <App />
     </Provider>
   </React.StrictMode>,

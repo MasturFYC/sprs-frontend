@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
 import { iMerk } from '../interfaces'
 import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
-import axios from 'axios';
+import axios from '../axios-base';
 
 export type MerkFormOptions = {
     merk: iMerk,
@@ -30,6 +30,7 @@ const MerkForm = (props: MerkFormOptions) => {
                     <TextField autoFocus aria-label='Merk-Kendaraan'
                         width={{ base: '100%' }}
                         value={data.name}
+                        maxLength={50}
                         onChange={(e) => setData(prev => ({ ...prev, name: e }))}
                     />
                 </View>
@@ -66,7 +67,7 @@ const MerkForm = (props: MerkFormOptions) => {
         const xData = JSON.stringify(merk)
 
         await axios
-            .put(`http://pixel.id:8181/api/merks/${merk.id}/`, xData, { headers: headers })
+            .put(`/merks/${merk.id}/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 console.log(data)
@@ -86,7 +87,7 @@ const MerkForm = (props: MerkFormOptions) => {
         const xData = JSON.stringify(merk)
 
         await axios
-            .post(`http://pixel.id:8181/api/merks/`, xData, { headers: headers })
+            .post(`/merks/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 console.log(data)
@@ -105,7 +106,7 @@ const MerkForm = (props: MerkFormOptions) => {
         }
 
         await axios
-            .delete(`http://pixel.id:8181/api/merks/${merk.id}/`, { headers: headers })
+            .delete(`/merks/${merk.id}/`, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 console.log(data)
