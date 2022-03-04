@@ -89,6 +89,7 @@ export interface iOrder {
     finance?: iFinance
     customer?: iCustomer
     unit?: iUnit
+    receivable?: iReceivable
 }
 
 export interface iCustomer {
@@ -112,4 +113,47 @@ export interface iUnit {
     warehouseId: number
     warehouse?: iWarehouse
     type?: iType
+}
+
+export interface iReceivable {
+    orderId: number
+
+    // tanggal perjanjian 
+    covenantAt: string
+
+    // tanggal jatuh tempo
+    dueAt: string
+
+    // angsuran per bulan
+    mortgageByMonth: number
+    
+    // angsuran tunggakan
+    mortgageReceivable: number
+
+    // denda berjalan
+    runningFine: number
+
+    // sisa denda
+    restFine: number
+
+    // jasa penagihan
+    billService: number
+
+    // bayar titipan
+    payDeposit: number
+
+    // sisa piutang
+    restReceivable: number
+
+    // sisa pokok
+    restBase: number
+
+    // jangka waktu
+    dayPeriod: number
+
+    // angsuran yg ke
+    mortgageTo: number
+
+    // jumlah hari angsuran
+    dayCount: number
 }

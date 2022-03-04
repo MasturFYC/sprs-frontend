@@ -1,10 +1,11 @@
 import React, { FormEvent, Fragment } from 'react';
-import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit } from '../component/interfaces'
+import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable } from '../component/interfaces'
 import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, TabPanels, Divider } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 import { Item } from "@react-spectrum/combobox";
 import CustomerForm, { initCustomer } from './CustomerForm';
 import UnitForm, { initUnit } from './UnitForm';
+import ReceivableForm, {initReceivable} from './Receivable';
 
 export const initOrder: iOrder = {
 	id: 0,
@@ -307,6 +308,10 @@ const OrderForm = (props: OrderFormOptions) => {
 							unit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
 							isNew={data.unit ? data.unit.orderId === 0 : true}
 							callback={(e) => responseUnitChange(e)} />}
+						{tabId === 2 && <ReceivableForm
+							receive={data.receivable ? { ...data.receivable, orderId: data.id } : { ...initReceivable, orderId: data.id }}
+							isNew={data.receivable ? data.receivable.orderId === 0 : true}
+							callback={(e) => responseReceivableChange(e)} />}
 					</View>
 				</View>
 			}
@@ -427,6 +432,15 @@ const OrderForm = (props: OrderFormOptions) => {
 
 		setData(o => ({ ...o, unit: u }))
 		updateChild({ ...order, unit: u })
+	}
+
+	function responseReceivableChange(params: { method: string, receivable?: iReceivable }) {
+		const { method, receivable } = params
+
+		const u = method === 'remove' ? initReceivable : receivable;
+
+		setData(o => ({ ...o, receivable: u }))
+		updateChild({ ...order, receivable: u })
 	}
 
 	function responseCustomerChange(params: { method: string, customer?: iCustomer }) {
