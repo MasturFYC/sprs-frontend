@@ -34,13 +34,13 @@ const CustomerForm = (props: CustomerFormOptions) => {
     )
 
     React.useEffect(() => {
-        let isLoaded = false;
+        let isLoaded = true;
 
-        if (!isLoaded) {
+        if (isLoaded) {
             setData(customer)
         }
 
-        return () => { isLoaded = true }
+        return () => { isLoaded = false }
 
     }, [customer])
 
@@ -53,6 +53,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
                         validationState={isNameValid ? 'valid' : 'invalid'}
                         label='Nama konsumen'
                         flex
+                        autoComplete='name'
                         width={{ base: 'auto' }}
                         value={data.name}
                         maxLength={50}
@@ -78,14 +79,16 @@ const CustomerForm = (props: CustomerFormOptions) => {
                 </Flex>
                 <Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-50'}>
                     <Flex flex direction={'row'} columnGap={'size-100'}>
-                        <Button type='submit' variant='cta'>Save</Button>
+                        <Button type='submit' variant='secondary'>Update</Button>
                         {/* <Button type='button' variant='primary'
                             onPress={() => callback({ method: 'cancel' })}>Cancel</Button> */}
                     </Flex>
                     {data.orderId > 0 &&
                         <View>
-                            <Button type='button' alignSelf={'flex-end'} variant='negative'
-                                onPress={() => deleteData(data)}>Remove</Button>
+                            <Button 
+                            isDisabled={isNew}
+                            type='button' alignSelf={'flex-end'} variant='negative'
+                                onPress={() => deleteData(data)}>Clear</Button>
                         </View>
                     }
                 </Flex>

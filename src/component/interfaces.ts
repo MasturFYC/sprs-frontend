@@ -90,6 +90,10 @@ export interface iOrder {
     customer?: iCustomer
     unit?: iUnit
     receivable?: iReceivable
+    homeAddress?: iAddress,
+    ktpAddress?: iAddress,
+    officeAddress?: iAddress,
+    postAddress?: iAddress,
 }
 
 export interface iCustomer {
@@ -156,4 +160,14 @@ export interface iReceivable {
 
     // jumlah hari angsuran
     dayCount: number
+}
+
+export interface iAddress {
+    orderId: number
+    street?: string
+    city?: string
+    phone?: string
+    cell?: string
+    zip?: string
+    email?: string
 }

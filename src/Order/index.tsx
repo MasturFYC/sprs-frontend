@@ -8,6 +8,7 @@ import { FormatDate, FormatNumber } from "../component/format";
 
 const Order = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
+
 	let orders = useAsyncList<iOrder>({
 		async load({ signal }) {
 			const headers = {
@@ -22,6 +23,7 @@ const Order = () => {
 				})
 				.catch(error => {
 					console.log(error)
+					return [];
 				})
 
 			return { items: res }
@@ -78,7 +80,7 @@ const Order = () => {
 							</tr>
 							:
 							<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}>
-								<td><Link isQuiet variant="primary" UNSAFE_style={{fontWeight: 700}} onPress={() => {
+								<td><Link isQuiet variant="primary" UNSAFE_style={{fontWeight: 700}} onPress={(e) => {
 									setSelectedId(item.id)
 								}}>{item.name}</Link></td>
 								<td align="center">{FormatDate(item.orderAt)}</td>

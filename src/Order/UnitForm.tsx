@@ -17,19 +17,20 @@ export const initUnit: iUnit = {
 }
 
 type UnitFormOptions = {
-	unit: iUnit,
+	dataUnit: iUnit,
 	isNew: boolean,
-	callback: (params: { method: string, unit?: iUnit }) => void
+	callback: (params: { method: string, dataUnit?: iUnit }) => void
 }
 
 const UnitForm = (props: UnitFormOptions) => {
-	const { unit: customer, callback, isNew } = props;
+	const { dataUnit, callback, isNew } = props;
 	const [data, setData] = React.useState<iUnit>(initUnit)
-
+	const [isDirty,setIsDirty]= React.useState<boolean>(false)
 	// const isNopolValid = React.useMemo(
 	// 	() => data && data.nopol.length > 0,
 	// 	[data]
 	// )
+
 	const isYearValid = React.useMemo(
 		() => data && data.year && data.year > 0,
 		[data]
@@ -42,7 +43,6 @@ const UnitForm = (props: UnitFormOptions) => {
 		() => data && data.warehouseId > 0,
 		[data]
 	)
-
 	let types = useAsyncList<iType>({
 		async load({ signal }) {
 			const headers = {
@@ -57,6 +57,7 @@ const UnitForm = (props: UnitFormOptions) => {
 				})
 				.catch(error => {
 					console.log(error)
+					return [];
 				})
 
 			return { items: res }
@@ -78,22 +79,25 @@ const UnitForm = (props: UnitFormOptions) => {
 				})
 				.catch(error => {
 					console.log(error)
+					return [];
 				})
 
 			return { items: res }
 		},
 		getKey: (item: iWarehouse) => item.id
 	})
+	
 	React.useEffect(() => {
-		let isLoaded = false;
+		let isLoaded = true;
 
-		if (!isLoaded) {
-			setData(customer)
+		if (isLoaded) {
+			setData(isNew ? {...initUnit, orderId: dataUnit.orderId} : dataUnit)
 		}
 
-		return () => { isLoaded = true }
+		return () => { isLoaded = false }
 
-	}, [customer])
+	}, [dataUnit, isNew])
+
 
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
@@ -109,11 +113,13 @@ const UnitForm = (props: UnitFormOptions) => {
 						placeholder={"e.g. Vario 125"}
 						defaultItems={types.items}
 						selectedKey={data.typeId}
-						onSelectionChange={(e) => setData((o) => ({
+						onSelectionChange={(e) => {
+							setIsDirty(true);
+							setData((o) => ({
 							...o,
 							typeId: +e,
 							type: types.getItem(+e)
-						}))}
+						}))}}
 					>
 						{(item) => <Item textValue={item.name}>
 							<Text>{item.name}</Text>
@@ -132,11 +138,13 @@ const UnitForm = (props: UnitFormOptions) => {
 						placeholder={"e.g. Gudang Pusat"}
 						defaultItems={houses.items}
 						selectedKey={data.warehouseId}
-						onSelectionChange={(e) => setData((o) => ({
+						onSelectionChange={(e) => {
+							setIsDirty(true);
+							setData((o) => ({
 							...o,
 							warehouseId: +e,
 							warehouse: houses.getItem(+e)
-						}))}
+						}))}}
 					>
 						{(item) => <Item textValue={item.name}>
 							<Text>{item.name}</Text>
@@ -155,7 +163,9 @@ const UnitForm = (props: UnitFormOptions) => {
 						validationState={isYearValid ? 'valid' : 'invalid'}
 						width={'auto'}
 						value={data.year}
-						onChange={(e) => setData((prev) => ({ ...prev, year: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData((prev) => ({ ...prev, year: e }))}}
 					/>
 					<TextField
 						label='Warna'
@@ -163,7 +173,9 @@ const UnitForm = (props: UnitFormOptions) => {
 						width={{ base: 'auto' }}
 						value={data.color ?? ''}
 						maxLength={50}
-						onChange={(e) => setData(prev => ({ ...prev, color: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData(prev => ({ ...prev, color: e }))}}
 					/>
 				</Flex>
 				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
@@ -173,7 +185,9 @@ const UnitForm = (props: UnitFormOptions) => {
 						width={{ base: 'auto' }}
 						value={data.frameNumber ?? ''}
 						maxLength={25}
-						onChange={(e) => setData(prev => ({ ...prev, frameNumber: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData(prev => ({ ...prev, frameNumber: e }))}}
 					/>
 					<TextField
 						label='Nomor mesin'
@@ -181,7 +195,9 @@ const UnitForm = (props: UnitFormOptions) => {
 						width={{ base: 'auto' }}
 						value={data.machineNumber ?? ''}
 						maxLength={25}
-						onChange={(e) => setData(prev => ({ ...prev, machineNumber: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData(prev => ({ ...prev, machineNumber: e }))}}
 					/>
 				</Flex>
 				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
@@ -191,7 +207,9 @@ const UnitForm = (props: UnitFormOptions) => {
 						width={{ base: 'auto' }}
 						value={data.bpkbName ?? ''}
 						maxLength={50}
-						onChange={(e) => setData(prev => ({ ...prev, bpkbName: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData(prev => ({ ...prev, bpkbName: e }))}}
 					/>
 					<TextField
 						label='Nomor Polisi'
@@ -199,7 +217,9 @@ const UnitForm = (props: UnitFormOptions) => {
 						width={{ base: 'auto' }}
 						value={data.nopol}
 						maxLength={15}
-						onChange={(e) => setData(prev => ({ ...prev, nopol: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData(prev => ({ ...prev, nopol: e }))}}
 					/>
 				</Flex>
 				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
@@ -209,7 +229,9 @@ const UnitForm = (props: UnitFormOptions) => {
 						width={{ base: 'auto' }}
 						value={data.dealer ?? ''}
 						maxLength={50}
-						onChange={(e) => setData(prev => ({ ...prev, dealer: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData(prev => ({ ...prev, dealer: e }))}}
 					/>
 					<TextField
 						label='Surveyor'
@@ -217,19 +239,24 @@ const UnitForm = (props: UnitFormOptions) => {
 						width={{ base: 'auto' }}
 						value={data.surveyor}
 						maxLength={50}
-						onChange={(e) => setData(prev => ({ ...prev, surveyor: e }))}
+						onChange={(e) => {
+							setIsDirty(true);
+							setData(prev => ({ ...prev, surveyor: e }))}}
 					/>
 				</Flex>
 				<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-50'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
-						<Button type='submit' variant='cta'>Save</Button>
+						<Button type='submit' variant='secondary'
+						isDisabled={!isDirty}>Update</Button>
 						{/* <Button type='button' variant='primary'
                             onPress={() => callback({ method: 'cancel' })}>Cancel</Button> */}
 					</Flex>
 					{data.orderId > 0 &&
 						<View>
-							<Button type='button' alignSelf={'flex-end'} variant='negative'
-								onPress={() => deleteData(data)}>Remove</Button>
+							<Button
+								isDisabled={isNew}
+							type='button' alignSelf={'flex-end'} variant='negative'
+								onPress={() => deleteData(data)}>Clear</Button>
 						</View>
 					}
 				</Flex>
@@ -263,7 +290,8 @@ const UnitForm = (props: UnitFormOptions) => {
 			.then(response => response.data)
 			.then(data => {
 				//console.log(data)
-				callback({ method: 'save', unit: p })
+				callback({ method: 'save', dataUnit: p })
+				setIsDirty(false)
 			})
 			.catch(error => {
 				console.log(error)
@@ -283,8 +311,9 @@ const UnitForm = (props: UnitFormOptions) => {
 			.post(`/units/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
-				callback({ method: 'save', unit: p })
+				//console.log(data)
+				callback({ method: 'save', dataUnit: p })
+				setIsDirty(false)
 			})
 			.catch(error => {
 				console.log(error)
@@ -303,6 +332,7 @@ const UnitForm = (props: UnitFormOptions) => {
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove' })
+				setIsDirty(false)
 			})
 			.catch(error => {
 				console.log(error)

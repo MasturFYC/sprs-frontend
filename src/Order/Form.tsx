@@ -1,11 +1,12 @@
-import React, { FormEvent, Fragment } from 'react';
+import React, { FormEvent } from 'react';
 import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable } from '../component/interfaces'
-import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, TabPanels, Divider } from '@adobe/react-spectrum';
+import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 import { Item } from "@react-spectrum/combobox";
 import CustomerForm, { initCustomer } from './CustomerForm';
 import UnitForm, { initUnit } from './UnitForm';
-import ReceivableForm, {initReceivable} from './Receivable';
+import ReceivableForm, { initReceivable } from './Receivable';
+import AddressForm, { initAddress } from './AddressForm';
 
 export const initOrder: iOrder = {
 	id: 0,
@@ -104,13 +105,13 @@ const OrderForm = (props: OrderFormOptions) => {
 	})
 
 	React.useEffect(() => {
-		let isLoaded = false;
+		let isLoaded = true;
 
-		if (!isLoaded) {
+		if (isLoaded) {
 			setData(order)
 		}
 
-		return () => { isLoaded = true }
+		return () => { isLoaded = false }
 
 	}, [order])
 
@@ -259,7 +260,7 @@ const OrderForm = (props: OrderFormOptions) => {
 								{(item) => <Item textValue={item.name}>
 									<Text>{item.name}</Text>
 									<Text slot='description'>
-										Kepala Cabang: <span style={{fontWeight: 700}}>{item.headBranch}</span><br />
+										Kepala Cabang: <span style={{ fontWeight: 700 }}>{item.headBranch}</span><br />
 										{item?.street}{item.city ? `, ${item.city}` : ''}
 										{item.zip ? ` - ${item.zip}` : ''}<br />
 										{item.phone ? `Telp. ${item.phone}` : ''}
@@ -288,7 +289,7 @@ const OrderForm = (props: OrderFormOptions) => {
 				<View backgroundColor={'gray-50'} paddingX={'size-400'} paddingY={'size-200'} borderRadius={'medium'}>
 					<Tabs
 						aria-label="Tab-Order"
-						density='compact'						
+						density='compact'
 						onSelectionChange={(e) => setTabId(+e)}>
 						<TabList aria-label="Tab-Order-List">
 							<Item key={0}>Data Konsumen</Item>
@@ -305,13 +306,73 @@ const OrderForm = (props: OrderFormOptions) => {
 							isNew={data.customer ? data.customer.orderId === 0 : true}
 							callback={(e) => responseCustomerChange(e)} />}
 						{tabId === 1 && <UnitForm
-							unit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
+							dataUnit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
 							isNew={data.unit ? data.unit.orderId === 0 : true}
 							callback={(e) => responseUnitChange(e)} />}
 						{tabId === 2 && <ReceivableForm
 							receive={data.receivable ? { ...data.receivable, orderId: data.id } : { ...initReceivable, orderId: data.id }}
 							isNew={data.receivable ? data.receivable.orderId === 0 : true}
 							callback={(e) => responseReceivableChange(e)} />}
+						{tabId === 4 &&
+							<Flex flex direction={'column'} gap={'size-100'}>
+								<View flex>
+									<Flex flex direction={'row'} gap={'size-200'}>
+										<View flex>
+											<AddressForm
+												title='Alamat Sesuai KTP'
+												apiAddress='ktp-address'
+												address={data.ktpAddress ? { ...data.ktpAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+												isNew={data.ktpAddress ? data.ktpAddress.orderId === 0 : true}
+												callback={(e) => {
+													setData(o => ({ ...o, ktpAddress: e.address }))
+													updateChild({ ...order, ktpAddress: e.address })
+												}}
+											/>
+										</View>
+										<View flex>
+											<AddressForm
+												title='Alamat Rumah'
+												apiAddress='home-address'
+												address={data.homeAddress ? { ...data.homeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+												isNew={data.homeAddress ? data.homeAddress.orderId === 0 : true}
+												callback={(e) => {
+													setData(o => ({ ...o, homeAddress: e.address }))
+													updateChild({ ...order, homeAddress: e.address })
+												}}
+											/>
+										</View>
+									</Flex>
+								</View>
+								<View flex>
+									<Flex flex direction={'row'} gap={'size-200'}>
+										<View flex>
+											<AddressForm
+												title='Alamat Kantor'
+												apiAddress='office-address'
+												address={data.officeAddress ? { ...data.officeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+												isNew={data.officeAddress ? data.officeAddress.orderId === 0 : true}
+												callback={(e) => {
+													setData(o => ({ ...o, officeAddress: e.address }))
+													updateChild({ ...order, officeAddress: e.address })
+												}}
+											/>
+										</View>
+										<View flex>
+											<AddressForm
+												title='Alamat Surat / Tagih'
+												apiAddress='post-address'
+												address={data.postAddress ? { ...data.postAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+												isNew={data.postAddress ? data.postAddress.orderId === 0 : true}
+												callback={(e) => {
+													setData(o => ({ ...o, postAddress: e.address }))
+													updateChild({ ...order, postAddress: e.address })
+												}}
+											/>
+										</View>
+									</Flex>
+								</View>
+							</Flex>
+						}
 					</View>
 				</View>
 			}
@@ -418,17 +479,17 @@ const OrderForm = (props: OrderFormOptions) => {
 			.delete(`/orders/${p.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				callback({ method: 'remove', data: data })
+				callback({ method: 'remove', data: p })
 			})
 			.catch(error => {
 				console.log(error)
 			})
 	}
 
-	function responseUnitChange(params: { method: string, unit?: iUnit }) {
-		const { method, unit } = params
+	function responseUnitChange(params: { method: string, dataUnit?: iUnit }) {
+		const { method, dataUnit } = params
 
-		const u = method === 'remove' ? initUnit : unit;
+		const u = method === 'remove' ? initUnit : dataUnit;
 
 		setData(o => ({ ...o, unit: u }))
 		updateChild({ ...order, unit: u })

@@ -31,9 +31,9 @@ const ReceivableForm = (props: ReceivableFormOptions) => {
   const [data, setData] = React.useState<iReceivable>(initReceivable)
 
   React.useEffect(() => {
-    let isLoaded = false;
+    let isLoaded = true;
 
-    if (!isLoaded) {
+    if (isLoaded) {
       setData(isNew ? 
         {...initReceivable, orderId: receive.orderId }
         :
@@ -41,7 +41,7 @@ const ReceivableForm = (props: ReceivableFormOptions) => {
         )
     }
 
-    return () => { isLoaded = true }
+    return () => { isLoaded = false }
 
   }, [receive, isNew])
 
@@ -174,14 +174,16 @@ const ReceivableForm = (props: ReceivableFormOptions) => {
         </Flex>
         <Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-50'}>
           <Flex flex direction={'row'} columnGap={'size-100'}>
-            <Button type='submit' variant='cta'>Save</Button>
+            <Button type='submit' variant='secondary'>Update</Button>
             {/* <Button type='button' variant='primary'
                             onPress={() => callback({ method: 'cancel' })}>Cancel</Button> */}
           </Flex>
           {data.orderId > 0 &&
             <View>
-              <Button type='button' alignSelf={'flex-end'} variant='negative'
-                onPress={() => deleteData(data)}>Remove</Button>
+              <Button type='button'
+              isDisabled={isNew}
+               alignSelf={'flex-end'} variant='negative'
+                onPress={() => deleteData(data)}>Clear</Button>
             </View>
           }
         </Flex>
