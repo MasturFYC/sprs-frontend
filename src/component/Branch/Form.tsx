@@ -100,7 +100,7 @@ const BranchForm = (props: BranchFormOptions) => {
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
 						<TextField
 							flex
-							label='Telpephone'
+							label='Telephone'
 							width={'auto'}
 							value={data.phone}
 							placeholder={'e.g. 0234 275572'}

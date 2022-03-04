@@ -84,9 +84,12 @@ export interface iOrder {
     validatedBy?: string
     financeId: number
     branchId: number
+    isStnk: boolean
+    stnkPrice: number
     
     branch?: iBranch
     finance?: iFinance
+
     customer?: iCustomer
     unit?: iUnit
     receivable?: iReceivable
@@ -94,12 +97,13 @@ export interface iOrder {
     ktpAddress?: iAddress,
     officeAddress?: iAddress,
     postAddress?: iAddress,
+    task?: iTask
 }
 
 export interface iCustomer {
     orderId: number
     name: string
-    agreementNumber: string
+    agreementNumber?: string
     paymentType: string
 }
 
@@ -170,4 +174,16 @@ export interface iAddress {
     cell?: string
     zip?: string
     email?: string
+}
+
+
+export interface iTask {
+    orderId: number
+    descriptions: string
+    periodFrom: string
+    periodTo: string
+    recipientName: string
+    recipientPosition: string
+    giverPosition: string
+    giverName: string
 }

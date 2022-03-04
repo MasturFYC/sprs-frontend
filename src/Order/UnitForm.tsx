@@ -1,6 +1,6 @@
 import React, { FormEvent } from 'react';
 import { iType, iUnit, iWarehouse } from '../component/interfaces'
-import { Button, ComboBox, Flex, Item, NumberField, TextField, useAsyncList, View, Text } from '@adobe/react-spectrum';
+import { Button, ComboBox, Flex, Item, NumberField, TextField, useAsyncList, View, Text, ProgressCircle } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 
 export const initUnit: iUnit = {
@@ -25,11 +25,19 @@ type UnitFormOptions = {
 const UnitForm = (props: UnitFormOptions) => {
 	const { dataUnit, callback, isNew } = props;
 	const [data, setData] = React.useState<iUnit>(initUnit)
-	const [isDirty,setIsDirty]= React.useState<boolean>(false)
-	// const isNopolValid = React.useMemo(
-	// 	() => data && data.nopol.length > 0,
-	// 	[data]
-	// )
+	const [isDirty, setIsDirty] = React.useState<boolean>(false)
+
+	const isNopolValid = React.useMemo(
+		() => {
+
+			if (data.nopol.length >= 7) {
+				return true
+			}
+
+			return false;
+		},
+		[data]
+	)
 
 	const isYearValid = React.useMemo(
 		() => data && data.year && data.year > 0,
@@ -86,24 +94,27 @@ const UnitForm = (props: UnitFormOptions) => {
 		},
 		getKey: (item: iWarehouse) => item.id
 	})
-	
+
 	React.useEffect(() => {
 		let isLoaded = true;
 
 		if (isLoaded) {
-			setData(isNew ? {...initUnit, orderId: dataUnit.orderId} : dataUnit)
+			setData(isNew ? { ...initUnit, orderId: dataUnit.orderId } : dataUnit)
 		}
 
 		return () => { isLoaded = false }
 
 	}, [dataUnit, isNew])
 
+	if (houses.isLoading || types.isLoading) {
+		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+	}
 
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
 			<h3>DATA ASSET / UNIT</h3>
 			<Flex gap='size-100' direction={'column'}>
-				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
+				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-200'}>
 					<ComboBox
 						menuTrigger="focus"
 						flex
@@ -116,10 +127,11 @@ const UnitForm = (props: UnitFormOptions) => {
 						onSelectionChange={(e) => {
 							setIsDirty(true);
 							setData((o) => ({
-							...o,
-							typeId: +e,
-							type: types.getItem(+e)
-						}))}}
+								...o,
+								typeId: +e,
+								type: types.getItem(+e)
+							}))
+						}}
 					>
 						{(item) => <Item textValue={item.name}>
 							<Text>{item.name}</Text>
@@ -141,10 +153,11 @@ const UnitForm = (props: UnitFormOptions) => {
 						onSelectionChange={(e) => {
 							setIsDirty(true);
 							setData((o) => ({
-							...o,
-							warehouseId: +e,
-							warehouse: houses.getItem(+e)
-						}))}}
+								...o,
+								warehouseId: +e,
+								warehouse: houses.getItem(+e)
+							}))
+						}}
 					>
 						{(item) => <Item textValue={item.name}>
 							<Text>{item.name}</Text>
@@ -154,7 +167,7 @@ const UnitForm = (props: UnitFormOptions) => {
 						</Item>}
 					</ComboBox>
 				</Flex>
-				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
+				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-200'}>
 					<NumberField
 						flex
 						label='Tahun'
@@ -165,7 +178,8 @@ const UnitForm = (props: UnitFormOptions) => {
 						value={data.year}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData((prev) => ({ ...prev, year: e }))}}
+							setData((prev) => ({ ...prev, year: e }))
+						}}
 					/>
 					<TextField
 						label='Warna'
@@ -175,10 +189,11 @@ const UnitForm = (props: UnitFormOptions) => {
 						maxLength={50}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData(prev => ({ ...prev, color: e }))}}
+							setData(prev => ({ ...prev, color: e }))
+						}}
 					/>
 				</Flex>
-				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
+				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-200'}>
 					<TextField
 						label='Nomor rangka'
 						flex
@@ -187,7 +202,8 @@ const UnitForm = (props: UnitFormOptions) => {
 						maxLength={25}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData(prev => ({ ...prev, frameNumber: e }))}}
+							setData(prev => ({ ...prev, frameNumber: e }))
+						}}
 					/>
 					<TextField
 						label='Nomor mesin'
@@ -197,10 +213,11 @@ const UnitForm = (props: UnitFormOptions) => {
 						maxLength={25}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData(prev => ({ ...prev, machineNumber: e }))}}
+							setData(prev => ({ ...prev, machineNumber: e }))
+						}}
 					/>
 				</Flex>
-				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
+				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-200'}>
 					<TextField
 						label='Nama BPKB'
 						flex
@@ -209,20 +226,23 @@ const UnitForm = (props: UnitFormOptions) => {
 						maxLength={50}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData(prev => ({ ...prev, bpkbName: e }))}}
+							setData(prev => ({ ...prev, bpkbName: e }))
+						}}
 					/>
 					<TextField
 						label='Nomor Polisi'
 						flex
+						validationState={isNopolValid ? 'valid' : 'invalid'}
 						width={{ base: 'auto' }}
 						value={data.nopol}
 						maxLength={15}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData(prev => ({ ...prev, nopol: e }))}}
+							setData(prev => ({ ...prev, nopol: e.toUpperCase() }))
+						}}
 					/>
 				</Flex>
-				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-400'}>
+				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-200'}>
 					<TextField
 						label='Dealer'
 						flex
@@ -231,7 +251,8 @@ const UnitForm = (props: UnitFormOptions) => {
 						maxLength={50}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData(prev => ({ ...prev, dealer: e }))}}
+							setData(prev => ({ ...prev, dealer: e }))
+						}}
 					/>
 					<TextField
 						label='Surveyor'
@@ -241,21 +262,26 @@ const UnitForm = (props: UnitFormOptions) => {
 						maxLength={50}
 						onChange={(e) => {
 							setIsDirty(true);
-							setData(prev => ({ ...prev, surveyor: e }))}}
+							setData(prev => ({ ...prev, surveyor: e }))
+						}}
 					/>
 				</Flex>
-				<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-50'}>
+				<Flex direction={'row'} gap='size-100' marginTop={'size-200'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
 						<Button type='submit' variant='secondary'
-						isDisabled={!isDirty}>Update</Button>
-						{/* <Button type='button' variant='primary'
-                            onPress={() => callback({ method: 'cancel' })}>Cancel</Button> */}
+							isDisabled={!isDirty}>Update</Button>
+						<Button type='button' variant='primary'
+							isDisabled={!isDirty}
+							onPress={() => {
+								setData(dataUnit);
+								setIsDirty(false)
+							}}>Cancel</Button>
 					</Flex>
 					{data.orderId > 0 &&
 						<View>
 							<Button
 								isDisabled={isNew}
-							type='button' alignSelf={'flex-end'} variant='negative'
+								type='button' alignSelf={'flex-end'} variant='negative'
 								onPress={() => deleteData(data)}>Clear</Button>
 						</View>
 					}
@@ -299,7 +325,7 @@ const UnitForm = (props: UnitFormOptions) => {
 	}
 
 	async function inserData(p: iUnit) {
-		
+
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'

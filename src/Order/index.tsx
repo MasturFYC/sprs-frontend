@@ -2,9 +2,9 @@ import React, { Fragment } from "react";
 import axios from "../component/axios-base";
 import { iOrder } from '../component/interfaces'
 import OrderForm, { initOrder } from './Form'
-import { Button, Link, useAsyncList, View } from "@adobe/react-spectrum";
+import { Button, Checkbox, Flex, Link, ProgressCircle, useAsyncList, View } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "../component/format";
-
+import './table.css'
 
 const Order = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
@@ -49,52 +49,76 @@ const Order = () => {
 	// 	</Fragment>
 	// );
 
+	if (orders.isLoading) {
+		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+	}
+
 	return (
 		<Fragment>
  			<h1>Order (SPK)</h1>
 			<View marginY={'size-200'}>
 				<Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button></View>
-				<table style={{ borderCollapse: 'collapse', width: '100%' }}>
+			<table>
 				<thead>
-					<tr style={{ backgroundColor: '#ececec' }}>
+					<tr>
 						<th align="left">NOMOR (SPK)</th>
-						<th align="center">TANGGAL</th>
+						<th>TANGGAL</th>
 						<th align="left">MERK</th>
 						<th align="left">TYPE</th>
 						<th align="left">FINANCE</th>
 						<th align="left">NOPOL</th>
-						<th align="left">TAHUN</th>
+						<th>TAHUN</th>
 						<th align="right">BT FINANCE</th>
 						<th align="right">BT MATEL</th>
 						<th align="right">PPN</th>
+						<th align="right">ADA STNK</th>
+						<th align="right">PROFIT</th>
+						{/* <th align="left">UNIT</th> */}
 					</tr>
 				</thead>
 				<tbody>
 					{orders.items.map((item, index) =>
 						item.id === selectedId ?
 							<tr key={item.id}>
-								<td colSpan={10} style={{padding: '12px 0'}}>
+								<td colSpan={12} style={{padding: '12px 0'}}>
 									<OrderForm order={item} callback={(e) => formResponse(e)}
 										updateChild={e => updateChild(e)} />
 								</td>
 							</tr>
 							:
-							<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}>
+							<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
+								title={`${item.unit?.warehouse?.name } - ${item.branch?.name} `}>
 								<td><Link isQuiet variant="primary" UNSAFE_style={{fontWeight: 700}} onPress={(e) => {
 									setSelectedId(item.id)
 								}}>{item.name}</Link></td>
 								<td align="center">{FormatDate(item.orderAt)}</td>
-								<td>{item.unit?.type?.merk?.name} </td>
-								<td>{item.unit?.type?.name} </td>
-								<td>{item.finance?.shortName} </td>
-								<td>{item.unit?.nopol} </td>
-								<td>{item.unit?.year} </td>
+								<td>{item.unit?.type?.merk?.name}</td>
+								<td>{item.unit?.type?.name}</td>
+								<td>{item.finance?.shortName}</td>
+								<td>{item.unit?.nopol}</td>
+								<td align="center">{item.unit?.year}</td>
 								<td align="right">{FormatNumber(item.btFinance)}</td>
 								<td align="right">{FormatNumber(item.btMatel)}</td>
 								<td align="right">{FormatNumber(item.nominal)}</td>
+								<td align="right">
+									{item.isStnk ? '✔' : ''}{' '}
+										{FormatNumber(item.stnkPrice)}									
+									</td>
+								<td align="right">{FormatNumber(item.subtotal)}</td>
+								{/* <td></td> */}
 							</tr>
 					)}
 				</tbody>
+				<tfoot>
+					<tr>
+						<th colSpan={7} align="left">Total</th>
+						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.btFinance, 0))}</th>
+						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.btMatel, 0))}</th>
+						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.nominal, 0))}</th>
+						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
+						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.subtotal, 0))}</th>
+					</tr>
+				</tfoot>
 			</table>
 		</Fragment>
 	)
@@ -115,8 +139,8 @@ const Order = () => {
 				orders.remove(0)	
 			}
 		}
-		else if (method === 'remove' && data) {
-			orders.remove(data.id)
+		else if (method === 'remove') {
+			orders.remove(selectedId)
 		}
 
 		setSelectedId(-1)
