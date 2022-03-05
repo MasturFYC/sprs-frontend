@@ -24,12 +24,14 @@ type FinanceFormOptions = {
 const FinanceForm = (props: FinanceFormOptions) => {
 	const { finance, callback } = props;
 	const [data, setData] = React.useState<iFinance>(initFinance)
+	const [isDirty, setIsDirty] = React.useState<boolean>(false);
+
 	const isNameValid = React.useMemo(
-		() => data && data.name && data.name.length > 0,
+		() => data && data.name && data.name.length > 5,
 		[data]
 	)
 	const isShortNameValid = React.useMemo(
-		() => data && data.shortName && data.shortName.length > 0,
+		() => data && data.shortName && data.shortName.length >= 3,
 		[data]
 	)
 
@@ -58,10 +60,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							placeholder={'e.g. PT Adira Dinamika Multi Finance'}
 							validationState={isNameValid ? "valid" : "invalid"}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								name: e,
-							}))}
+							onChange={(e) => changeData("name", e)}
 						/>
 						<TextField
 							flex
@@ -71,10 +70,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							placeholder={'e.g. ADMF'}
 							validationState={isShortNameValid ? "valid" : "invalid"}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								shortName: e,
-							}))}
+							onChange={(e) => changeData("shortName", e)}
 						/>
 					</Flex>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
@@ -85,10 +81,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							value={data.street}
 							placeholder={'e.g. Jl. Jend. Sudirman No. 155'}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								street: e,
-							}))}
+							onChange={(e) => changeData("street", e)}
 						/>
 						<TextField
 							flex
@@ -97,10 +90,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							value={data.city}
 							placeholder={'e.g. Indramayu'}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								city: e,
-							}))}
+							onChange={(e) => changeData("city", e)}
 						/>
 					</Flex>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
@@ -111,10 +101,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							value={data.phone}
 							placeholder={'e.g. 0234 275572'}
 							maxLength={25}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								phone: e,
-							}))}
+							onChange={(e) => changeData("phone", e)}
 						/>
 						<TextField
 							flex
@@ -123,10 +110,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							value={data.cell}
 							placeholder={'e.g. 0856 9865 9854'}
 							maxLength={25}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								cell: e,
-							}))}
+							onChange={(e) => changeData("cell", e)}
 						/>
 					</Flex>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
@@ -137,10 +121,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							value={data.zip}
 							placeholder={'e.g. 45215'}
 							maxLength={10}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								zip: e,
-							}))}
+							onChange={(e) => changeData("zip", e)}
 						/>
 						<TextField
 							flex
@@ -150,22 +131,21 @@ const FinanceForm = (props: FinanceFormOptions) => {
 							value={data.email}
 							placeholder={'e.g. 0856 9865 9854'}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								email: e,
-							}))}
+							onChange={(e) => changeData("email", e)}
 						/>
 					</Flex>
 				</Flex>
 				<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
-						<Button type='submit' variant='cta'>Save</Button>
-						<Button type='button' variant='primary'
-							onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+						<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isShortNameValid)}>Save</Button>
+						<Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+							{isDirty ? 'Cancel' : 'Close'}</Button>
 					</Flex>
 					{data.id > 0 &&
 						<View>
-							<Button type='button' alignSelf={'flex-end'} variant='negative'
+							<Button type='button'
+								isDisabled={data.id === 0}
+								alignSelf={'flex-end'} variant='negative'
 								onPress={() => deleteData(data)}>Remove</Button>
 						</View>
 					}
@@ -173,6 +153,11 @@ const FinanceForm = (props: FinanceFormOptions) => {
 			</View>
 		</form>
 	);
+
+	function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+		setData(o => ({ ...o, [fieldName]: value }))
+		setIsDirty(true)
+	}
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()

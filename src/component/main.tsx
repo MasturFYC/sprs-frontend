@@ -3,26 +3,36 @@ import { Flex } from '@adobe/react-spectrum'
 import { Route, Routes } from 'react-router-dom'
 import logo from '../logo.svg';
 
-import Merk from './Merk'
-import Wheel from './Wheel'
-import Vehicle from './Vehicle'
-import Branch from './Branch'
-import Warehouse from './Warehouse'
-import Finance from './Finance'
-import Action from './Action'
-import Order from '../Order'
+const Merk = React.lazy(()=> import('./Merk'))
+const Wheel = React.lazy(()=> import('./Wheel'));
+const Vehicle = React.lazy(()=> import('./Vehicle'))
+const Branch = React.lazy(()=> import('./Branch'));
+const Warehouse = React.lazy(()=> import('./Warehouse'));
+const Finance = React.lazy(()=> import('./Finance'));
+
+const Order = React.lazy(()=> import('../Order'))
+
 
 const Main = () => {
   return (
     <Routes>
       <Route path="/" element={<ShowFirstPage />} />
-      <Route path="/merk" element={<Merk />} />
-      <Route path="/wheel" element={<Wheel />} />
-      <Route path="/vehicle" element={<Vehicle />} />
-      <Route path="/branch" element={<Branch />} />
-      <Route path="/warehouse" element={<Warehouse />} />
-      <Route path="/finance" element={<Finance />} />
-      <Route path="/order" element={<Order />} />
+      <Route path="/merk" element={<React.Suspense fallback={<div>Please wait...</div>}>
+        <Merk /></React.Suspense>} />
+      <Route path="/wheel" element={
+      <React.Suspense fallback={<div>Please wait...</div>}><Wheel /></React.Suspense>} />
+      <Route path="/vehicle" element={
+      <React.Suspense fallback={<div>Please wait...</div>}>
+      <Vehicle /></React.Suspense>} />
+      <Route path="/branch" element={<React.Suspense fallback={<div>Please wait...</div>}>
+        <Branch /></React.Suspense>} />
+      <Route path="/warehouse" element={
+      <React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
+      <Route path="/finance" element={
+      <React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
+      <Route path="/order" element={
+        <React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>
+      } />
     </Routes>
   );
 }

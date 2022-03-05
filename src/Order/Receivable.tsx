@@ -3,7 +3,7 @@ import { iReceivable, dateOnly, dateParam } from '../component/interfaces'
 import { Button, Flex, NumberField, TextField, View } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 
-export const initReceivable: iReceivable = {
+const initReceivable: iReceivable = {
   orderId: 0,
   covenantAt: dateParam(null),
   dueAt: dateParam(null),

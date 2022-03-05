@@ -3,7 +3,7 @@ import { iAddress } from '../component/interfaces'
 import { Button, Flex, TextField, View, Link } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 
-export const initAddress: iAddress = {
+const initAddress: iAddress = {
 	orderId: 0,
 	street: '',
 	city: '',

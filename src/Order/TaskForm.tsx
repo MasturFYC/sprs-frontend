@@ -3,7 +3,7 @@ import { dateOnly, dateParam, iTask } from '../component/interfaces'
 import { Button, Flex, TextArea, TextField, View } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 
-export const initTask: iTask = {
+const initTask: iTask = {
   orderId: 0,
   descriptions: '',
   periodFrom: dateParam(null),

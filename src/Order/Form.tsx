@@ -1,15 +1,75 @@
 import React, { FormEvent, useState } from 'react';
-import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable, iTask } from '../component/interfaces'
-import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, ProgressCircle } from '@adobe/react-spectrum';
+import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable, iTask, iAddress } from '../component/interfaces'
+import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, ProgressCircle, Divider } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 import { Item } from "@react-spectrum/combobox";
-import CustomerForm, { initCustomer } from './CustomerForm';
-import UnitForm, { initUnit } from './UnitForm';
-import ReceivableForm, { initReceivable } from './Receivable';
-import AddressForm, { initAddress } from './AddressForm';
-import TaskForm, { initTask } from './TaskForm'
 
-export const initOrder: iOrder = {
+const CustomerForm = React.lazy(() => import('./CustomerForm'));
+const ReceivableForm = React.lazy(() => import('./Receivable'));
+const AddressForm = React.lazy(() => import('./AddressForm'));
+const Action = React.lazy(() => import('../component/Action'));
+const UnitForm = React.lazy(() => import('./UnitForm'));
+const TaskForm = React.lazy(() => import('./TaskForm'));
+
+const initTask: iTask = {
+  orderId: 0,
+  descriptions: '',
+  periodFrom: dateParam(null),
+  periodTo: dateParam(null),
+  recipientName: '',
+  recipientPosition: '',
+  giverPosition: '',
+  giverName: '',
+}
+
+const initAddress: iAddress = {
+	orderId: 0,
+	street: '',
+	city: '',
+	phone: '',
+	cell: '',
+	zip: '',
+	email: '',
+}
+
+const initReceivable: iReceivable = {
+  orderId: 0,
+  covenantAt: dateParam(null),
+  dueAt: dateParam(null),
+  mortgageByMonth: 0,
+  mortgageReceivable: 0,
+  runningFine: 0,
+  restFine: 0,
+  billService: 0,
+  payDeposit: 0,
+  restReceivable: 0,
+  restBase: 0,
+  dayPeriod: 0,
+  mortgageTo: 0,
+  dayCount: 0
+}
+
+const initCustomer: iCustomer = {
+	orderId: 0,
+	name: '',
+	agreementNumber: '',
+	paymentType: ''
+}
+
+const initUnit: iUnit = {
+	orderId: 0,
+	nopol: '',
+	year: new Date().getFullYear(),
+	frameNumber: '',
+	machineNumber: '',
+	bpkbName: '',
+	color: '',
+	dealer: '',
+	typeId: 0,
+	warehouseId: 0
+}
+
+const initOrder: iOrder = {
 	id: 0,
 	name: '',
 	orderAt: dateParam(null),
@@ -40,9 +100,10 @@ const OrderForm = (props: OrderFormOptions) => {
 	const [data, setData] = useState<iOrder>(initOrder)
 	let [tabId, setTabId] = useState(1);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
+	const [message, setMessage] = useState<string>('');
 
 	const isNameValid = React.useMemo(
-		() => data.name.length > 0,
+		() => data.name.length > 5,
 		[data]
 	)
 
@@ -149,7 +210,7 @@ const OrderForm = (props: OrderFormOptions) => {
 				<form onSubmit={(e) => handleSubmit(e)}>
 					<Flex direction={'column'} columnGap='size-200' rowGap={'size-50'}>
 						<Flex direction={'row'} gap='size-50' marginBottom={'size-200'} marginTop={'size-50'}>
-							<Flex flex direction={'row'} columnGap={'size-50'}>
+							<Flex flex direction={'row'} columnGap={'size-100'}>
 								<Button type='submit'
 									isDisabled={!isDirty || !(isNameValid && isBranchValid && isFinanceValid && isPpnValid
 										&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid)}
@@ -163,10 +224,17 @@ const OrderForm = (props: OrderFormOptions) => {
 							{data.id > 0 &&
 								<View>
 									<Button type='button' alignSelf={'flex-end'} variant='negative'
+										isDisabled={data.id === 0}
 										onPress={() => deleteData(data.id)}>Remove</Button>
 								</View>
 							}
 						</Flex>
+						{
+							message.length > 0 &&
+							<View UNSAFE_style={{ color: 'red' }}>
+								{message}
+							</View>
+						}
 
 						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
 							<TextField
@@ -339,104 +407,128 @@ const OrderForm = (props: OrderFormOptions) => {
 			</View>
 			{data.id > 0 &&
 				<View backgroundColor={'gray-50'}
-					paddingX={'size-400'}
-					paddingTop={'size-200'}
-					paddingBottom={'size-200'}
 					borderRadius={'medium'}
+					paddingBottom={'size-100'}
 				>
-					<Tabs
-						aria-label="Tab-Order"
-						density='compact'
-						onSelectionChange={(e) => setTabId(+e)}>
-						<TabList aria-label="Tab-Order-List">
-							<Item key={0}>Data Konsumen</Item>
-							<Item key={1}>Data Asset</Item>
-							<Item key={2}>Data Tunggakan</Item>
-							<Item key={3}>Tindakan Yg Pernah Dilakukan</Item>
-							<Item key={4}>Data Alamat</Item>
-							<Item key={5}>Perintah Pemberian Tugas</Item>
-						</TabList>
-					</Tabs>
-					<View marginY={'size-100'}>
-						{tabId === 0 && <CustomerForm
-							customer={data.customer ? { ...data.customer, orderId: data.id } : { ...initCustomer, orderId: data.id }}
-							isNew={data.customer ? data.customer.orderId === 0 : true}
-							callback={(e) => responseCustomerChange(e)} />}
-						{tabId === 1 && <UnitForm
-							dataUnit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
-							isNew={data.unit ? data.unit.orderId === 0 : true}
-							callback={(e) => responseUnitChange(e)} />}
-						{tabId === 2 && <ReceivableForm
-							receive={data.receivable ? { ...data.receivable, orderId: data.id } : { ...initReceivable, orderId: data.id }}
-							isNew={data.receivable ? data.receivable.orderId === 0 : true}
-							callback={(e) => responseReceivableChange(e)} />}
-						{tabId === 4 &&
-							<Flex flex direction={'column'} gap={'size-100'}>
-								<View flex>
-									<Flex flex direction={'row'} gap={'size-200'}>
-										<View flex>
-											<AddressForm
-												title='Alamat Sesuai KTP'
-												apiAddress='ktp-address'
-												address={data.ktpAddress ? { ...data.ktpAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-												isNew={data.ktpAddress ? data.ktpAddress.orderId === 0 : true}
-												callback={(e) => {
-													setData(o => ({ ...o, ktpAddress: e.address }))
-													updateChild({ ...order, ktpAddress: e.address })
-												}}
-											/>
-										</View>
-										<View flex>
-											<AddressForm
-												title='Alamat Rumah'
-												apiAddress='home-address'
-												address={data.homeAddress ? { ...data.homeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-												isNew={data.homeAddress ? data.homeAddress.orderId === 0 : true}
-												callback={(e) => {
-													setData(o => ({ ...o, homeAddress: e.address }))
-													updateChild({ ...order, homeAddress: e.address })
-												}}
-											/>
-										</View>
-									</Flex>
-								</View>
-								<View flex>
-									<Flex flex direction={'row'} gap={'size-200'}>
-										<View flex>
-											<AddressForm
-												title='Alamat Kantor'
-												apiAddress='office-address'
-												address={data.officeAddress ? { ...data.officeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-												isNew={data.officeAddress ? data.officeAddress.orderId === 0 : true}
-												callback={(e) => {
-													setData(o => ({ ...o, officeAddress: e.address }))
-													updateChild({ ...order, officeAddress: e.address })
-												}}
-											/>
-										</View>
-										<View flex>
-											<AddressForm
-												title='Alamat Surat / Tagih'
-												apiAddress='post-address'
-												address={data.postAddress ? { ...data.postAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-												isNew={data.postAddress ? data.postAddress.orderId === 0 : true}
-												callback={(e) => {
-													setData(o => ({ ...o, postAddress: e.address }))
-													updateChild({ ...order, postAddress: e.address })
-												}}
-											/>
-										</View>
-									</Flex>
-								</View>
-							</Flex>
-						}
-						{tabId === 5 && <TaskForm
-							task={data.task ? { ...data.task, orderId: data.id } : { ...initTask, orderId: data.id }}
-							isNew={data.task ? data.task.orderId === 0 : true}
-							callback={(e) => responseTaskChange(e)} />}
+					<Divider size='M' marginBottom={'size-200'} />
+					<View paddingX={'size-400'}>
+						<Tabs
+							aria-label="Tab-Order"
+							density='compact'
+							onSelectionChange={(e) => setTabId(+e)}>
+							<TabList aria-label="Tab-Order-List">
+								<Item key={0}><span style={{ fontWeight: 700, color: 'green' }}>Data Konsumen</span></Item>
+								<Item key={1}><span style={{ fontWeight: 700, color: 'orangered' }}>Data Asset</span></Item>
+								<Item key={2}><span style={{ fontWeight: 700, color: 'green' }}>Data Tunggakan</span></Item>
+								<Item key={3}><span style={{ fontWeight: 700, color: 'green' }}>History</span></Item>
+								<Item key={4}><span style={{ fontWeight: 700, color: 'green' }}>Data Alamat</span></Item>
+								<Item key={5}><span style={{ fontWeight: 700, color: 'green' }}>Perintah dan Tugas</span></Item>
+							</TabList>
+						</Tabs>
+						<View marginY={'size-100'}>
+							{tabId === 0 &&
+								<React.Suspense fallback={<div>Please wait...</div>}>
+									<CustomerForm
+										customer={data.customer ? { ...data.customer, orderId: data.id } : { ...initCustomer, orderId: data.id }}
+										isNew={data.customer ? data.customer.orderId === 0 : true}
+										callback={(e) => responseCustomerChange(e)} />
+								</React.Suspense>
+							}
+							{tabId === 1 && <React.Suspense fallback={<div>Please wait...</div>}><UnitForm
+								dataUnit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
+								isNew={data.unit ? data.unit.orderId === 0 : true}
+								callback={(e) => responseUnitChange(e)} />
+							</React.Suspense>}
+							{tabId === 2 &&
+								<React.Suspense fallback={<div>Please wait...</div>}>
+									<ReceivableForm
+										receive={data.receivable ? { ...data.receivable, orderId: data.id } : { ...initReceivable, orderId: data.id }}
+										isNew={data.receivable ? data.receivable.orderId === 0 : true}
+										callback={(e) => responseReceivableChange(e)} />
+								</React.Suspense>
+							}
+							{tabId === 3 && <Action orderId={data.id} />}
+							{tabId === 4 &&
+								<Flex flex direction={'column'} gap={'size-100'}>
+									<View flex>
+										<Flex flex direction={'row'} gap={'size-200'}>
+											<View flex>
+												<React.Suspense fallback={<div>Please wait...</div>}>
+													<AddressForm
+														title='Alamat Sesuai KTP'
+														apiAddress='ktp-address'
+														address={data.ktpAddress ? { ...data.ktpAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+														isNew={data.ktpAddress ? data.ktpAddress.orderId === 0 : true}
+														callback={(e) => {
+															setData(o => ({ ...o, ktpAddress: e.address }))
+															updateChild({ ...order, ktpAddress: e.address })
+														}}
+													/>
+												</React.Suspense>
+											</View>
+											<View flex>
+												<React.Suspense fallback={<div>Please wait...</div>}>
+													<AddressForm
+														title='Alamat Rumah'
+														apiAddress='home-address'
+														address={data.homeAddress ? { ...data.homeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+														isNew={data.homeAddress ? data.homeAddress.orderId === 0 : true}
+														callback={(e) => {
+															setData(o => ({ ...o, homeAddress: e.address }))
+															updateChild({ ...order, homeAddress: e.address })
+														}}
+													/>
+												</React.Suspense>
+											</View>
+										</Flex>
+									</View>
+									<View flex>
+										<Flex flex direction={'row'} gap={'size-200'}>
+											<View flex>
+												<React.Suspense fallback={<div>Please wait...</div>}>
+													<AddressForm
+														title='Alamat Kantor'
+														apiAddress='office-address'
+														address={data.officeAddress ? { ...data.officeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+														isNew={data.officeAddress ? data.officeAddress.orderId === 0 : true}
+														callback={(e) => {
+															setData(o => ({ ...o, officeAddress: e.address }))
+															updateChild({ ...order, officeAddress: e.address })
+														}}
+													/>
+												</React.Suspense>
+											</View>
+											<View flex>
+												<React.Suspense fallback={<div>Please wait...</div>}>
+													<AddressForm
+														title='Alamat Surat / Tagih'
+														apiAddress='post-address'
+														address={data.postAddress ? { ...data.postAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
+														isNew={data.postAddress ? data.postAddress.orderId === 0 : true}
+														callback={(e) => {
+															setData(o => ({ ...o, postAddress: e.address }))
+															updateChild({ ...order, postAddress: e.address })
+														}}
+													/>
+												</React.Suspense>
+											</View>
+										</Flex>
+									</View>
+								</Flex>
+							}
+							{tabId === 5 &&
+								<React.Suspense fallback={<div>Please wait...</div>}>
+									<TaskForm
+										task={data.task ? { ...data.task, orderId: data.id } : { ...initTask, orderId: data.id }}
+										isNew={data.task ? data.task.orderId === 0 : true}
+										callback={(e) => responseTaskChange(e)} />
+								</React.Suspense>
+							}
+						</View>
 					</View>
 				</View>
 			}
+
 		</View>
 
 	);
@@ -450,7 +542,7 @@ const OrderForm = (props: OrderFormOptions) => {
 			btFinance: v,
 			btMatel: matel,
 			nominal: nominal,
-			subtotal: o.btFinance - matel - nominal - o.stnkPrice
+			subtotal: v - matel - nominal - o.stnkPrice
 		}))
 
 		setIsDirty(true)
@@ -522,6 +614,7 @@ const OrderForm = (props: OrderFormOptions) => {
 			})
 			.catch(error => {
 				console.log(error)
+				setMessage(`Nomor order SPK "${p.name}" sudah digunakan.`)
 			})
 	}
 
@@ -537,11 +630,14 @@ const OrderForm = (props: OrderFormOptions) => {
 			.post(`/orders/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
+				setData(data)
 				callback({ method: 'save', data: data })
 				setIsDirty(false)
+				setMessage('')
 			})
 			.catch(error => {
 				console.log(error)
+				setMessage(`Nomor order SPK "${p.name}" sudah digunakan.`)
 			})
 	}
 

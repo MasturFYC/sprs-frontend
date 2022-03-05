@@ -10,6 +10,7 @@ table {
 }
 
 table tbody tr td {
+  height: 24px;
   padding-left: 3px;
   padding-right: 3px;
 }

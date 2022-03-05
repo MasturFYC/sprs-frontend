@@ -19,16 +19,18 @@ type TypeFormOptions = {
 const TypeForm = (props: TypeFormOptions) => {
 	const { vehicle, callback } = props;
 	const [data, setData] = React.useState<iType>(initVehicle)
+	const [isDirty, setIsDirty] = React.useState<boolean>(false);
+
 	const isNameValid = React.useMemo(
-		() => data && data.name && data.name.length > 0,
+		() => data.name.length > 2,
 		[data]
 	)
 	const isWheelValid = React.useMemo(
-		() => data && data.wheelId && data.wheelId > 0,
+		() => data.wheelId > 0,
 		[data]
 	)
 	const isMerkValid = React.useMemo(
-		() => data && data.merkId && data.merkId > 0,
+		() => data.merkId > 0,
 		[data]
 	)
 
@@ -86,29 +88,40 @@ const TypeForm = (props: TypeFormOptions) => {
 
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
-			<View backgroundColor={'gray-100'} padding={{base: 'size-50',M:'size-200'}}>
+			<View backgroundColor={'gray-100'} padding={{ base: 'size-50', M: 'size-200' }}>
 				<Flex gap='size-200' direction={'column'}>
+				<TextField
+						flex
+						autoFocus
+						label='Nama tipe kendaraan'
+						width={'auto'}
+						value={data.name}
+						placeholder={'e.g. NMax 155'}
+						validationState={isNameValid ? "valid" : "invalid"}
+						maxLength={50}						
+						onChange={(e) => changeData("name", e)}
+					/>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
-						<Picker							
+						<Picker
 							width={'auto'}
 							flex
 							validationState={isWheelValid ? "valid" : "invalid"}
-							autoFocus
 							label="Roda"
 							placeholder={'e.g. R2'}
 							selectedKey={data.wheelId}
 							items={wheels.items}
-							onSelectionChange={(e) =>
+							onSelectionChange={(e) => {
+								setIsDirty(true);
 								setData((o) => ({
 									...o,
 									wheelId: +e,
 									wheel: wheels.getItem(e)
 								}))
-							}
+							}}
 						>
 							{(item) => <Item textValue={item.name}>{item.shortName}</Item>}
 						</Picker>
-						<Picker							
+						<Picker
 							label="Merk"
 							flex
 							validationState={isMerkValid ? "valid" : "invalid"}
@@ -116,47 +129,39 @@ const TypeForm = (props: TypeFormOptions) => {
 							selectedKey={data.merkId}
 							placeholder={'e.g. Yamaha'}
 							items={merks.items}
-							onSelectionChange={(e) =>
+							onSelectionChange={(e) => {
+								setIsDirty(true)
 								setData((o) => ({
 									...o,
 									merkId: +e,
 									merk: merks.getItem(e)
 								}))
-							}
+							}}
 						>
 							{(item) => <Item textValue={item.name}>{item.name}</Item>}
 						</Picker>
 					</Flex>
-					<TextField
-						flex
-						label='Nama tipe kendaraan'
-						width={'auto'}
-						value={data.name}
-						placeholder={'e.g. NMax 155'}
-						validationState={isNameValid ? "valid" : "invalid"}						
-						maxLength={50}
-						onChange={(e) => setData(prev => ({
-							...prev,
-							name: e,
-						}))}
-					/>
 				</Flex>
 				<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
-						<Button type='submit' variant='cta'>Save</Button>
-						<Button type='button' variant='primary'
-							onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+						<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isMerkValid && isWheelValid)}>Save</Button>
+						<Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+							{isDirty ? 'Cancel' : 'Close'}</Button>
 					</Flex>
 					{data.id > 0 &&
 						<View>
 							<Button type='button' alignSelf={'flex-end'} variant='negative'
-								onPress={() => deleteData(data)}>Remove</Button>
+								isDisabled={data.id === 0} onPress={() => deleteData(data)}>Remove</Button>
 						</View>
 					}
 				</Flex>
 			</View>
 		</form>
 	);
+	function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+		setData(o => ({ ...o, [fieldName]: value }))
+		setIsDirty(true)
+	}
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()

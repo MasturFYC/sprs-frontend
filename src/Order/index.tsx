@@ -1,10 +1,13 @@
 import React, { Fragment } from "react";
 import axios from "../component/axios-base";
-import { iOrder } from '../component/interfaces'
-import OrderForm, { initOrder } from './Form'
-import { Button, Checkbox, Flex, Link, ProgressCircle, useAsyncList, View } from "@adobe/react-spectrum";
+import { dateParam, iOrder } from '../component/interfaces'
+//import OrderForm, { initOrder } from './Form'
+import { Button, Flex, Link, ProgressCircle, useAsyncList, View } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "../component/format";
 import './table.css'
+
+const OrderForm = React.lazy(()=> import('./Form'))
+
 
 const Order = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
@@ -61,39 +64,47 @@ const Order = () => {
 			<table>
 				<thead>
 					<tr>
-						<th align="left">NOMOR (SPK)</th>
+						<th align="left" style={{whiteSpace: 'nowrap'}}>NOMOR (SPK)</th>
 						<th>TANGGAL</th>
 						<th align="left">MERK</th>
 						<th align="left">TYPE</th>
 						<th align="left">FINANCE</th>
 						<th align="left">NOPOL</th>
 						<th>TAHUN</th>
-						<th align="right">BT FINANCE</th>
-						<th align="right">BT MATEL</th>
+						<th align="right" style={{whiteSpace: 'nowrap'}}>BT FINANCE</th>
+						<th align="right" style={{whiteSpace: 'nowrap'}}>BT MATEL</th>
 						<th align="right">PPN</th>
-						<th align="right">ADA STNK</th>
+						<th align="right" style={{whiteSpace: 'nowrap'}}>ADA STNK</th>
 						<th align="right">PROFIT</th>
 						{/* <th align="left">UNIT</th> */}
 					</tr>
 				</thead>
-				<tbody>
+				<tbody style={{color: selectedId < 0 ? 'black' : '#abc'}}>
 					{orders.items.map((item, index) =>
 						item.id === selectedId ?
 							<tr key={item.id}>
-								<td colSpan={12} style={{padding: '12px 0'}}>
-									<OrderForm order={item} callback={(e) => formResponse(e)}
-										updateChild={e => updateChild(e)} />
+								<td colSpan={12} style={{padding: '12px 0', color: selectedId >= 0 ? 'black' : 'auto'}}>
+									<React.Suspense fallback={<div>Please wait...</div>}>
+									<OrderForm order={item} 
+										callback={(e) => formResponse(e)}
+										updateChild={e => updateChild(e)}
+										/>
+									</React.Suspense>
 								</td>
 							</tr>
 							:
 							<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
 								title={`${item.unit?.warehouse?.name } - ${item.branch?.name} `}>
-								<td><Link isQuiet variant="primary" UNSAFE_style={{fontWeight: 700}} onPress={(e) => {
+								<td>{selectedId < 0 ? <Link isQuiet variant="primary" 
+									UNSAFE_style={{fontWeight: 700}} onPress={(e) => {
 									setSelectedId(item.id)
-								}}>{item.name}</Link></td>
-								<td align="center">{FormatDate(item.orderAt)}</td>
+								}}>{item.name}</Link>
+							:
+							item.name
+							}</td>
+								<td align="center" style={{whiteSpace: 'nowrap'}}>{FormatDate(item.orderAt)}</td>
 								<td>{item.unit?.type?.merk?.name}</td>
-								<td>{item.unit?.type?.name}</td>
+								<td style={{whiteSpace: 'nowrap'}}>{item.unit?.type?.name}</td>
 								<td>{item.finance?.shortName}</td>
 								<td>{item.unit?.nopol}</td>
 								<td align="center">{item.unit?.year}</td>
@@ -128,22 +139,26 @@ const Order = () => {
 
 		if (method === 'save' && data) {
 			if (selectedId === 0) {
-				orders.insert(0, data)
-				orders.remove(0)
+				orders.update(0, data)
+				//orders.remove(0)
+				setSelectedId(data.id)
 			} else {
 				orders.update(data.id, data)
+				setSelectedId(-1)
 			}
 		}
 		else if(method === 'cancel') {
 			if(selectedId === 0) {
-				orders.remove(0)	
+				orders.remove(0)
 			}
+			setSelectedId(-1)	
 		}
 		else if (method === 'remove') {
 			orders.remove(selectedId)
+			setSelectedId(-1)
 		}
 
-		setSelectedId(-1)
+		
 	}
 
 	function updateChild(data: iOrder) {		
@@ -152,7 +167,25 @@ const Order = () => {
 
 	function addNewOrder() {
 		if (!orders.getItem(0)) {
-			orders.insert(0, initOrder)
+			orders.insert(0, {
+				id: 0,
+				name: '',
+				orderAt: dateParam(null),
+				printedAt: dateParam(null),
+				btFinance: 0,
+				btPercent: 20,
+				btMatel: 0,
+				ppn: 0,
+				nominal: 0,
+				subtotal: 0,
+				userName: 'Opick',
+				verifiedBy: '',
+				validatedBy: '',
+				financeId: 0,
+				branchId: 0,
+				isStnk: true,
+				stnkPrice: 0
+			})
 		}
 		setSelectedId(0)
 	}

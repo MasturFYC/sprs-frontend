@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { iBranch } from '../interfaces'
 import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
 import axios from '../axios-base';
@@ -17,13 +17,15 @@ type BranchFormOptions = {
 
 const BranchForm = (props: BranchFormOptions) => {
 	const { branch, callback } = props;
-	const [data, setData] = React.useState<iBranch>(initBranch)
+	const [data, setData] = useState<iBranch>(initBranch)
+	const [isDirty, setIsDirty] = useState<boolean>(false);
+
 	const isNameValid = React.useMemo(
-		() => data && data.name && data.name.length > 0,
+		() => data.name.length > 5,
 		[data]
 	)
 	const isHeadValid = React.useMemo(
-		() => data && data.headBranch && data.headBranch.length > 0,
+		() => data.headBranch.length > 5,
 		[data]
 	)
 
@@ -52,10 +54,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							placeholder={'e.g. Jatibarang'}
 							validationState={isNameValid ? "valid" : "invalid"}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								name: e,
-							}))}
+							onChange={(e) => changeData("name", e)}
 						/>
 						<TextField
 							flex
@@ -65,10 +64,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							placeholder={'e.g. Junaedi, S.E'}
 							validationState={isHeadValid ? "valid" : "invalid"}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								headBranch: e,
-							}))}
+							onChange={(e) => changeData("headBranch", e)}
 						/>
 					</Flex>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
@@ -79,10 +75,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							value={data.street}
 							placeholder={'e.g. Jl. Jend. Sudirman No. 155'}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								street: e,
-							}))}
+							onChange={(e) => changeData("street", e)}
 						/>
 						<TextField
 							flex
@@ -91,10 +84,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							value={data.city}
 							placeholder={'e.g. Indramayu'}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								city: e,
-							}))}
+							onChange={(e) => changeData("city", e)}
 						/>
 					</Flex>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
@@ -105,10 +95,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							value={data.phone}
 							placeholder={'e.g. 0234 275572'}
 							maxLength={25}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								phone: e,
-							}))}
+							onChange={(e) => changeData("phone", e)}
 						/>
 						<TextField
 							flex
@@ -117,10 +104,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							value={data.cell}
 							placeholder={'e.g. 0856 9865 9854'}
 							maxLength={25}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								cell: e,
-							}))}
+							onChange={(e) => changeData("cell", e)}
 						/>
 					</Flex>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
@@ -131,10 +115,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							value={data.zip}
 							placeholder={'e.g. 45215'}
 							maxLength={10}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								zip: e,
-							}))}
+							onChange={(e) => changeData("zip", e)}
 						/>
 						<TextField
 							flex
@@ -144,22 +125,24 @@ const BranchForm = (props: BranchFormOptions) => {
 							value={data.email}
 							placeholder={'e.g. 0856 9865 9854'}
 							maxLength={50}
-							onChange={(e) => setData(prev => ({
-								...prev,
-								email: e,
-							}))}
+							onChange={(e) => changeData("email", e)}
 						/>
 					</Flex>
 				</Flex>
 				<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
-						<Button type='submit' variant='cta'>Save</Button>
+						<Button type='submit' variant='cta'
+						isDisabled={!isDirty || !(isHeadValid && isNameValid)}>Save</Button>
 						<Button type='button' variant='primary'
-							onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+							onPress={() => callback({ method: 'cancel' })}>
+								{isDirty ? 'Cancel' : 'Close'}
+							</Button>
 					</Flex>
 					{data.id > 0 &&
 						<View>
-							<Button type='button' alignSelf={'flex-end'} variant='negative'
+							<Button type='button' 
+								isDisabled={data.id === 0}
+								alignSelf={'flex-end'} variant='negative'
 								onPress={() => deleteData(data)}>Remove</Button>
 						</View>
 					}
@@ -193,12 +176,18 @@ const BranchForm = (props: BranchFormOptions) => {
 			.put(`/branchs/${branch.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
+				//console.log(data)
 				callback({ method: 'save', data: branch })
 			})
 			.catch(error => {
 				console.log(error)
 			})
+	}
+
+	
+	function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+		setData(o => ({ ...o, [fieldName]: value }))
+		setIsDirty(true)
 	}
 
 	async function inserData(branch: iBranch) {
@@ -213,7 +202,7 @@ const BranchForm = (props: BranchFormOptions) => {
 			.post(`/branchs/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
+				//console.log(data)
 				callback({ method: 'save', data: data })
 			})
 			.catch(error => {
@@ -232,8 +221,8 @@ const BranchForm = (props: BranchFormOptions) => {
 			.delete(`/branchs/${branch.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
-				callback({ method: 'remove', data: data })
+				//console.log(data)
+				callback({ method: 'remove', data: branch })
 			})
 			.catch(error => {
 				console.log(error)

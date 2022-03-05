@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useEffect, useMemo, useState } from 'react';
 import { dateOnly, iAction, dateParam } from '../interfaces';
 import { Button, Flex, TextArea, TextField, View } from '@adobe/react-spectrum';
 import axios from '../axios-base';
@@ -19,9 +19,30 @@ type ActionFormOptions = {
 
 const ActionForm = (props: ActionFormOptions) => {
   const { action, callback } = props;
-  const [data, setData] = React.useState<iAction>(initAction);
+  const [data, setData] = useState<iAction>(initAction);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
 
-  React.useEffect(() => {
+  const isDescriptionsValid = useMemo(
+    () => {
+      if (data.descriptions) {
+        return data.descriptions.length > 0
+      }
+      return false
+    },
+    [data]
+  )
+
+  const isPicValid = React.useMemo(
+    () => data.pic.length >= 3,
+    [data]
+  )
+  const isCodeValid = React.useMemo(
+    () => data.code.length >= 3,
+    [data]
+  )
+
+
+  useEffect(() => {
     let isLoaded = true;
 
     if (isLoaded) {
@@ -35,45 +56,54 @@ const ActionForm = (props: ActionFormOptions) => {
 
   return (
     <form onSubmit={(e) => handleSubmit(e)}>
-      <Flex gap='size-200' direction={{ base: 'column', M: 'row' }}>
+      <Flex rowGap={'size-50'} direction={'column'}>
+      <Flex columnGap='size-200' rowGap={'size-50'} direction={{ base: 'column', M: 'row' }}>
         <TextField
           type={'date'}
           label='Tanggal'
           autoFocus
-          width={{ base: '100%' }}
+          width={'auto'}
           value={dateOnly(data.actionAt)}
-          maxLength={10}
-          onChange={(e) => setData((prev) => ({ ...prev, actionAt: e }))}
+          onChange={(e) => changeData("actionAt", e)}
         />
-        <TextField
-          label='Kode'
-          width={{ base: '100%' }}
-          value={data.code}
-          maxLength={50}
-          onChange={(e) => setData((prev) => ({ ...prev, code: e }))}
-        />
-      </Flex>
-      <Flex gap='size-200' direction={{ base: 'column', M: 'row' }}>
         <TextField
           flex
+          autoFocus
+          label='Kode'
+          width={'auto'}
+          validationState={isCodeValid ? 'valid' : 'invalid'}
+          placeholder={'e.g. CODE-2'}
+          value={data.code}
+          maxLength={50}
+          onChange={(e) => changeData("code", e)}
+        />
+        <TextField
+          validationState={isPicValid ? 'valid' : 'invalid'}
+          flex
+          placeholder={'e.g. CO-1'}
           label='Pic'
           width={'auto'}
           value={data.pic}
           maxLength={50}
-          onChange={(e) => setData((prev) => ({ ...prev, pic: e }))}
+          onChange={(e) => changeData("pic", e)}
         />
+        </Flex>
       <TextArea
+        validationState={isDescriptionsValid ? 'valid' : 'invalid'}
         flex
         label='Keterangan'
+        placeholder={'e.g. Kendaraan sudah tidak ada di pelanggan pada tanggal: ...'}
         width={'auto'}
         value={data.descriptions || ''}
-        maxLength={128}
-        onChange={(e) => setData((prev) => ({ ...prev, descriptions: e }))}
+        maxLength={256}
+        onChange={(e) => changeData("descriptions", e)}
       />
       </Flex>
       <Flex direction={'row'} gap='size-100' marginY={'size-200'}>
         <Flex flex direction={'row'} columnGap={'size-100'}>
-          <Button type='submit' variant='cta'>
+          <Button type='submit' variant='cta'
+            isDisabled={!isDirty || !(isDescriptionsValid && isPicValid && isCodeValid)}
+          >
             Save
           </Button>
           <Button
@@ -89,6 +119,7 @@ const ActionForm = (props: ActionFormOptions) => {
             <Button
               type='button'
               alignSelf={'flex-end'}
+              isDisabled={data.id === 0}
               variant='negative'
               onPress={() => deleteAction(data)}
             >
@@ -113,64 +144,68 @@ const ActionForm = (props: ActionFormOptions) => {
     }
   }
 
-  async function updateAction(action: iAction) {
+  async function updateAction(p: iAction) {
     const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    const xData = JSON.stringify(action);
-    console.log(action)
+    const xData = JSON.stringify(p);
 
     await axios
-      .put(`/actions/${action.id}/`, xData, { headers: headers })
+      .put(`/actions/${p.id}/`, xData, { headers: headers })
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
-        callback({ method: 'save', data: action });
+        callback({ method: 'save', data: p });
+        setIsDirty(false)
       })
       .catch((error) => {
         console.log(error);
       });
   }
 
-  async function insertAction(action: iAction) {
+  async function insertAction(p: iAction) {
     const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
-    const xData = JSON.stringify(action);
+    const xData = JSON.stringify(p);
 
     await axios
       .post(`/actions/`, xData, { headers: headers })
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
         callback({ method: 'save', data: data });
+        setIsDirty(false)
       })
       .catch((error) => {
         console.log(error);
       });
   }
 
-  async function deleteAction(action: iAction) {
+  async function deleteAction(p: iAction) {
     const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
     await axios
-      .delete(`/actions/${action.id}/`, { headers: headers })
+      .delete(`/actions/${p.id}/`, { headers: headers })
       .then((response) => response.data)
       .then((data) => {
-        console.log(data);
-        callback({ method: 'remove', data: data });
+        callback({ method: 'remove', data: p });
       })
       .catch((error) => {
         console.log(error);
       });
   }
+
+  function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+    setData(o => ({ ...o, [fieldName]: value }))
+    setIsDirty(true)
+  }
+
 };
 
 export default ActionForm;

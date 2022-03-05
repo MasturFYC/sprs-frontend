@@ -11,7 +11,11 @@ export type MerkFormOptions = {
 const MerkForm = (props: MerkFormOptions) => {
     const { merk, callback } = props;
     const [data, setData] = React.useState<iMerk>({ id: 0, name: '' } as iMerk)
-
+    const [isDirty, setIsDirty] = React.useState<boolean>(false);
+    const isNameValid = React.useMemo(
+        () => data.name.length >= 3,
+        [data]
+    )
     React.useEffect(() => {
         let isLoaded = true;
 
@@ -30,15 +34,24 @@ const MerkForm = (props: MerkFormOptions) => {
                     <TextField autoFocus aria-label='Merk-Kendaraan'
                         width={{ base: '100%' }}
                         value={data.name}
+                        validationState={isNameValid ? 'valid' : 'invalid'}
                         maxLength={50}
-                        onChange={(e) => setData(prev => ({ ...prev, name: e }))}
+                        placeholder={'Yamaha'}
+                        onChange={(e) => {
+                            setIsDirty(true)
+                            setData(prev => ({ ...prev, name: e }))
+                        }}
                     />
                 </View>
                 <Flex direction={'row'} gap='size-100'>
-                    <Button type='submit' variant='cta'>Save</Button>
-                    <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+                    <Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid)}>Save</Button>
+                    <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+                        {isDirty ? 'Cancel' : 'Close'}</Button>
                     {data.id > 0 &&
-                        <Button type='button' variant='negative' onPress={() => deleteMerk(data)}>Remove</Button>
+                        <Button type='button'
+                            isDisabled={data.id === 0}
+                            variant='negative'
+                            onPress={() => deleteMerk(data)}>Remove</Button>
                     }
                 </Flex>
             </Flex>
@@ -47,10 +60,10 @@ const MerkForm = (props: MerkFormOptions) => {
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault()
-        if(data.name.trim().length === 0 ) {
+        if (data.name.trim().length === 0) {
             return
         }
-        
+
         if (data.id === 0) {
             await insertMerk(data);
         } else {

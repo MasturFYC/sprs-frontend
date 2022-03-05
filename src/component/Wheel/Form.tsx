@@ -17,6 +17,15 @@ type WheelFormOptions = {
 const WheelForm = (props: WheelFormOptions) => {
     const { wheel, callback } = props;
     const [data, setData] = React.useState<iWheel>(initWheel)
+	const [isDirty, setIsDirty] = React.useState<boolean>(false);
+	const isNameValid = React.useMemo(
+		() => data.name.length > 5,
+		[data]
+	)
+	const isShortValid = React.useMemo(
+		() => data.shortName.length >= 2,
+		[data]
+	)
 
     React.useEffect(() => {
         let isLoaded = true;
@@ -35,24 +44,38 @@ const WheelForm = (props: WheelFormOptions) => {
                 <TextField autoFocus label='Singkatan'
                     width={{ base: '100%' }}
                     value={data.shortName}
+                    placeholder={'e.g. R2'}
+                    validationState={isShortValid ? 'valid' : 'invalid'}
                     maxLength={2}
-                    onChange={(e) => setData(prev => ({ ...prev, shortName: e }))}
+                    onChange={(e) => {
+                        setIsDirty(true);
+                        setData(prev => ({ ...prev, shortName: e }))
+                    }}
                 />
                 <TextField label='Nama jenis roda'
                     width={{ base: '100%' }}
+                    placeholder={'e.g. Roda Dua'}
                     value={data.name}
+                    validationState={isNameValid ? 'valid' : 'invalid'}
                     maxLength={10}
-                    onChange={(e) => setData(prev => ({ ...prev, name: e }))}
+                    onChange={(e) => {
+                        setIsDirty(true);
+                        setData(prev => ({ ...prev, name: e }));
+                    }}
                 />
             </Flex>
             <Flex direction={'row'} gap='size-100' marginY={'size-200'}>
                 <Flex flex direction={'row'} columnGap={'size-100'}>
-                    <Button type='submit' variant='cta'>Save</Button>
-                    <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+                    <Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isShortValid)}>Save</Button>
+					<Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+						{isDirty ? 'Cancel' : 'Close'}</Button>
                 </Flex>
                 {data.id > 0 &&
                     <View>
-                        <Button type='button' alignSelf={'flex-end'} variant='negative' onPress={() => deleteWheel(data)}>Remove</Button>
+						<Button type='button' alignSelf={'flex-end'}
+							isDisabled={data.id === 0}
+						variant='negative' 
+						onPress={() => deleteWheel(data)}>Remove</Button>
                     </View>
                 }
             </Flex>

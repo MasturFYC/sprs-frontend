@@ -19,9 +19,9 @@ export const siteTitle = "SPRS";
 const Layout = () => {
 
   let titleStyle = {
-    fontSize: "120%",
+    fontSize: "110%",
     fontWeight: 700,
-    lineHeight: "90%",
+    lineHeight: "100%",
     textDecoration: 'none',
     color: "Highlight"
   };

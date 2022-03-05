@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { iWarehouse } from '../interfaces'
 import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
 import axios from '../axios-base';
@@ -16,9 +16,10 @@ type WarehouseFormOptions = {
 
 const WarehouseForm = (props: WarehouseFormOptions) => {
 	const { warehouse, callback } = props;
-	const [data, setData] = React.useState<iWarehouse>(initWarehouse)
+	const [data, setData] = useState<iWarehouse>(initWarehouse)
+	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const isNameValid = React.useMemo(
-		() => data && data.name && data.name.length > 0,
+		() => data.name.length > 5,
 		[data]
 	)
 
@@ -40,25 +41,37 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 					width={{ base: '100%' }}
 					autoFocus
 					value={data.name}
+					placeholder={'e.g. Pusat'}
 					validationState={isNameValid ? "valid" : "invalid"}
 					maxLength={50}
-					onChange={(e) => setData(prev => ({ ...prev, name: e }))}
+					onChange={(e) => {
+						setIsDirty(true);
+						setData(prev => ({ ...prev, name: e }))}
+					}
 				/>
 				<TextField label='Lokasi'
 					width={{ base: '100%' }}
 					value={data.descriptions}
+					placeholder={'e.g. Jl. Merdeka Barat No. 1165, Jakarat Barat'}
 					maxLength={128}
-					onChange={(e) => setData(prev => ({ ...prev, descriptions: e }))}
+					onChange={(e) => {
+						setIsDirty(true);
+						setData(prev => ({ ...prev, descriptions: e }));
+					}}
 				/>
 			</Flex>
 			<Flex direction={'row'} gap='size-100' marginY={'size-200'}>
 				<Flex flex direction={'row'} columnGap={'size-100'}>
-					<Button type='submit' variant='cta'>Save</Button>
-					<Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>Cancel</Button>
+					<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid)}>Save</Button>
+					<Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+						{isDirty ? 'Cancel' : 'Close'}</Button>
 				</Flex>
 				{data.id > 0 &&
 					<View>
-						<Button type='button' alignSelf={'flex-end'} variant='negative' onPress={() => deleteWarehouse(data)}>Remove</Button>
+						<Button type='button' alignSelf={'flex-end'}
+							isDisabled={data.id === 0}
+						variant='negative' 
+						onPress={() => deleteWarehouse(data)}>Remove</Button>
 					</View>
 				}
 			</Flex>
@@ -90,7 +103,7 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 			.put(`/warehouses/${warehouse.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
+				//console.log(data)
 				callback({ method: 'save', data: warehouse })
 			})
 			.catch(error => {
@@ -110,7 +123,7 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 			.post(`/warehouses/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
+				//console.log(data)
 				callback({ method: 'save', data: data })
 			})
 			.catch(error => {
@@ -129,8 +142,8 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 			.delete(`/warehouses/${warehouse.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
-				callback({ method: 'remove', data: data })
+				//console.log(data)
+				callback({ method: 'remove', data: warehouse })
 			})
 			.catch(error => {
 				console.log(error)

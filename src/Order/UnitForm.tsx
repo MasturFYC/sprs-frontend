@@ -3,7 +3,7 @@ import { iType, iUnit, iWarehouse } from '../component/interfaces'
 import { Button, ComboBox, Flex, Item, NumberField, TextField, useAsyncList, View, Text, ProgressCircle } from '@adobe/react-spectrum';
 import axios from '../component/axios-base';
 
-export const initUnit: iUnit = {
+const initUnit: iUnit = {
 	orderId: 0,
 	nopol: '',
 	year: new Date().getFullYear(),
@@ -12,6 +12,7 @@ export const initUnit: iUnit = {
 	bpkbName: '',
 	color: '',
 	dealer: '',
+	surveyor: '',
 	typeId: 0,
 	warehouseId: 0
 }
@@ -40,7 +41,7 @@ const UnitForm = (props: UnitFormOptions) => {
 	)
 
 	const isYearValid = React.useMemo(
-		() => data && data.year && data.year > 0,
+		() => data && data.year && data.year > 1990,
 		[data]
 	)
 	const isTypeValid = React.useMemo(
@@ -106,13 +107,13 @@ const UnitForm = (props: UnitFormOptions) => {
 
 	}, [dataUnit, isNew])
 
-	if (houses.isLoading || types.isLoading) {
-		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
-	}
-
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
 			<h3>DATA ASSET / UNIT</h3>
+			{houses.isLoading || types.isLoading &&
+		 		<Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+			}
+
 			<Flex gap='size-100' direction={'column'}>
 				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap='size-100' columnGap={'size-200'}>
 					<ComboBox
@@ -269,7 +270,7 @@ const UnitForm = (props: UnitFormOptions) => {
 				<Flex direction={'row'} gap='size-100' marginTop={'size-200'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
 						<Button type='submit' variant='secondary'
-							isDisabled={!isDirty}>Update</Button>
+							isDisabled={!isDirty || !(isNopolValid && isTypeValid && isWarehouseValid && isYearValid)}>Update</Button>
 						<Button type='button' variant='primary'
 							isDisabled={!isDirty}
 							onPress={() => {
