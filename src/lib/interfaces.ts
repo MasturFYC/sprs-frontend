@@ -214,6 +214,7 @@ export interface iTrx {
     trxDate: string
     descriptions: string
     memo?: string
+    saldo: number
     details?: iTrxDetail[]
 }
 

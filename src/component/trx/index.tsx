@@ -4,7 +4,7 @@ import { iAccCodeType, iTrx, iTrxType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, ComboBox, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import TrxForm, { initTrx } from './form'
-import { FormatDate } from "../../lib/format";
+import { FormatDate, FormatNumber } from "../../lib/format";
 
 const Trx = () => {
   const [selectedId, setSelectedId] = React.useState<number>(-1);
@@ -164,7 +164,7 @@ const Trx = () => {
                   <View>{o.trxTypeId > 0 ? types.getItem(o.trxTypeId).name : ''}</View>
                 </View>
                 <View flex>
-                  Saldo: <b>{o.details ? o.details.reduce((a, b) => a + b.debt, 0) : 0}</b><br />
+                  Saldo: <b>{FormatNumber(o.saldo)}</b><br />
                   Memo: {o.memo || ''}
                 </View>
               </Flex>
@@ -216,7 +216,7 @@ const Trx = () => {
     const txt = e.replace(/ /g, ' | ')
 
     let res = await axios
-      .get(`/acc-code/search-name/${txt}/`, { headers: headers })
+      .get(`/trx/search-desc/${txt}/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         return data ? data : []
@@ -239,7 +239,7 @@ const Trx = () => {
     }
 
     let res = await axios
-      .get(`/acc-code/group-type/${id}/`, { headers: headers })
+      .get(`/trx/group-type/${id}/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         return data ? data : []

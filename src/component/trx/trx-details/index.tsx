@@ -1,17 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "../../../lib/axios-base";
 import { iAccCodeType, iTrxDetail } from '../../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import TrxDetailForm, { initDetail } from './form'
-import { Button, useAsyncList } from "@adobe/react-spectrum";
+import { Link, Button, useAsyncList, Flex, Divider } from "@adobe/react-spectrum";
 import AddIcon from '@spectrum-icons/workflow/Add'
+import { FormatNumber } from "../../../lib/format";
+import SaveIcon from '@spectrum-icons/workflow/SaveTo'
+import Removecon from '@spectrum-icons/workflow/Delete'
+import CancelIcon from '@spectrum-icons/workflow/Cancel'
 
 type TrxDetailsParam = {
   trxId: number,
   accs: iAccCodeType[],
+  detailCallback: (d: number, c: number, arr: iTrxDetail[]) => void
 }
 const TrxDetails = (props: TrxDetailsParam) => {
-  const { accs, trxId } = props;
+  const { accs, trxId, detailCallback } = props;
+  const [selectedId, setSelectedId] = useState<number>(-1)
+  const [detail, setDetail] = useState<iTrxDetail>({} as iTrxDetail);
 
   let details = useAsyncList<iTrxDetail>({
     async load({ signal }) {
@@ -36,99 +43,172 @@ const TrxDetails = (props: TrxDetailsParam) => {
   })
 
   return (
-    <View>
-      {[...details.items].map((o, i) => (
+    <View padding={'size-200'} backgroundColor={'gray-50'}>
+      <ShowHeader />
+      {[...details.items].map((o, i) => {
+        return o.id === selectedId ?
           <TrxDetailForm
             key={`${o.id + i}`}
-            isNew={o.id === 0}
             accs={accs}
-            detail={o}
-            callback={(e) => {
-              formResponse(e);
-            }}
-          />
-      ))}
+            data={detail}
+            changeData={changeData}
+          >
+            <View>
+              <Link isQuiet variant='primary'
+                onPress={() => saveDetail('save', detail)}
+              >
+
+                <span>{' '}<SaveIcon size='S' />{' '}</span>
+              </Link>
+              <Link isQuiet variant='secondary'
+                marginStart={'size-200'}
+                onPress={() => {
+                  setSelectedId(0);
+                }}
+              >
+                <span>{' '}<CancelIcon size='S' />{' '}</span>
+              </Link>
+            </View>
+          </TrxDetailForm>
+          :
+          <ShowDetail key={`${o.id + i}`} getCodeName={getCodeName} detail={o} setSelected={(e) => {
+            setSelectedId(e);
+            setDetail(details.getItem(e))
+          }}>
+            {/* <Button type='button'
+              flex
+              maxHeight={'size-50'}
+              isQuiet
+              isDisabled={selectedId === -1}
+              variant='primary'
+              onPress={() => {
+                details.remove(o.id);
+              }}
+            >
+              <Removecon size='XS' />
+            </Button> */}
+            <Link isQuiet onPress={() => saveDetail('remove', details.getItem(o.id))}>
+              <span>{' '}<Removecon size='S' />{' '}</span>
+            </Link>
+
+          </ShowDetail>
+      })}
       <View marginTop={'size-100'}>
-        <Button variant="secondary" onPress={() => addNewItem()}><AddIcon size='S' /></Button>
+        <Button variant="primary" onPress={() => addNewItem()}><AddIcon size='S' /></Button>
       </View>
     </View>
   );
 
-  function formResponse(params: { method: string, data?: iTrxDetail }) {
-    const { method, data } = params
+  function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+    const detailUpdate = { ...detail, [fieldName]: value }
+    setDetail(o => (detailUpdate))
+    //setIsDirty(true)
+  }
+
+  //   details.update(detail.id, detail)
+  //   setSelectedId(0);
+  //   if(details.items && details.items.length > 0) {
+  //   const debt = details.items.reduce((a,b)=> a + b.debt,0)
+  //   const cred = details.items.reduce((a,b)=> a + b.cred,0)
+  //   //console.log((debt > 0) && (cred > 0) && (debt - cred) === 0);
+  //   detailCallback((debt > 0) && (cred > 0) && (debt - cred) === 0);
+  //   }
+  // }
+
+  function getCodeName(id: number) {
+    const c = accs.filter(o => o.id === id)[0];
+    return c ? `${c.id} - ${c.name}` : '---'
+  }
+
+  function saveDetail(method: string, p: iTrxDetail) {
 
     const test = [...details.items.filter(o => o.id !== 0)];
-
-    switch (method) {
-      case 'insert':
-        if (data) {
-
-          let c = 1;
-
-          const filters = details.items.filter(o => o.id > 0)
-
-          if (filters) {
-            const i = filters.length;
-            if (i > 0) {
-              c = filters[i - 1].id + 1
-            }
-          }
-
-          const newData = { ...data, id: c }
-
-          details.remove(0)
-          details.append(newData)
-
-          test.push(newData)
-        }
+    let i = -1;
+    for (var c = 0; c < test.length; c++) {
+      if (test[c].id === p.id) {
+        i = c;
         break;
-      case 'update':
-        if (data) {
-          details.update(data.id, data)
-          let i = -1;
-          for (var c = 0; c < test.length; c++) {
-            if (test[c].id === data.id) {
-              i = c;
-              break;
-            }
-          }
-
-          if (i >= 0) {
-            test.splice(i, 1, data)
-          }
-        }
-        break;
-      case 'delete':
-        if (data) {
-          details.remove(data.id);
-          let i = -1;
-          for (var x = 0; x < test.length; x++) {
-            if (test[x].id === data.id) {
-              i = x;
-              break;
-            }
-          }
-
-          if (i >= 0) {
-            test.splice(i, 1)
-          }
-        }
-        break;
-      case 'cancel':
-        if (data && data.id === 0) {
-          details.remove(0);
-        }
-        return;
+      }
     }
 
+    switch (method) {
+      case 'save':
+        test.splice(i, 1, p);
+        details.update(p.id, p);
+        break;
+      case 'remove':
+        test.splice(i, 1);
+        details.remove(p.id);
+        break;
+    }
 
-    console.log(test)
+    const debt = test.reduce((a, b) => a + b.debt, 0);
+    const cred = test.reduce((a, b) => a + b.cred, 0);
+    detailCallback(debt, cred, test);
+
+
+    setSelectedId(0);
 
   }
 
   function addNewItem() {
-    details.append({ ...initDetail, trxId: trxId });
+    const i = (details.items.length > 0) ? details.items[details.items.length - 1].id + 1 : 1
+    const d = { ...initDetail, id: i, trxId: trxId };
+    setDetail(d)
+    details.append(d);
+    setSelectedId(i)
   }
 }
 
+function ShowHeader() {
+  return <View>
+    <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
+      <View flex>KETERANGAN</View>
+      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+        DEBET
+      </View>
+      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+        KREDIT
+      </View>
+      <View width={'size-1600'} UNSAFE_style={{ textAlign: 'center' }}>
+        COMMAND
+      </View>
+    </Flex>
+    <Divider size="S" marginY={'size-50'} />
+  </View>;
+}
+
+type ShowDetailParam = {
+  getCodeName: (id: number) => string,
+  setSelected: (id: number) => void,
+  detail: iTrxDetail,
+  children: JSX.Element
+}
+
+function ShowDetail(props: ShowDetailParam): JSX.Element {
+  const { getCodeName, children, setSelected, detail: o } = props;
+
+  return <View>
+    <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
+      <View flex>
+        <Link isQuiet flex={'none'} variant="primary" UNSAFE_style={{ fontWeight: 700 }}
+          onPress={() => setSelected(o.id)}>
+          <div>{getCodeName(o.accCodeId)}</div>
+        </Link>
+      </View>
+      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+        {FormatNumber(o.debt)}
+      </View>
+      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+        {FormatNumber(o.cred)}
+      </View>
+      <View width={'size-1600'} UNSAFE_style={{ textAlign: 'center' }}>
+        {children}
+      </View>
+    </Flex>
+    <Divider size="S" marginY={'size-50'} />
+  </View>;
+}
+
 export default TrxDetails;
+

@@ -1,6 +1,6 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import axios from '../../lib/axios-base';
-import { iTrx, iAccCodeType, dateParam, iAccType, dateOnly } from '../../lib/interfaces'
+import { iTrx, iAccCodeType, dateParam, iAccType, dateOnly, iTrxDetail } from '../../lib/interfaces'
 import {
   Button, ComboBox, Flex, Item,
   Text,
@@ -16,6 +16,7 @@ export const initTrx: iTrx = {
   trxDate: dateParam(null),
   descriptions: '',
   memo: '',
+  saldo: 0,
   details: []
 }
 
@@ -30,29 +31,23 @@ type TrxFormOptions = {
 const TrxForm = (props: TrxFormOptions) => {
   const { trx, callback, isNew, types, accs } = props;
   const [data, setData] = React.useState<iTrx>(initTrx)
-  const [isDirty, setIsDirty] = React.useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [debt, setDebt] = useState<number>(0);
+  const [cred, setCred] = useState<number>(0);
+  const [details, setDetails] = useState<iTrxDetail[]>([]);
 
   const isTypeValid = React.useMemo(
     () => data.trxTypeId > 0,
     [data]
   )
 
-  const isDescriptionsValid = React.useMemo(
-    () => data.descriptions.length > 10,
-    [data]
+  const isBalancedValid = React.useMemo(
+    () => (debt > 0) && (cred > 0) && (debt - cred) === 0,
+    [debt, cred]
   )
 
-  const isBalance = React.useMemo(
-    () => {
-      // if (data.id === 0) return true;
-      // if (data.details) {
-      //   const debt = data.details.reduce((a, b) => a + b.debt, 0);
-      //   const cred = data.details.reduce((a, b) => a + b.cred, 0);
-      //   console.log((debt > 0), (cred > 0), (debt - cred) === 0);
-      //   return (debt > 0) && (cred > 0) && (debt - cred) === 0
-      // }
-       return true;
-    },
+  const isDescriptionsValid = React.useMemo(
+    () => data.descriptions.length > 10,
     [data]
   )
 
@@ -69,24 +64,11 @@ const TrxForm = (props: TrxFormOptions) => {
   return (
     <View>
       <form onSubmit={(e) => handleSubmit(e)}>
-        <Flex rowGap='size-50' direction={'column'}>
 
-          <Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-50'}>
-            <Flex flex direction={'row'} columnGap={'size-125'}>
-              <Button type='submit' variant='cta' isDisabled={!isDirty || !(isTypeValid && isDescriptionsValid && isBalance)}>Save</Button>
-              <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
-                {isDirty ? 'Cancel' : 'Close'}</Button>
-            </Flex>
-            <View flex UNSAFE_style={{ fontWeight: 700, fontSize: '16px' }}>
-              Transaksi #{data.id}
-            </View>
-            <View>
-              <Button type='button' alignSelf={'flex-end'}
-                isDisabled={data.id === 0}
-                variant='negative'
-                onPress={() => deleteTrx(data)}>Remove</Button>
-            </View>
-          </Flex>
+        <Flex rowGap='size-50' direction={'column'}>
+          <View alignSelf={'center'} UNSAFE_style={{ fontWeight: 700, fontSize: '16px' }}>
+            Transaksi #{data.id}
+          </View>
 
           <TextArea
             label='Keterangan'
@@ -128,21 +110,52 @@ const TrxForm = (props: TrxFormOptions) => {
               </Item>}
             </ComboBox>
           </Flex>
+
+          <View>
+            <h3>Detail transaksi</h3>
+            <TrxDetails
+              accs={accs}
+              trxId={trx.id}
+              detailCallback={(d, c, arr) => {
+                setDebt(d);
+                setCred(c);
+                setDetails(arr)
+                changeData("saldo", d)
+              }}
+            />
+          </View>
+          <TextArea
+            label='Memo'
+            flex
+            width={'auto'}
+            placeholder={'e.g. Memo'}
+            value={data.memo || ''}
+            maxLength={128}
+            onChange={(e) => changeData("memo", e)}
+          />
+
+          <Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-100'}>
+            <Flex flex direction={'row'} columnGap={'size-125'}>
+              <Button type='submit' variant='cta' isDisabled={(!isDirty && !isBalancedValid) || !(isTypeValid && isDescriptionsValid)}>Save</Button>
+              <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+                {isDirty ? 'Cancel' : 'Close'}</Button>
+            </Flex>
+            <View>
+              <Button type='button' alignSelf={'flex-end'}
+                isDisabled={data.id === 0}
+                variant='negative'
+                onPress={() => deleteTrx(data)}>Remove</Button>
+            </View>
+          </Flex>
+
         </Flex>
       </form>
-      <View marginTop={'size-200'}>
-        <h3>Detail transaksi</h3>
-        <TrxDetails 
-          accs={accs} 
-          trxId={trx.id} 
-          />
-      </View>
     </View>
   );
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (isTypeValid && isDescriptionsValid && isBalance) {
+    if (isTypeValid && isDescriptionsValid) {
 
       if (isNew) {
         await insertTrx(data);
@@ -158,7 +171,7 @@ const TrxForm = (props: TrxFormOptions) => {
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify(p)
+    const xData = JSON.stringify({...p, details: details})
 
     await axios
       .put(`/trx/${trx.id}/`, xData, { headers: headers })
@@ -177,7 +190,7 @@ const TrxForm = (props: TrxFormOptions) => {
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify(p)
+    const xData = JSON.stringify({...p, details: details})
 
     await axios
       .post(`/trx/`, xData, { headers: headers })
