@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
-import axios from "../axios-base";
+import axios from "../../lib/axios-base";
 import MerkForm from './Form'
-import { iMerk } from '../interfaces'
+import { iMerk } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Link, useAsyncList } from "@adobe/react-spectrum";
 

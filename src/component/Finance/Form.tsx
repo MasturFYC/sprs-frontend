@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
-import { iFinance } from '../interfaces'
-import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
-import axios from '../axios-base';
+import { iFinance } from '../../lib/interfaces'
+import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
+import axios from '../../lib/axios-base';
 //import { Item } from "@react-spectrum/combobox";
 
 export const initFinance: iFinance = {

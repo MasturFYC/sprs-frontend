@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
-import { iType, iUnit, iWarehouse } from '../component/interfaces'
+import { iType, iUnit, iWarehouse } from '../lib/interfaces'
 import { Button, ComboBox, Flex, Item, NumberField, TextField, useAsyncList, View, Text, ProgressCircle } from '@adobe/react-spectrum';
-import axios from '../component/axios-base';
+import axios from '../lib/axios-base';
 
 const initUnit: iUnit = {
 	orderId: 0,
@@ -110,7 +110,7 @@ const UnitForm = (props: UnitFormOptions) => {
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
 			<h3>DATA ASSET / UNIT</h3>
-			{houses.isLoading || types.isLoading &&
+			{(houses.isLoading || types.isLoading) &&
 		 		<Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
 			}
 

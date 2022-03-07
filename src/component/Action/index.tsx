@@ -1,10 +1,10 @@
 import React, { Fragment } from "react";
-import axios from "../axios-base";
-import { iAction } from '../interfaces'
+import axios from "../../lib/axios-base";
+import { iAction } from '../../lib/interfaces'
 import ActionForm, { initAction } from './Form'
 import { View } from "@react-spectrum/view";
 import { Divider, Flex, Link, ProgressCircle, useAsyncList } from "@adobe/react-spectrum";
-import { FormatDate } from "../format";
+import { FormatDate } from "../../lib/format";
 
 type ActionParam = {
 	orderId: number

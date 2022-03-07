@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
-import { dateOnly, dateParam, iTask } from '../component/interfaces'
+import { dateOnly, dateParam, iTask } from '../lib/interfaces'
 import { Button, Flex, TextArea, TextField, View } from '@adobe/react-spectrum';
-import axios from '../component/axios-base';
+import axios from '../lib/axios-base';
 
 const initTask: iTask = {
   orderId: 0,

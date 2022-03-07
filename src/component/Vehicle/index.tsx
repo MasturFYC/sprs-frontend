@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
-import axios from "../axios-base";
-import { iType } from '../interfaces'
+import axios from "../../lib/axios-base";
+import { iType } from '../../lib/interfaces'
 import TypeForm, { initVehicle } from './Form'
 import { View } from "@react-spectrum/view";
 import { Link, useAsyncList } from "@adobe/react-spectrum";

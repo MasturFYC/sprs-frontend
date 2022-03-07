@@ -1,8 +1,7 @@
 import React, { FormEvent, useState } from 'react';
-import { iBranch } from '../interfaces'
-import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
-import axios from '../axios-base';
-import { Item } from "@react-spectrum/combobox";
+import { iBranch } from '../../lib/interfaces'
+import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
+import axios from '../../lib/axios-base';
 
 export const initBranch: iBranch = {
 	id: 0,

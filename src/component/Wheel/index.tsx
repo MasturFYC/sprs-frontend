@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
-import axios from "../axios-base";
+import axios from "../../lib/axios-base";
 import WheelForm, { initWheel } from './Form'
-import { iWheel } from '../interfaces'
+import { iWheel } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Link, useAsyncList } from "@adobe/react-spectrum";
 

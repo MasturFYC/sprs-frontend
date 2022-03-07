@@ -176,7 +176,6 @@ export interface iAddress {
     email?: string
 }
 
-
 export interface iTask {
     orderId: number
     descriptions: string
@@ -186,4 +185,50 @@ export interface iTask {
     recipientPosition: string
     giverPosition: string
     giverName: string
+}
+
+export interface iAccType {
+    id: number
+    name: string
+    descriptions?: string
+}
+
+export interface iAccCode {
+    id: number
+    name: string
+    accTypeId: number
+    descriptions?: string
+}
+
+export interface iTrxType {
+    id: number
+    name: string
+    descriptions?: string
+}
+
+export interface iTrx {
+    id: number
+    trxTypeId: number
+    refId: number
+    division: string
+    trxDate: string
+    descriptions: string
+    memo?: string
+    details?: iTrxDetail[]
+}
+
+export interface iTrxDetail {
+    id: number
+    accCodeId: number
+    trxId: number
+    debt: number
+    cred: number
+}
+
+export interface iAccCodeType {
+    id: number
+    name: string
+    typeId: number
+    typeName: string
+    descriptions?: string
 }

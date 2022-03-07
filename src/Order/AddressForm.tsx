@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
-import { iAddress } from '../component/interfaces'
+import { iAddress } from '../lib/interfaces'
 import { Button, Flex, TextField, View, Link } from '@adobe/react-spectrum';
-import axios from '../component/axios-base';
+import axios from '../lib/axios-base';
 
 const initAddress: iAddress = {
 	orderId: 0,

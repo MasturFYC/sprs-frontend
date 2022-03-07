@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
-import { iWheel } from '../interfaces'
+import { iWheel } from '../../lib/interfaces'
 import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
-import axios from '../axios-base';
+import axios from '../../lib/axios-base';
 
 export const initWheel: iWheel = {
     id: 0,

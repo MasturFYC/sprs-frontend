@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
-import { iType, iWheel, iMerk } from '../interfaces'
+import { iType, iWheel, iMerk } from '../../lib/interfaces'
 import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
-import axios from '../axios-base';
+import axios from '../../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
 
 export const initVehicle: iType = {

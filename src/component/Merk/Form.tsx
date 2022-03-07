@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
-import { iMerk } from '../interfaces'
+import { iMerk } from '../../lib/interfaces'
 import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
-import axios from '../axios-base';
+import axios from '../../lib/axios-base';
 
 export type MerkFormOptions = {
     merk: iMerk,

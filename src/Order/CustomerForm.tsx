@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
-import { iCustomer } from '../component/interfaces'
+import { iCustomer } from '../lib/interfaces'
 import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
-import axios from '../component/axios-base';
+import axios from '../lib/axios-base';
 
 export const initCustomer: iCustomer = {
 	orderId: 0,

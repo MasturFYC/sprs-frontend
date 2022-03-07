@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
-import { iReceivable, dateOnly, dateParam } from '../component/interfaces'
+import { iReceivable, dateOnly, dateParam } from '../lib/interfaces'
 import { Button, Flex, NumberField, TextField, View } from '@adobe/react-spectrum';
-import axios from '../component/axios-base';
+import axios from '../lib/axios-base';
 
 const initReceivable: iReceivable = {
   orderId: 0,

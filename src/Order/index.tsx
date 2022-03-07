@@ -1,9 +1,9 @@
 import React, { Fragment } from "react";
-import axios from "../component/axios-base";
-import { dateParam, iOrder } from '../component/interfaces'
+import axios from "../lib/axios-base";
+import { dateParam, iOrder } from '../lib/interfaces'
 //import OrderForm, { initOrder } from './Form'
 import { Button, Flex, Link, ProgressCircle, useAsyncList, View } from "@adobe/react-spectrum";
-import { FormatDate, FormatNumber } from "../component/format";
+import { FormatDate, FormatNumber } from "../lib/format";
 import './table.css'
 
 const OrderForm = React.lazy(()=> import('./Form'))
@@ -60,7 +60,8 @@ const Order = () => {
 		<Fragment>
  			<h1>Order (SPK)</h1>
 			<View marginY={'size-200'}>
-				<Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button></View>
+				<Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button>
+			</View>
 			<table>
 				<thead>
 					<tr>

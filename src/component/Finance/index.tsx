@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
-import axios from "../axios-base";
-import { iFinance } from '../interfaces'
+import axios from "../../lib/axios-base";
+import { iFinance } from '../../lib/interfaces'
 import FinanceForm, { initFinance } from './Form'
 import { View } from "@react-spectrum/view";
 import { Divider, Flex, Link, useAsyncList } from "@adobe/react-spectrum";

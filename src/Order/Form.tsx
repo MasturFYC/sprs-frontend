@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
-import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable, iTask, iAddress } from '../component/interfaces'
+import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable, iTask, iAddress } from '../lib/interfaces'
 import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, ProgressCircle, Divider } from '@adobe/react-spectrum';
-import axios from '../component/axios-base';
+import axios from '../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
 
 const CustomerForm = React.lazy(() => import('./CustomerForm'));
@@ -192,10 +192,6 @@ const OrderForm = (props: OrderFormOptions) => {
 		return () => { isLoaded = false }
 
 	}, [order])
-
-	if (finances.isLoading || branchs.isLoading) {
-		return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
-	}
 
 	return (
 		<View backgroundColor={'gray-100'}

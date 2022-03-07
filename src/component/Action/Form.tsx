@@ -1,7 +1,7 @@
 import React, { FormEvent, useEffect, useMemo, useState } from 'react';
-import { dateOnly, iAction, dateParam } from '../interfaces';
+import { dateOnly, iAction, dateParam } from '../../lib/interfaces';
 import { Button, Flex, TextArea, TextField, View } from '@adobe/react-spectrum';
-import axios from '../axios-base';
+import axios from '../../lib/axios-base';
 
 export const initAction: iAction = {
   id: 0,

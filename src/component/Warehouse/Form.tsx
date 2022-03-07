@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
-import { iWarehouse } from '../interfaces'
+import { iWarehouse } from '../../lib/interfaces'
 import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
-import axios from '../axios-base';
+import axios from '../../lib/axios-base';
 
 export const initWarehouse: iWarehouse = {
 	id: 0,
