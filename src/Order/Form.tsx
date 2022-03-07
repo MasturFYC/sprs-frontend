@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable, iTask, iAddress } from '../lib/interfaces'
-import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, ProgressCircle, Divider } from '@adobe/react-spectrum';
+import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, Divider } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
 
@@ -12,14 +12,14 @@ const UnitForm = React.lazy(() => import('./UnitForm'));
 const TaskForm = React.lazy(() => import('./TaskForm'));
 
 const initTask: iTask = {
-  orderId: 0,
-  descriptions: '',
-  periodFrom: dateParam(null),
-  periodTo: dateParam(null),
-  recipientName: '',
-  recipientPosition: '',
-  giverPosition: '',
-  giverName: '',
+	orderId: 0,
+	descriptions: '',
+	periodFrom: dateParam(null),
+	periodTo: dateParam(null),
+	recipientName: '',
+	recipientPosition: '',
+	giverPosition: '',
+	giverName: '',
 }
 
 const initAddress: iAddress = {
@@ -33,20 +33,20 @@ const initAddress: iAddress = {
 }
 
 const initReceivable: iReceivable = {
-  orderId: 0,
-  covenantAt: dateParam(null),
-  dueAt: dateParam(null),
-  mortgageByMonth: 0,
-  mortgageReceivable: 0,
-  runningFine: 0,
-  restFine: 0,
-  billService: 0,
-  payDeposit: 0,
-  restReceivable: 0,
-  restBase: 0,
-  dayPeriod: 0,
-  mortgageTo: 0,
-  dayCount: 0
+	orderId: 0,
+	covenantAt: dateParam(null),
+	dueAt: dateParam(null),
+	mortgageByMonth: 0,
+	mortgageReceivable: 0,
+	runningFine: 0,
+	restFine: 0,
+	billService: 0,
+	payDeposit: 0,
+	restReceivable: 0,
+	restBase: 0,
+	dayPeriod: 0,
+	mortgageTo: 0,
+	dayCount: 0
 }
 
 const initCustomer: iCustomer = {
@@ -86,7 +86,8 @@ const initOrder: iOrder = {
 	financeId: 0,
 	branchId: 0,
 	isStnk: true,
-	stnkPrice: 0
+	stnkPrice: 0,
+	matrix: 0,
 }
 
 type OrderFormOptions = {
@@ -107,8 +108,8 @@ const OrderForm = (props: OrderFormOptions) => {
 		[data]
 	)
 
-	const isFinanceValid = React.useMemo(
-		() => data.financeId > 0,
+	const isMatrixValid = React.useMemo(
+		() => data.matrix > 0,
 		[data]
 	)
 	const isBranchValid = React.useMemo(
@@ -208,7 +209,7 @@ const OrderForm = (props: OrderFormOptions) => {
 						<Flex direction={'row'} gap='size-50' marginBottom={'size-200'} marginTop={'size-50'}>
 							<Flex flex direction={'row'} columnGap={'size-100'}>
 								<Button type='submit'
-									isDisabled={!isDirty || !(isNameValid && isBranchValid && isFinanceValid && isPpnValid
+									isDisabled={!isDirty || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
 										&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid)}
 									variant='cta'>Save</Button>
 								<Button type='button' variant='primary'
@@ -245,20 +246,18 @@ const OrderForm = (props: OrderFormOptions) => {
 								onChange={(e) => changeData("name", e)}
 							/>
 							<TextField
-								flex={{ base: '1', M: 'none' }}
+								//flex={{ base: '1', M: 'none' }}
 								type={'date'}
 								label='Tanggal'
-								width={{ base: 'auto', M: '25%' }}
+								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
 								value={dateOnly(data.orderAt)}
-								maxLength={10}
 								onChange={(e) => changeData("orderAt", e)}
 							/>
 							<TextField
 								type={'date'}
 								label='Tanggal cetak'
-								width={{ base: 'auto', M: '25%' }}
+								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
 								value={dateOnly(data.printedAt)}
-								maxLength={10}
 								onChange={(e) => changeData("printedAt", e)}
 							/>
 						</Flex>
@@ -266,33 +265,41 @@ const OrderForm = (props: OrderFormOptions) => {
 							<NumberField
 								flex
 								hideStepper={true}
-								validationState={isBtFinanceValid ? 'valid' : 'invalid'}
+								validationState={isMatrixValid ? 'valid' : 'invalid'}
 								width={"auto"}
-								label={"BT Finance"}
-								onChange={(e) => setFinance(e)}
-								value={data.btFinance} />
+								label={"Matrix"}
+								onChange={(e) => setMatrix(e)}
+								value={data.matrix} />
 							<Checkbox isSelected={data.isStnk}
 								marginTop={'size-300'}
+								width={{ base: 'auto', L: '140px' }}
 								onChange={(e) => {
-									if (e) {
-										setStnk(0)
-									}
+									setStnk(e ? 0 : 200000)
 									changeData("isStnk", e)
 								}}>
-								Ada STNK
+								{data.isStnk ? 'Ada STNK' : 'Tidak ada STNK'}
 							</Checkbox>
 							<NumberField
 								isDisabled={data.isStnk}
 								hideStepper={true}
 								validationState={isStnkValid ? 'valid' : 'invalid'}
-								width={"auto"}
+								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
 								label={"Potongan STNK"}
 								onChange={(e) => setStnk(e)}
 								value={data.stnkPrice} />
 							<NumberField
 								hideStepper={true}
+								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
+								isReadOnly
+								label={"BT Finance"}
+								onChange={(e) => changeData("btFinance", e)}
+								value={data.btFinance} />
+						</Flex>
+						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
+							<NumberField
+								hideStepper={true}
 								validationState={isBtPercentValid ? 'valid' : 'invalid'}
-								width={{ base: "auto", M: "15%" }}
+								width={{ base: "auto", M: "90px" }}
 								label={"Prosentase (%)"}
 								onChange={(e) => setPercent(e)}
 								value={data.btPercent} />
@@ -301,31 +308,27 @@ const OrderForm = (props: OrderFormOptions) => {
 								hideStepper={true}
 								isReadOnly
 								onChange={(e) => changeData("btMatel", e)}
-								width={"auto"}
+								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
 								label={"BT Matel"}
 								value={data.btMatel} />
-						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
 							<NumberField
 								hideStepper={true}
 								validationState={isPpnValid ? 'valid' : 'invalid'}
-								width={{ base: "auto", M: "15%" }}
+								width={{ base: "auto", M: "90px" }}
 								label={"PPN (%)"}
 								onChange={(e) => setPpn(e)}
 								value={data.ppn} />
 							<NumberField
-								flex
 								hideStepper={true}
 								isReadOnly
-								width={"auto"}
+								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
 								onChange={(e) => changeData("nominal", e)}
 								label={"Nominal"}
 								value={data.nominal} />
 							<NumberField
-								flex
 								hideStepper={true}
 								isReadOnly
-								width={"auto"}
+								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
 								onChange={(e) => changeData("subtotal", e)}
 								label={"Profit"}
 								value={data.subtotal} />
@@ -334,7 +337,7 @@ const OrderForm = (props: OrderFormOptions) => {
 							<ComboBox
 								menuTrigger="focus"
 								flex
-								validationState={isFinanceValid ? "valid" : "invalid"}
+								validationState={isMatrixValid ? "valid" : "invalid"}
 								width={'auto'}
 								label={"Finance"}
 								placeholder={"e.g. Adira"}
@@ -355,10 +358,9 @@ const OrderForm = (props: OrderFormOptions) => {
 								</Item>}
 							</ComboBox>
 							<ComboBox
-								menuTrigger="focus"
 								flex
-								validationState={isBranchValid ? "valid" : "invalid"}
-								width={'auto'}
+								menuTrigger="focus"
+								validationState={isBranchValid ? "valid" : "invalid"}								
 								label={"Cabang penerima order"}
 								placeholder={"e.g. Pusat"}
 								defaultItems={branchs.items}
@@ -529,16 +531,19 @@ const OrderForm = (props: OrderFormOptions) => {
 
 	);
 
-	function setFinance(v: number) {
-		const matel = v - (v * (data.btPercent / 100))
-		const nominal = v * (data.ppn / 100.0)
+	function setMatrix(v: number) {
+		const fin = v - data.stnkPrice
+		const matel = fin - (fin * (data.btPercent / 100.0))
+		const nominal = fin * (data.ppn / 100.0)
+		const profit = fin - matel - nominal
 
 		setData(o => ({
 			...o,
-			btFinance: v,
+			matrix: v,
+			btFinance: fin,
 			btMatel: matel,
 			nominal: nominal,
-			subtotal: v - matel - nominal - o.stnkPrice
+			subtotal: profit
 		}))
 
 		setIsDirty(true)
@@ -546,12 +551,13 @@ const OrderForm = (props: OrderFormOptions) => {
 
 	function setPercent(v: number) {
 		const matel = data.btFinance - (data.btFinance * (v / 100.0))
+		const profit = data.btFinance - matel - data.nominal
 
 		setData(o => ({
 			...o,
 			btPercent: v,
 			btMatel: matel,
-			subtotal: o.btFinance - matel - o.nominal - o.stnkPrice
+			subtotal: profit
 		}))
 
 		setIsDirty(true)
@@ -559,21 +565,29 @@ const OrderForm = (props: OrderFormOptions) => {
 
 	function setPpn(v: number) {
 		const nominal = data.btFinance * (v / 100.0)
+		const profit = data.btFinance - data.btMatel - nominal
 		setData(o => ({
 			...o,
 			ppn: v,
 			nominal: nominal,
-			subtotal: o.btFinance - o.btMatel - nominal - o.stnkPrice
+			subtotal: profit
 		}))
 
 		setIsDirty(true)
 	}
 
 	function setStnk(v: number) {
+		const fin = data.matrix - v
+		const matel = fin - (fin * (data.btPercent / 100.0))
+		const nominal = fin * (data.ppn / 100.0)
+		const profit = fin - matel - nominal
 		setData(o => ({
 			...o,
+			btFinance: fin,
 			stnkPrice: v,
-			subtotal: o.btFinance - o.btMatel - o.nominal - v
+			btMatel: matel,
+			nominal: nominal,
+			subtotal: profit
 		}))
 
 		setIsDirty(true)

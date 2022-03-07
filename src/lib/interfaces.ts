@@ -86,6 +86,7 @@ export interface iOrder {
     branchId: number
     isStnk: boolean
     stnkPrice: number
+    matrix: number
     
     branch?: iBranch
     finance?: iFinance

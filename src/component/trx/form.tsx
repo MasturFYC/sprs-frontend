@@ -42,8 +42,8 @@ const TrxForm = (props: TrxFormOptions) => {
   )
 
   const isBalancedValid = React.useMemo(
-    () => (debt > 0) && (cred > 0) && (debt - cred) === 0,
-    [debt, cred]
+    () => data.saldo > 0 && (debt - cred) === 0,
+    [debt, cred, data]
   )
 
   const isDescriptionsValid = React.useMemo(
@@ -136,7 +136,8 @@ const TrxForm = (props: TrxFormOptions) => {
 
           <Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-100'}>
             <Flex flex direction={'row'} columnGap={'size-125'}>
-              <Button type='submit' variant='cta' isDisabled={(!isDirty && !isBalancedValid) || !(isTypeValid && isDescriptionsValid)}>Save</Button>
+              <Button type='submit' variant='cta' 
+                isDisabled={!isBalancedValid || !isDirty || !(isDescriptionsValid && isTypeValid)}>Save</Button>
               <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
                 {isDirty ? 'Cancel' : 'Close'}</Button>
             </Flex>

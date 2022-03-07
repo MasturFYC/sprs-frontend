@@ -2,13 +2,34 @@ import React, { useState } from "react";
 import axios from "../../lib/axios-base";
 import { iAccCode, iAccType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, ComboBox, Divider, Flex, Item, Link, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
+import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import AccCodeForm, { initAccCode } from './form'
+
 
 const AccCode = () => {
   const [selectedId, setSelectedId] = React.useState<number>(-1);
   const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
+
+  let types = useAsyncList<iAccType>({
+    async load({ signal }) {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      let res = await axios
+        .get("/acc-type/", { headers: headers })
+        .then(response => response.data)
+        .then(data => data)
+        .catch(error => {
+          console.log('-------', error)
+          return []
+        })
+
+      return { items: res || [] }
+    },
+    getKey: (item: iAccType) => item.id
+  })
 
   let accs = useAsyncList<iAccCode>({
     async load({ signal }) {
@@ -20,35 +41,21 @@ const AccCode = () => {
         .get("/acc-code/", { headers: headers })
         .then(response => response.data)
         .then(data => {
-          return data ? data : []
+          return data
         })
         .catch(error => {
           console.log('-------', error)
+          return []
         })
 
-      return { items: res }
+      return { items: res || [] }
     },
     getKey: (item: iAccCode) => item.id
   })
 
-  let types = useAsyncList<iAccType>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/acc-type/", { headers: headers })
-        .then(response => response.data)
-        .then(data => data ? data : [])
-        .catch(error => {
-          console.log('-------', error)
-        })
-
-      return { items: res }
-    },
-    getKey: (item: iAccType) => item.id
-  })
+  if (accs.isLoading || types.isLoading) {
+    return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+  }
 
   return (
     <View>
@@ -80,27 +87,23 @@ const AccCode = () => {
           labelPosition={'side'}
           menuTrigger='focus'
           placeholder={"e.g. Adira"}
-          defaultItems={[{ id: 0, name: 'Pilih tipe akun', descriptions: '' }, ...types.items]}
+          items={[{ id: 0, name: 'Pilih tipe akun', descriptions: '' }, ...types.items]}
           selectedKey={typeId}
           onSelectionChange={(e) => {
             setTypeId(+e);
-            if (+e === 0) {
-              loadAllCodes();
-            } else {
-              searchCodeByType(+e)
-            }
+            (+e === 0) ? loadAllCodes() : searchCodeByType(+e)
           }}
         >
-          {(item) => <Item textValue={`${item.id} - ${item.name}`}>
-            <Text><span style={{ fontWeight: 700 }}>{item.id} - {item.name}</span></Text>
-            <Text slot='description'>{item.descriptions}</Text>
+          {o => <Item textValue={o.id === 0 ? 'Pilih kode akun' : `${o.id} - ${o.name}`}>
+            <Text><span className="font-bold">{o.id === 0 ? 'Pilih kode akun' : `${o.id} - ${o.name}`}</span></Text>
+            <Text slot='description'>{o.descriptions || ''}</Text>
           </Item>}
         </ComboBox>
       </Flex>
 
       <Divider size="S" marginY='size-100' />
 
-      {accs.items && accs.items.map(o => {
+      {showItems().map(o => {
 
         return o.id === selectedId ?
           <View key={o.id}
@@ -122,12 +125,21 @@ const AccCode = () => {
           :
           <View key={o.id}>
             <Flex direction={{ base: 'column', L: 'row' }} columnGap='size-200' rowGap='size-50'>
-              <View width={{ base: 'auto', M: '30%' }}>
-                <Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
-                  onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
-                  <span>{o.id} - {o.name}</span>
-                </Link>
-              </View>
+              <Flex flex direction={'row'} columnGap='size-100' rowGap='size-50'>
+                <View width={'40px'}>
+                  <Link isQuiet variant={'primary'} UNSAFE_className={'font-bold'}
+                    onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
+                    <span>{o.id}</span>
+                  </Link>
+                </View>
+                <View flex width={'auto'}>
+                  <Link isQuiet variant={'primary'} 
+                    UNSAFE_className={'font-bold'}
+                    onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
+                    <span>{o.name}</span>
+                  </Link>
+                </View>
+              </Flex>
               <View flex>
                 {o.descriptions}
               </View>
@@ -135,8 +147,15 @@ const AccCode = () => {
             <Divider size="S" marginY='size-100' />
           </View>
       })}
-    </View>
+    </View >
   );
+
+  function showItems(): iAccCode[] {
+    if (accs.items && accs.items.length > 0) {
+      return accs.items;
+    }
+    return [];
+  }
 
   function formResponse(params: { method: string, data?: iAccCode }) {
     const { method, data } = params
@@ -173,71 +192,67 @@ const AccCode = () => {
 
   async function searchCode(e: string) {
 
+    accs.setSelectedKeys('all')
+    accs.removeSelectedItems();
+
     const headers = {
       'Content-Type': 'application/json'
     }
 
     const txt = e.replace(/ /g, ' | ')
 
-    let res = await axios
+    await axios
       .get(`/acc-code/search-name/${txt}/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        return data ? data : []
+        accs.append(...data);
       })
       .catch(error => {
         console.log('-------', error)
-        return []
       })
-
-    accs.setSelectedKeys('all')
-    accs.removeSelectedItems();
-    accs.append(...res);
 
   }
 
   async function searchCodeByType(id: number) {
 
+    accs.setSelectedKeys('all')
+    accs.removeSelectedItems();
+
     const headers = {
       'Content-Type': 'application/json'
     }
 
-    let res = await axios
+    await axios
       .get(`/acc-code/group-type/${id}/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        return data ? data : []
+        accs.append(...data);
       })
       .catch(error => {
-        console.log('-------', error)
-        return []
+        console.log(error)
       })
 
-    accs.setSelectedKeys('all')
-    accs.removeSelectedItems();
-    accs.append(...res);
   }
 
   async function loadAllCodes() {
 
+    accs.setSelectedKeys('all')
+    accs.removeSelectedItems();
+
     const headers = {
       'Content-Type': 'application/json'
     }
 
-    let res = await axios
+    await axios
       .get(`/acc-code/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        return data ? data : []
+        accs.append(...data);
       })
       .catch(error => {
         console.log('-------', error)
-        return []
       })
 
-    accs.setSelectedKeys('all')
-    accs.removeSelectedItems();
-    accs.append(...res);
   }
 
 }

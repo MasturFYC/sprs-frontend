@@ -70,7 +70,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
             onSelectionChange={(e) => changeData("accTypeId", +e)}
           >
             {(item) => <Item textValue={`${item.id} - ${item.name}`}>
-              <Text><span style={{ fontWeight: 700 }}>{item.id} - {item.name}</span></Text>
+              <Text><span className="font-bold">{item.id} - {item.name}</span></Text>
               <Text slot='description'>{item.descriptions}</Text>
             </Item>}
           </ComboBox>

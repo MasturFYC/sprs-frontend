@@ -71,26 +71,14 @@ const TrxDetails = (props: TrxDetailsParam) => {
             </View>
           </TrxDetailForm>
           :
-          <ShowDetail key={`${o.id + i}`} getCodeName={getCodeName} detail={o} setSelected={(e) => {
-            setSelectedId(e);
-            setDetail(details.getItem(e))
-          }}>
-            {/* <Button type='button'
-              flex
-              maxHeight={'size-50'}
-              isQuiet
-              isDisabled={selectedId === -1}
-              variant='primary'
-              onPress={() => {
-                details.remove(o.id);
-              }}
-            >
-              <Removecon size='XS' />
-            </Button> */}
+          <ShowDetail key={`${o.id + i}`} getCodeName={getCodeName}
+            detail={o} setSelected={(e) => {
+              setSelectedId(e);
+              details && details.getItem(e) && setDetail(details.getItem(e))
+            }}>
             <Link isQuiet onPress={() => saveDetail('remove', details.getItem(o.id))}>
               <span>{' '}<Removecon size='S' />{' '}</span>
             </Link>
-
           </ShowDetail>
       })}
       <View marginTop={'size-100'}>
@@ -164,13 +152,13 @@ function ShowHeader() {
   return <View>
     <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
       <View flex>KETERANGAN</View>
-      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+      <View width={'size-2000'} UNSAFE_className={'text-right'}>
         DEBET
       </View>
-      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+      <View width={'size-2000'} UNSAFE_className={'text-right'}>
         KREDIT
       </View>
-      <View width={'size-1600'} UNSAFE_style={{ textAlign: 'center' }}>
+      <View width={'size-1600'} UNSAFE_className={'text-center'}>
         COMMAND
       </View>
     </Flex>
@@ -188,26 +176,29 @@ type ShowDetailParam = {
 function ShowDetail(props: ShowDetailParam): JSX.Element {
   const { getCodeName, children, setSelected, detail: o } = props;
 
-  return <View>
+  return (<View>
     <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
       <View flex>
-        <Link isQuiet flex={'none'} variant="primary" UNSAFE_style={{ fontWeight: 700 }}
+        <Link isQuiet flex={'none'} variant="primary"
+          UNSAFE_className={'font-bold'}
           onPress={() => setSelected(o.id)}>
           <div>{getCodeName(o.accCodeId)}</div>
         </Link>
       </View>
-      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+      <View width={'size-2000'} UNSAFE_className={'text-right'}>
         {FormatNumber(o.debt)}
       </View>
-      <View width={'size-2000'} UNSAFE_style={{ textAlign: 'right' }}>
+      <View width={'size-2000'} UNSAFE_className={'text-right'}>
         {FormatNumber(o.cred)}
       </View>
-      <View width={'size-1600'} UNSAFE_style={{ textAlign: 'center' }}>
+      <View width={'size-1600'} UNSAFE_className={'text-center'}>
         {children}
       </View>
     </Flex>
     <Divider size="S" marginY={'size-50'} />
-  </View>;
+  </View>
+  );
+
 }
 
 export default TrxDetails;

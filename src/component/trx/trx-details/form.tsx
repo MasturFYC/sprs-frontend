@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { iAccCodeType, iTrxDetail } from '../../../lib/interfaces'
 import {
   ComboBox, Flex, Item, NumberField,
@@ -21,8 +21,8 @@ type TrxDetailFormOptions = {
   children: JSX.Element
 }
 
-const TrxDetailForm = (props: TrxDetailFormOptions) => {
-  const { data, changeData, accs, children } = props;
+const TrxDetailForm: React.FC<TrxDetailFormOptions> = ({ data, changeData, accs, children }) => {
+  //const [data, setData] = useState(initDetail)
 
   // const isCodeValid = React.useMemo(
   //   () => data.accCodeId > 0,
@@ -101,7 +101,7 @@ const TrxDetailForm = (props: TrxDetailFormOptions) => {
             aria-label={"cred-akun"}
             onChange={(e) => changeData("cred", e)}
             value={data.cred} />
-          <View width={'size-1600'} UNSAFE_style={{textAlign: 'center'}}>
+          <View width={'size-1600'} UNSAFE_className={'text-center'}>
             {children}
           </View>
         </Flex>

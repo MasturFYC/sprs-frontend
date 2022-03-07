@@ -6,7 +6,7 @@ import { Button, Flex, Link, ProgressCircle, useAsyncList, View } from "@adobe/r
 import { FormatDate, FormatNumber } from "../lib/format";
 import './table.css'
 
-const OrderForm = React.lazy(()=> import('./Form'))
+const OrderForm = React.lazy(() => import('./Form'))
 
 
 const Order = () => {
@@ -58,80 +58,16 @@ const Order = () => {
 
 	return (
 		<Fragment>
- 			<h1>Order (SPK)</h1>
+			<h1>Order (SPK)</h1>
 			<View marginY={'size-200'}>
 				<Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button>
 			</View>
-			<table>
-				<thead>
-					<tr>
-						<th align="left" style={{whiteSpace: 'nowrap'}}>NOMOR (SPK)</th>
-						<th>TANGGAL</th>
-						<th align="left">MERK</th>
-						<th align="left">TYPE</th>
-						<th align="left">FINANCE</th>
-						<th align="left">NOPOL</th>
-						<th>TAHUN</th>
-						<th align="right" style={{whiteSpace: 'nowrap'}}>BT FINANCE</th>
-						<th align="right" style={{whiteSpace: 'nowrap'}}>BT MATEL</th>
-						<th align="right">PPN</th>
-						<th align="right" style={{whiteSpace: 'nowrap'}}>ADA STNK</th>
-						<th align="right">PROFIT</th>
-						{/* <th align="left">UNIT</th> */}
-					</tr>
-				</thead>
-				<tbody style={{color: selectedId < 0 ? 'black' : '#abc'}}>
-					{orders.items.map((item, index) =>
-						item.id === selectedId ?
-							<tr key={item.id}>
-								<td colSpan={12} style={{padding: '12px 0', color: selectedId >= 0 ? 'black' : 'auto'}}>
-									<React.Suspense fallback={<div>Please wait...</div>}>
-									<OrderForm order={item} 
-										callback={(e) => formResponse(e)}
-										updateChild={e => updateChild(e)}
-										/>
-									</React.Suspense>
-								</td>
-							</tr>
-							:
-							<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
-								title={`${item.unit?.warehouse?.name } - ${item.branch?.name} `}>
-								<td>{selectedId < 0 ? <Link isQuiet variant="primary" 
-									UNSAFE_style={{fontWeight: 700}} onPress={(e) => {
-									setSelectedId(item.id)
-								}}>{item.name}</Link>
-							:
-							item.name
-							}</td>
-								<td align="center" style={{whiteSpace: 'nowrap'}}>{FormatDate(item.orderAt)}</td>
-								<td>{item.unit?.type?.merk?.name}</td>
-								<td style={{whiteSpace: 'nowrap'}}>{item.unit?.type?.name}</td>
-								<td>{item.finance?.shortName}</td>
-								<td>{item.unit?.nopol}</td>
-								<td align="center">{item.unit?.year}</td>
-								<td align="right">{FormatNumber(item.btFinance)}</td>
-								<td align="right">{FormatNumber(item.btMatel)}</td>
-								<td align="right">{FormatNumber(item.nominal)}</td>
-								<td align="right">
-									{item.isStnk ? '✔' : ''}{' '}
-										{FormatNumber(item.stnkPrice)}									
-									</td>
-								<td align="right">{FormatNumber(item.subtotal)}</td>
-								{/* <td></td> */}
-							</tr>
-					)}
-				</tbody>
-				<tfoot>
-					<tr>
-						<th colSpan={7} align="left">Total</th>
-						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.btFinance, 0))}</th>
-						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.btMatel, 0))}</th>
-						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.nominal, 0))}</th>
-						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
-						<th align="right">{FormatNumber(orders.items.reduce((acc, v) => acc + v.subtotal, 0))}</th>
-					</tr>
-				</tfoot>
-			</table>
+			<TableOrder
+				selectedId={selectedId}
+				orders={orders.items} 
+				formResponse={formResponse}
+				updateChild={updateChild}
+				setSelectedId={setSelectedId} />
 		</Fragment>
 	)
 
@@ -148,21 +84,21 @@ const Order = () => {
 				setSelectedId(-1)
 			}
 		}
-		else if(method === 'cancel') {
-			if(selectedId === 0) {
+		else if (method === 'cancel') {
+			if (selectedId === 0) {
 				orders.remove(0)
 			}
-			setSelectedId(-1)	
+			setSelectedId(-1)
 		}
 		else if (method === 'remove') {
 			orders.remove(selectedId)
 			setSelectedId(-1)
 		}
 
-		
+
 	}
 
-	function updateChild(data: iOrder) {		
+	function updateChild(data: iOrder) {
 		orders.update(data.id, data)
 	}
 
@@ -185,7 +121,8 @@ const Order = () => {
 				financeId: 0,
 				branchId: 0,
 				isStnk: true,
-				stnkPrice: 0
+				stnkPrice: 0,
+				matrix: 0
 			})
 		}
 		setSelectedId(0)
@@ -193,3 +130,84 @@ const Order = () => {
 }
 
 export default Order;
+
+type TableOrderProp = {
+	selectedId: number, 
+	orders: iOrder[],
+	formResponse: (params: { method: string; data?: iOrder | undefined; }) => void,
+	updateChild: (data: iOrder) => void,
+	setSelectedId: React.Dispatch<React.SetStateAction<number>>
+}
+function TableOrder(props: TableOrderProp) {
+	const {selectedId, orders, formResponse,updateChild, setSelectedId} = props;
+
+	return <table>
+		<thead>
+			<tr>
+				<th align="left" style={{ whiteSpace: 'nowrap' }}>NOMOR (SPK)</th>
+				<th>TANGGAL</th>
+				<th align="left">MERK</th>
+				<th align="left">TYPE</th>
+				<th align="left">FINANCE</th>
+				<th align="left">NOPOL</th>
+				<th>TAHUN</th>
+				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT FINANCE</th>
+				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT MATEL</th>
+				<th align="right">PPN</th>
+				<th align="right" style={{ whiteSpace: 'nowrap' }}>STNK ?</th>
+				<th align="right">PROFIT</th>
+				{/* <th align="left">UNIT</th> */}
+			</tr>
+		</thead>
+		<tbody style={{ color: selectedId < 0 ? 'black' : '#abc' }}>
+			{orders.map((item, index) => item.id === selectedId ?
+				<tr key={item.id}>
+					<td colSpan={12} style={{ padding: '12px 0', color: selectedId >= 0 ? 'black' : 'auto' }}>
+						<React.Suspense fallback={<div>Please wait...</div>}>
+							<OrderForm order={item}
+								callback={(e) => formResponse(e)}
+								updateChild={e => updateChild(e)} />
+						</React.Suspense>
+					</td>
+				</tr>
+				:
+				<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
+					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
+					<td>
+						{selectedId < 0 ? <Link isQuiet variant="primary"
+							UNSAFE_style={{ fontWeight: 700 }} onPress={(e) => {
+								setSelectedId(item.id);
+							} }>{item.name}</Link>
+							:
+							item.name}
+					</td>
+					<td align="center" style={{ whiteSpace: 'nowrap' }}>{FormatDate(item.orderAt)}</td>
+					<td>{item.unit?.type?.merk?.name}</td>
+					<td style={{ whiteSpace: 'nowrap' }}>{item.unit?.type?.name}</td>
+					<td>{item.finance?.shortName}</td>
+					<td>{item.unit?.nopol}</td>
+					<td align="center">{item.unit?.year}</td>
+					<td align="right">{FormatNumber(item.btFinance)}</td>
+					<td align="right">{FormatNumber(item.btMatel)}</td>
+					<td align="right">{FormatNumber(item.nominal)}</td>
+					<td align="right">
+						{item.isStnk ? '✔' : ''}{' '}
+						{FormatNumber(item.stnkPrice)}
+					</td>
+					<td align="right">{FormatNumber(item.subtotal)}</td>
+					{/* <td></td> */}
+				</tr>
+			)}
+		</tbody>
+		<tfoot>
+			<tr>
+				<th colSpan={7} align="left">Total</th>
+				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btFinance, 0))}</th>
+				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btMatel, 0))}</th>
+				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.nominal, 0))}</th>
+				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
+				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.subtotal, 0))}</th>
+			</tr>
+		</tfoot>
+	</table>;
+}
