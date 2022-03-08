@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { iAccCodeType, iTrxDetail } from '../../../lib/interfaces'
 import {
   ComboBox, Flex, Item, NumberField,

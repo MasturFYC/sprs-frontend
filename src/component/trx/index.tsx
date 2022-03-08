@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "../../lib/axios-base";
 import { iAccCodeType, iTrx, iTrxType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, ComboBox, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
+import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import TrxForm, { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
 
@@ -82,7 +82,7 @@ const Trx = () => {
     <View>
       <h1>Transaksi</h1>
 
-      <Flex direction='row' gap='size-200'
+      <Flex direction={{ base: 'column', M: 'row' }} gap='size-200'
         marginY={'size-200'}>
         <Button variant="cta" onPress={() => addNewItem()}>Transaksi Baru</Button>
         <SearchField
@@ -152,27 +152,52 @@ const Trx = () => {
           :
           <View key={o.id}>
             <View backgroundColor={'gray-100'} padding={'size-100'}>
-              <Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
-                onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
-                <span>#{o.id} - {o.descriptions}</span>
-              </Link>
+              <Flex flex direction={{ base: 'column', L: 'row' }} columnGap='size-200' rowGap='size-50'>
+                <View flex width={'auto'}>
+                  <Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
+                    onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
+                    <span>#{o.id} - {o.descriptions}</span>
+                  </Link>
+                </View>
+                <View backgroundColor={o.trxTypeId === 2 ? 'red-700' : o.trxTypeId === 3 ? 'green-700': 'gray-50'}><span style={{padding: '6px', color: o.trxTypeId === 1 ? '#000000' : '#ffffff'}}>{o.trxTypeId > 0 ? types.getItem(o.trxTypeId).name : ''}</span></View>
+              </Flex>
             </View>
             <View padding={'size-100'}>
-              <Flex flex direction={{ base: 'column', L: 'row' }} columnGap='size-200' rowGap='size-50'>
-                <View flex>
-                  <View>{FormatDate(o.trxDate)}</View>
-                  <View>{o.trxTypeId > 0 ? types.getItem(o.trxTypeId).name : ''}</View>
-                </View>
-                <View flex>
-                  Saldo: <b>{FormatNumber(o.saldo)}</b><br />
-                  Memo: {o.memo || ''}
+              <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-400'}>
+                <Flex flex direction={{ base: 'column', L: 'row' }} columnGap='size-200' rowGap='size-50'>
+                  <View>
+                    <View>{FormatDate(o.trxDate)}</View>
+                    <View>
+                      Saldo: <b>{FormatNumber(o.saldo)}</b><br />
+                    </View>
+                    <View>
+                      Memo: {o.memo || ''}
+                    </View>
+                  </View>
+                </Flex>
+                <View width={{ base: 'auto', M: '70%' }}>
+                  <View isHidden={{ base: true, M: false }}>    <ShowHeader />
+                    <Divider flex size="S" />
+                    {
+                      o.details && o.details.map(item => <OrderDetail key={item.id} detail={item} />)
+                    }
+                  </View>
                 </View>
               </Flex>
             </View>
           </View>
       })}
-    </View>
+      {Summary(getTotalTransaction)}
+    </View >
   );
+
+  function getTotalTransaction(typeId: number): string {
+    const value = trxs.items.filter(o => o.trxTypeId === typeId).reduce((t, c) => t + c.saldo, 0)
+    // const debt = trxs.items.filter(o=>o.trxTypeId===1).reduce((t,c)=>t+c.saldo,0)
+    // const cred = trxs.items.filter(o=>o.trxTypeId===2).reduce((t,c)=>t+c.saldo,0)
+
+    return FormatNumber(value)
+  }
 
   function formResponse(params: { method: string, data?: iTrx }) {
     const { method, data } = params
@@ -277,5 +302,63 @@ const Trx = () => {
   }
 
 }
+
+type OrderDetailProp = {
+  detail: {
+    id: number
+    name: string
+    debt: number
+    cred: number
+  }
+}
+
+function Summary(getTotalTransaction: (typeId: number) => string) {
+  return <View marginY={'size-400'}>
+    <Divider size='M' marginY={'size-200'} />
+    <View UNSAFE_className="font-bold">Summary:</View>
+    <Flex width={{ base: 'auto', M: 'size-3400' }} direction={'column'}>
+      <Flex direction={'row'}>
+        <View flex>Financing:</View>
+        <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(3)}</View>
+      </Flex>
+      <Flex direction={'row'}>
+        <View flex>Pendapatan:</View>
+        <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(1)}</View>
+      </Flex>
+      <Flex direction={'row'}>
+        <View flex>Pengeluaran:</View>
+        <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(2)}</View>
+      </Flex>
+    </Flex>
+  </View>;
+}
+
+function OrderDetail(props: OrderDetailProp) {
+  const { detail: p } = props;
+  return (
+    <Flex direction={{ base: 'column', M: 'row' }} marginBottom={'size-50'}>
+      <Flex flex direction={'row'} columnGap={'size-200'}>
+        <View>{p.id}</View>
+        <View flex>{p.name}</View>
+      </Flex>
+      <Flex direction={'row'} columnGap={'size-200'} width={{ base: 'auto', M: '50%' }}>
+        <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>{FormatNumber(p.debt)}</View>
+        <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>{FormatNumber(p.cred)}</View>
+      </Flex>
+    </Flex>
+  )
+}
+
+function ShowHeader() {
+  return <Flex direction={{ base: 'column', M: 'row' }}
+    marginBottom={{ base: 'size-100', M: 'size-50' }}>
+    <View flex>KETERANGAN AKUN</View>
+    <Flex direction={'row'} columnGap={'size-200'} width={{ base: 'auto', M: '50%' }}>
+      <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>DEBET</View>
+      <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>KREDIT</View>
+    </Flex>
+  </Flex>;
+}
+
 
 export default Trx;

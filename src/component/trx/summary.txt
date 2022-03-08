@@ -1,0 +1,32 @@
+import React, { useState } from "react";
+import axios from "../../lib/axios-base";
+import { iAccCodeType, iTrx, iTrxType } from '../../lib/interfaces'
+import { View } from "@react-spectrum/view";
+import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
+import TrxForm, { initTrx } from './form'
+import { FormatDate, FormatNumber } from "../../lib/format";
+import Trx from ".";
+
+
+type SummaryProps = {
+	trxs: iTrx[]
+}
+
+export default function Summary(props: SummaryProps) {
+	const {trxs} = props;
+
+	return (
+		<View>
+			{trxs.map(item =>(
+			<Flex key={item.id} direction={'column'} rowGap={'size-100'}>
+				<Flex flex direction={'row'}>
+					<View flex></View>
+					<View UNSAFE_className="text-right" width={'size-2000'}>
+
+					</View>
+				</Flex>
+			</Flex>
+			))}
+		</View>
+	)
+}

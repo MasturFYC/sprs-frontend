@@ -58,6 +58,7 @@ const Main = () => {
       <Route path="/trx" element={
         <React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>
       } />
+
     </Routes>
   );
 }

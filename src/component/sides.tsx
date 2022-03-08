@@ -2,6 +2,7 @@ import React from 'react';
 import { Flex, View } from '@adobe/react-spectrum';
 import { Link } from '@adobe/react-spectrum';
 import { Link as RouterLink } from 'react-router-dom';
+import RemainSaldo from './saldo';
 
 
 const Aside = () => {
@@ -83,6 +84,7 @@ const Aside = () => {
               <RouterLink to="/trx">Transaksi</RouterLink>
             </Link>
           </View>
+          <RemainSaldo />
         </Flex>
       }
 
