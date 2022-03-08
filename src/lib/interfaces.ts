@@ -199,6 +199,7 @@ export interface iAccCode {
     name: string
     accTypeId: number
     descriptions?: string
+    isActive: boolean
 }
 
 export interface iTrxType {
@@ -238,4 +239,5 @@ export interface iAccCodeType {
     typeId: number
     typeName: string
     descriptions?: string
+    isActive: boolean
 }

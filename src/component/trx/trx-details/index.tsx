@@ -3,11 +3,11 @@ import axios from "../../../lib/axios-base";
 import { iAccCodeType, iTrxDetail } from '../../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import TrxDetailForm, { initDetail } from './form'
-import { Link, Button, useAsyncList, Flex, Divider } from "@adobe/react-spectrum";
-import AddIcon from '@spectrum-icons/workflow/Add'
+import { Link, Text, Button, useAsyncList, Flex, Divider, ActionButton } from "@adobe/react-spectrum";
 import { FormatNumber } from "../../../lib/format";
-import SaveIcon from '@spectrum-icons/workflow/SaveTo'
-import Removecon from '@spectrum-icons/workflow/Delete'
+import AddIcon from '@spectrum-icons/workflow/Add'
+import SaveIcon from '@spectrum-icons/workflow/Checkmark'
+import Removecon from '@spectrum-icons/workflow/Remove'
 import CancelIcon from '@spectrum-icons/workflow/Cancel'
 
 type TrxDetailsParam = {
@@ -43,46 +43,47 @@ const TrxDetails = (props: TrxDetailsParam) => {
   })
 
   return (
-    <View padding={'size-200'} backgroundColor={'gray-50'}>
+    <View paddingY={'size-50'} paddingX={'size-200'} backgroundColor={'gray-50'}>
       <ShowHeader />
       {[...details.items].map((o, i) => {
         return o.id === selectedId ?
-          <TrxDetailForm
-            key={`${o.id + i}`}
-            accs={accs}
-            data={detail}
-            changeData={changeData}
-          >
-            <View>
-              <Link isQuiet variant='primary'
-                onPress={() => saveDetail('save', detail)}
-              >
-
-                <span>{' '}<SaveIcon size='S' />{' '}</span>
-              </Link>
-              <Link isQuiet variant='secondary'
-                marginStart={'size-200'}
-                onPress={() => {
-                  setSelectedId(0);
-                }}
-              >
-                <span>{' '}<CancelIcon size='S' />{' '}</span>
-              </Link>
-            </View>
-          </TrxDetailForm>
+          <React.Suspense key={`${o.id + i}`} fallback={<div>Please wait...</div>}>
+            <TrxDetailForm              
+              accs={accs.filter(o => o.isActive)}
+              data={detail}
+              changeData={changeData}
+            >
+              <View paddingTop={'size-50'}>
+                <ActionButton isQuiet height={'size-200'}
+                  onPress={() => saveDetail('save', detail)}>
+                  <SaveIcon size='M' />
+                </ActionButton>
+                <ActionButton isQuiet height={'size-200'}
+                  marginStart={'size-100'}                  
+                  onPress={() => setSelectedId(0)}>
+                  <CancelIcon size='M' />
+                </ActionButton>
+              </View>
+            </TrxDetailForm>
+          </React.Suspense>
           :
           <ShowDetail key={`${o.id + i}`} getCodeName={getCodeName}
             detail={o} setSelected={(e) => {
               setSelectedId(e);
               details && details.getItem(e) && setDetail(details.getItem(e))
             }}>
-            <Link isQuiet onPress={() => saveDetail('remove', details.getItem(o.id))}>
-              <span>{' '}<Removecon size='S' />{' '}</span>
-            </Link>
+            <View>
+              <ActionButton isQuiet
+                onPress={() => saveDetail('remove', details.getItem(o.id))}
+                height={'size-200'}
+              >
+                <Removecon size='S' marginBottom={'size-100'} />
+              </ActionButton>
+            </View>
           </ShowDetail>
       })}
       <View marginTop={'size-100'}>
-        <Button variant="primary" onPress={() => addNewItem()}><AddIcon size='S' /></Button>
+        <ActionButton height={'size-200'} isQuiet onPress={() => addNewItem()}><AddIcon size='S' /></ActionButton>
       </View>
     </View>
   );
@@ -152,15 +153,9 @@ function ShowHeader() {
   return <View>
     <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
       <View flex>KETERANGAN</View>
-      <View width={'size-2000'} UNSAFE_className={'text-right'}>
-        DEBET
-      </View>
-      <View width={'size-2000'} UNSAFE_className={'text-right'}>
-        KREDIT
-      </View>
-      <View width={'size-1600'} UNSAFE_className={'text-center'}>
-        COMMAND
-      </View>
+      <View width={'size-2000'}>DEBET</View>
+      <View width={'size-2000'}>KREDIT</View>
+      <View width={'size-1600'}>COMMAND</View>
     </Flex>
     <Divider size="S" marginY={'size-50'} />
   </View>;
@@ -176,8 +171,8 @@ type ShowDetailParam = {
 function ShowDetail(props: ShowDetailParam): JSX.Element {
   const { getCodeName, children, setSelected, detail: o } = props;
 
-  return (<View>
-    <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
+  return (<View marginY='size-100'>
+    <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-25'}>
       <View flex>
         <Link isQuiet flex={'none'} variant="primary"
           UNSAFE_className={'font-bold'}
@@ -185,17 +180,11 @@ function ShowDetail(props: ShowDetailParam): JSX.Element {
           <div>{getCodeName(o.accCodeId)}</div>
         </Link>
       </View>
-      <View width={'size-2000'} UNSAFE_className={'text-right'}>
-        {FormatNumber(o.debt)}
-      </View>
-      <View width={'size-2000'} UNSAFE_className={'text-right'}>
-        {FormatNumber(o.cred)}
-      </View>
-      <View width={'size-1600'} UNSAFE_className={'text-center'}>
-        {children}
-      </View>
+      <View width={'size-2000'}>{FormatNumber(o.debt)}</View>
+      <View width={'size-2000'}>{FormatNumber(o.cred)}</View>
+      <View width={'size-1600'}>{children}</View>
     </Flex>
-    <Divider size="S" marginY={'size-50'} />
+    <Divider size="S" marginTop="size-100" />
   </View>
   );
 

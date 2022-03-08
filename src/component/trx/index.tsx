@@ -3,8 +3,10 @@ import axios from "../../lib/axios-base";
 import { iAccCodeType, iTrx, iTrxType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
-import TrxForm, { initTrx } from './form'
+import { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
+
+const TrxForm = React.lazy(() => import('./form'));
 
 const Trx = () => {
   const [selectedId, setSelectedId] = React.useState<number>(-1);
@@ -120,8 +122,8 @@ const Trx = () => {
             }
           }}
         >
-          {(item) => <Item textValue={`${item.id} - ${item.name}`}>
-            <Text><span style={{ fontWeight: 700 }}>{item.id} - {item.name}</span></Text>
+          {(item) => <Item textValue={item.id === 0 ? item.name : `${item.id} - ${item.name}`}>
+            <Text><span className="font-bold">{item.id === 0 ? item.name : `${item.id} - ${item.name}`}</span></Text>
             <Text slot='description'>{item.descriptions}</Text>
           </Item>}
         </ComboBox>
@@ -152,31 +154,38 @@ const Trx = () => {
           :
           <View key={o.id}>
             <View backgroundColor={'gray-100'} padding={'size-100'}>
-              <Flex flex direction={{ base: 'column', L: 'row' }} columnGap='size-200' rowGap='size-50'>
+              <Flex flex direction={'row'} columnGap='size-200'>
                 <View flex width={'auto'}>
+                  {o.refId === 0
+                  ?
                   <Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
-                    onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
+                    onPress={() => o.refId === 0 ? setSelectedId(selectedId === o.id ? -1 : o.id) : undefined }>
                     <span>#{o.id} - {o.descriptions}</span>
                   </Link>
+                  :
+                  <span className='font-bold'>#{o.id} - {o.descriptions}</span>
+                  }
                 </View>
-                <View backgroundColor={o.trxTypeId === 2 ? 'red-700' : o.trxTypeId === 3 ? 'green-700': 'gray-50'}><span style={{padding: '6px', color: o.trxTypeId === 1 ? '#000000' : '#ffffff'}}>{o.trxTypeId > 0 ? types.getItem(o.trxTypeId).name : ''}</span></View>
+                <View borderRadius={'large'} paddingTop={'size-25'} paddingBottom={'size-50'} paddingX={'size-100'}
+                  justifySelf={'center'}
+                  alignSelf={"center"}
+                  backgroundColor={o.refId > 0 ? 'gray-400' : (o.trxTypeId === 2 ? 'red-700' : o.trxTypeId === 3 ? 'green-700' : 'gray-50')}>
+                  <span style={{ padding: '6px', color: o.trxTypeId === 1 ? '#000000' : '#ffffff' }}>{o.trxTypeId > 0 ? types.getItem(o.trxTypeId).name : ''}</span>
+                </View>
               </Flex>
             </View>
             <View padding={'size-100'}>
               <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-400'}>
-                <Flex flex direction={{ base: 'column', L: 'row' }} columnGap='size-200' rowGap='size-50'>
-                  <View>
-                    <View>{FormatDate(o.trxDate)}</View>
-                    <View>
-                      Saldo: <b>{FormatNumber(o.saldo)}</b><br />
-                    </View>
-                    <View>
-                      Memo: {o.memo || ''}
-                    </View>
-                  </View>
+                <Flex flex direction={'column'} rowGap='size-50'>
+                  <Flex flex direction={{ base: 'row', M: 'column' }} columnGap='size-100' rowGap='size-50'>
+                    <View flex>{FormatDate(o.trxDate)}</View>
+                    <View>Saldo: <b>{FormatNumber(o.saldo)}</b><br /></View>
+                  </Flex>
+                  <View>Memo: {o.memo || ''}</View>
                 </Flex>
                 <View width={{ base: 'auto', M: '70%' }}>
-                  <View isHidden={{ base: true, M: false }}>    <ShowHeader />
+                  <View isHidden={{ base: true, M: false }}>
+                    <ShowHeader />
                     <Divider flex size="S" />
                     {
                       o.details && o.details.map(item => <OrderDetail key={item.id} detail={item} />)

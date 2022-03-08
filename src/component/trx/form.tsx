@@ -2,7 +2,7 @@ import React, { FormEvent, useState } from 'react';
 import axios from '../../lib/axios-base';
 import { iTrx, iAccCodeType, dateParam, iAccType, dateOnly, iTrxDetail } from '../../lib/interfaces'
 import {
-  Button, ComboBox, Flex, Item,
+  Button, ComboBox, Flex, Heading, Item,
   Text,
   TextArea, TextField, View
 } from '@adobe/react-spectrum';
@@ -64,15 +64,26 @@ const TrxForm = (props: TrxFormOptions) => {
   return (
     <View>
       <form onSubmit={(e) => handleSubmit(e)}>
+        <Flex direction={'row'} gap='size-100' marginBottom={'size-100'} marginTop={'size-50'}>
+          <Flex flex direction={'row'} columnGap={'size-125'}>
+            <Button type='submit' variant='cta'
+              isDisabled={!isBalancedValid || !isDirty || !(isDescriptionsValid && isTypeValid)}>Save</Button>
+            <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+              {isDirty ? 'Cancel' : 'Close'}</Button>
+          </Flex>
+          <View alignSelf={'center'} flex UNSAFE_className='font-bold'>Transaksi #{data.id}</View>
+          <View>
+            <Button type='button' alignSelf={'flex-end'}
+              isDisabled={data.id === 0}
+              variant='negative'
+              onPress={() => deleteTrx(data)}>Remove</Button>
+          </View>
+        </Flex>
 
         <Flex rowGap='size-50' direction={'column'}>
-          <View alignSelf={'center'} UNSAFE_style={{ fontWeight: 700, fontSize: '16px' }}>
-            Transaksi #{data.id}
-          </View>
-
-          <TextArea
-            label='Keterangan'
+          <TextField
             flex
+            label='Keterangan'
             autoFocus
             width={'auto'}
             validationState={isDescriptionsValid ? 'valid' : 'invalid'}
@@ -110,20 +121,21 @@ const TrxForm = (props: TrxFormOptions) => {
               </Item>}
             </ComboBox>
           </Flex>
-
-          <View>
-            <h3>Detail transaksi</h3>
-            <TrxDetails
-              accs={accs}
-              trxId={trx.id}
-              detailCallback={(d, c, arr) => {
-                setDebt(d);
-                setCred(c);
-                setDetails(arr)
-                changeData("saldo", d)
-              }}
-            />
-          </View>
+          <Flex direction={'column'} alignContent={'center'}>
+            <Heading level={5}>Detail transaksi</Heading>
+            <View marginY={'size-50'}>
+              <TrxDetails
+                accs={accs}
+                trxId={trx.id}
+                detailCallback={(d, c, arr) => {
+                  setDebt(d);
+                  setCred(c);
+                  setDetails(arr)
+                  changeData("saldo", d)
+                }}
+              />
+            </View>
+          </Flex>
           <TextArea
             label='Memo'
             flex
@@ -133,22 +145,6 @@ const TrxForm = (props: TrxFormOptions) => {
             maxLength={128}
             onChange={(e) => changeData("memo", e)}
           />
-
-          <Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-100'}>
-            <Flex flex direction={'row'} columnGap={'size-125'}>
-              <Button type='submit' variant='cta' 
-                isDisabled={!isBalancedValid || !isDirty || !(isDescriptionsValid && isTypeValid)}>Save</Button>
-              <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
-                {isDirty ? 'Cancel' : 'Close'}</Button>
-            </Flex>
-            <View>
-              <Button type='button' alignSelf={'flex-end'}
-                isDisabled={data.id === 0}
-                variant='negative'
-                onPress={() => deleteTrx(data)}>Remove</Button>
-            </View>
-          </Flex>
-
         </Flex>
       </form>
     </View>
@@ -172,7 +168,7 @@ const TrxForm = (props: TrxFormOptions) => {
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify({...p, details: details})
+    const xData = JSON.stringify({ ...p, details: details })
 
     await axios
       .put(`/trx/${trx.id}/`, xData, { headers: headers })
@@ -191,7 +187,7 @@ const TrxForm = (props: TrxFormOptions) => {
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify({...p, details: details})
+    const xData = JSON.stringify({ ...p, details: details })
 
     await axios
       .post(`/trx/`, xData, { headers: headers })

@@ -3,6 +3,7 @@ import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iRece
 import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, Divider } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
+import VerifyOrder from './VerifyOrder'
 
 const CustomerForm = React.lazy(() => import('./CustomerForm'));
 const ReceivableForm = React.lazy(() => import('./Receivable'));
@@ -210,7 +211,8 @@ const OrderForm = (props: OrderFormOptions) => {
 							<Flex flex direction={'row'} columnGap={'size-100'}>
 								<Button type='submit'
 									isDisabled={!isDirty || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
-										&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid)}
+										&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid)
+										|| (data.verifiedBy ? true : false)}
 									variant='cta'>Save</Button>
 								<Button type='button' variant='primary'
 									onPress={() => callback({ method: 'cancel' })}>
@@ -218,10 +220,21 @@ const OrderForm = (props: OrderFormOptions) => {
 								</Button>
 							</Flex>
 							<View flex><span style={{ fontWeight: 700, fontSize: '16px' }}>DATA ORDER</span></View>
+							{ !data.verifiedBy &&
+							<View><VerifyOrder 
+								isDisable={!(isNameValid && isBranchValid && isMatrixValid && isPpnValid
+									&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid)}
+								order={data} 
+								onChange={(e) => {
+									changeData("verifiedBy", e);
+									updateData({...data, verifiedBy: e});
+								}} />
+							</View>
+							}
 							{data.id > 0 &&
-								<View>
+								<View marginStart={'size-200'}>
 									<Button type='button' alignSelf={'flex-end'} variant='negative'
-										isDisabled={data.id === 0}
+										isDisabled={data.id === 0 || (data.verifiedBy ? true : false)}
 										onPress={() => deleteData(data.id)}>Remove</Button>
 								</View>
 							}
@@ -388,18 +401,6 @@ const OrderForm = (props: OrderFormOptions) => {
 								</Item>}
 							</ComboBox>
 						</Flex>
-
-						<Flex direction="row">
-							<Checkbox isSelected={data.verifiedBy ? data.verifiedBy?.length > 0 : false}
-								onChange={(e) => changeData("verifiedBy", e ? data.userName : '')}>
-								Verified
-							</Checkbox>
-							<Checkbox isSelected={data.validatedBy ? data.validatedBy?.length > 0 : false}
-								onChange={(e) => changeData("validatedBy", e ? data.userName : '')}>
-								Validated
-							</Checkbox>
-						</Flex>
-
 					</Flex>
 				</form>
 			</View>
@@ -412,15 +413,17 @@ const OrderForm = (props: OrderFormOptions) => {
 					<View paddingX={'size-400'}>
 						<Tabs
 							aria-label="Tab-Order"
+							disabledKeys={data.verifiedBy ? ['0','1'] : ['']}
+							defaultSelectedKey={data.verifiedBy ? '2' : '0'}
 							density='compact'
 							onSelectionChange={(e) => setTabId(+e)}>
 							<TabList aria-label="Tab-Order-List">
-								<Item key={0}><span style={{ fontWeight: 700, color: 'green' }}>Data Konsumen</span></Item>
-								<Item key={1}><span style={{ fontWeight: 700, color: 'orangered' }}>Data Asset</span></Item>
-								<Item key={2}><span style={{ fontWeight: 700, color: 'green' }}>Data Tunggakan</span></Item>
-								<Item key={3}><span style={{ fontWeight: 700, color: 'green' }}>History</span></Item>
-								<Item key={4}><span style={{ fontWeight: 700, color: 'green' }}>Data Alamat</span></Item>
-								<Item key={5}><span style={{ fontWeight: 700, color: 'green' }}>Perintah dan Tugas</span></Item>
+								<Item key={'0'}><span style={{ fontWeight: 700, color: data.verifiedBy ? '#cecece' : 'green' }}>Data Konsumen</span></Item>
+								<Item key={'1'}><span style={{ fontWeight: 700, color: data.verifiedBy ? '#cecece' : 'orangered' }}>Data Asset</span></Item>
+								<Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>Data Tunggakan</span></Item>
+								<Item key={'3'}><span style={{ fontWeight: 700, color: 'green' }}>History</span></Item>
+								<Item key={'4'}><span style={{ fontWeight: 700, color: 'green' }}>Data Alamat</span></Item>
+								<Item key={'5'}><span style={{ fontWeight: 700, color: 'green' }}>Perintah dan Tugas</span></Item>
 							</TabList>
 						</Tabs>
 						<View marginY={'size-100'}>

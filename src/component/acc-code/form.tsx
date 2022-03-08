@@ -1,7 +1,7 @@
 import React, { FormEvent } from 'react';
 import { iAccCode, iAccType } from '../../lib/interfaces'
 import {
-  Button, ComboBox, Flex, Item, NumberField,
+  Button, Checkbox, ComboBox, Flex, Item, NumberField,
   Text,
   TextArea, TextField, View
 } from '@adobe/react-spectrum';
@@ -11,7 +11,8 @@ export const initAccCode: iAccCode = {
   id: 0,
   accTypeId: 0,
   name: '',
-  descriptions: ''
+  descriptions: '',
+  isActive: true
 }
 
 type AccCodeFormOptions = {
@@ -112,6 +113,11 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
           <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
             {isDirty ? 'Cancel' : 'Close'}</Button>
         </Flex>
+        <View flex>
+          <Checkbox isSelected={data.isActive} onChange={(e) => changeData("isActive", e)}>
+            Aktif ?
+          </Checkbox>
+        </View>
         {data.id > 0 &&
           <View>
             <Button type='button' alignSelf={'flex-end'}
