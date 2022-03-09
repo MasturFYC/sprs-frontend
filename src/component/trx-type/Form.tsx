@@ -74,7 +74,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 						width={'auto'}
 						placeholder={'e.g. Group yang memuat transaksi pendapatan / pengeluaran.'}
 						value={data.descriptions}
-						maxLength={128}
+						maxLength={256}
 						onChange={(e) => changeData("descriptions", e)}
 					/>
 				</Flex>
