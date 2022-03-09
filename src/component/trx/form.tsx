@@ -12,7 +12,7 @@ export const initTrx: iTrx = {
   id: 0,
   trxTypeId: 0,
   refId: 0,
-  division: 'tarikan',
+  division: 'TRX-Umum',
   trxDate: dateParam(null),
   descriptions: '',
   memo: '',

@@ -1,16 +1,63 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import axios from "../lib/axios-base";
-import { dateParam, iOrder } from '../lib/interfaces'
+import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
 //import OrderForm, { initOrder } from './Form'
-import { Button, Flex, Link, ProgressCircle, useAsyncList, View } from "@adobe/react-spectrum";
+import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, useAsyncList } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "../lib/format";
 import './table.css'
+import MonthComponent from "../component/Bulan";
 
 const OrderForm = React.lazy(() => import('./Form'))
 
 
 const Order = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
+	const [financeId, setFinanceId] = useState<number>(0);
+	const [branchId, setBranchId] = useState<number>(0);
+	const [txtSearch, setTxtSearch] = useState<string>('');
+	const [bulan, setBulan] = useState<number>(0);
+
+	let finances = useAsyncList<iFinance>({
+		async load({ signal }) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
+
+			let res = await axios
+				.get("/finances/", { headers: headers })
+				.then(response => response.data)
+				.then(data => {
+					return data ? data : []
+				})
+				.catch(error => {
+					console.log(error)
+				})
+
+			return { items: res }
+		},
+		getKey: (item: iFinance) => item.id
+	})
+
+	let branchs = useAsyncList<iBranch>({
+		async load({ signal }) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
+
+			let res = await axios
+				.get("/branchs/", { headers: headers })
+				.then(response => response.data)
+				.then(data => {
+					//console.log(data)
+					return data
+				})
+				.catch(error => {
+					console.log(error)
+				})
+			return { items: res }
+		},
+		getKey: (item: iBranch) => item.id
+	})
 
 	let orders = useAsyncList<iOrder>({
 		async load({ signal }) {
@@ -22,7 +69,7 @@ const Order = () => {
 				.get("/orders/", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
-					return data ? data : []
+					return data
 				})
 				.catch(error => {
 					console.log(error)
@@ -34,42 +81,219 @@ const Order = () => {
 		getKey: (item: iOrder) => item.id
 	})
 
-	// return (
-	// 	<Fragment>
-	// 		<h1>Order (SPK)</h1>
-	// 		<View marginY={'size-200'}><Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button></View>
-	// 		{orders.items.map(o => {
-	// 			return o.id === selectedId ?
-	// 				<OrderForm key={o.id} order={o} callback={(e) => formResponse(e)} />
-	// 				:
-	// 				<View key={o.id} marginY='size-100' >
-	// 					<Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
-	// 						onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
-	// 						{o.name}
-	// 					</Link>
-	// 				</View>
-	// 		})}
-	// 	</Fragment>
-	// );
-
-	if (orders.isLoading) {
+	if (orders.isLoading || finances.isLoading || branchs.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
 	}
 
 	return (
 		<Fragment>
 			<h1>Order (SPK)</h1>
-			<View marginY={'size-200'}>
+
+			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>
 				<Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button>
-			</View>
+				<SearchField
+					type="search"
+					aria-label="order-search-item"
+					flex
+					width={'auto'}
+					value={txtSearch}
+					placeholder={'e.g. yamaha | 2022 | BAF'}
+					//validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
+					maxLength={50}
+					onClear={() => {
+						loadAllOrders();
+					}}
+					onSubmit={(e) => {
+						searchOrders(e)
+					}}
+					onChange={(e) => setTxtSearch(e)}
+				/>
+				<MonthComponent width="125px" selectedId={bulan}
+					onChange={(e) => {
+						setBulan(e.id);
+						if (e.id > 0) {
+							console.log(e)
+							getOrdersByMonth(e.id)
+						} else {
+							loadAllOrders();
+						}
+					}} />
+				<ComboBox
+					flex={{ base: true, M: false }}
+					width={{ base: 'auto', M: "150px" }}
+					aria-label="order-search-finance"
+					labelPosition={'side'}
+					menuTrigger='focus'
+					placeholder={"e.g. Adira"}
+					items={[{ id: 0, shortName: 'Semua finance', name: '', descriptions: '' }, ...finances.items]}
+					selectedKey={financeId}
+					onSelectionChange={(e) => {
+						setFinanceId(+e);
+						(+e === 0) ? loadAllOrders() : getOrdersByFinance(+e)
+					}}
+				>
+					{(o) => <Item textValue={o.shortName}>
+						<Text>{o.shortName}</Text>
+						<Text slot='description'>{o.name}</Text>
+					</Item>}
+				</ComboBox>
+				<ComboBox
+					flex
+					width={'auto'}
+					aria-label="order-search-branch"
+					labelPosition={'side'}
+					menuTrigger='focus'
+					placeholder={"e.g. Jatibarang"}
+					items={[{
+						id: 0,
+						name: 'Semua Cabang',
+						headBranch: ''
+					}, ...branchs.items]}
+					selectedKey={branchId}
+					onSelectionChange={(e) => {
+						setBranchId(+e);
+						(+e === 0) ? loadAllOrders() : getOrdersByBranch(+e)
+					}}
+				>
+					{(item) => <Item textValue={item.name}>
+						<Text>{item.name}</Text>
+						<Text slot='description'>
+							{item.id > 0 ?
+								<div>Kepala Cabang: <span style={{ fontWeight: 700 }}>{item.headBranch}</span><br />
+									{item?.street}{item.city ? `, ${item.city}` : ''}
+									{item.zip ? ` - ${item.zip}` : ''}<br />
+									{item.phone ? `Telp. ${item.phone}` : ''}
+									{item.cell && item.phone ? ` / ` : ''}
+									{item.cell && item.phone === '' ? `Cellular: ` : ''}
+									{item.cell ?? ''}<br />{item.email ? `e-mail: ${item.email}` : ''}
+								</div>
+								:
+								<div>{item.headBranch}</div>
+							}
+						</Text>
+
+					</Item>}
+				</ComboBox>
+			</Flex>
 			<TableOrder
 				selectedId={selectedId}
-				orders={orders.items} 
+				orders={orders.items}
+				finances={finances.items}
+				branchs={branchs.items}
 				formResponse={formResponse}
 				updateChild={updateChild}
 				setSelectedId={setSelectedId} />
 		</Fragment>
 	)
+
+
+	async function searchOrders(e: string) {
+
+		orders.setSelectedKeys('all')
+		orders.removeSelectedItems();
+
+		const headers = {
+			'Content-Type': 'application/json'
+		}
+
+		//const txt = e.replace(/ /g, ' | ')
+
+		await axios
+			.get(`/orders/search/${e}/`, { headers: headers })
+			.then(response => response.data)
+			.then(data => {
+				orders.append(...data);
+			})
+			.catch(error => {
+				console.log('-------', error)
+			})
+
+	}
+
+	async function getOrdersByMonth(id: number) {
+
+		orders.setSelectedKeys('all')
+		orders.removeSelectedItems();
+
+		const headers = {
+			'Content-Type': 'application/json'
+		}
+
+		await axios
+			.get(`/orders/month/${id}/`, { headers: headers })
+			.then(response => response.data)
+			.then(data => {
+				orders.append(...data);
+			})
+			.catch(error => {
+				console.log(error)
+			})
+
+	}
+
+	async function getOrdersByFinance(id: number) {
+
+		orders.setSelectedKeys('all')
+		orders.removeSelectedItems();
+
+		const headers = {
+			'Content-Type': 'application/json'
+		}
+
+		await axios
+			.get(`/orders/finance/${id}/`, { headers: headers })
+			.then(response => response.data)
+			.then(data => {
+				orders.append(...data);
+			})
+			.catch(error => {
+				console.log(error)
+			})
+
+	}
+
+
+	async function getOrdersByBranch(id: number) {
+
+		orders.setSelectedKeys('all')
+		orders.removeSelectedItems();
+
+		const headers = {
+			'Content-Type': 'application/json'
+		}
+
+		await axios
+			.get(`/orders/branch/${id}/`, { headers: headers })
+			.then(response => response.data)
+			.then(data => {
+				orders.append(...data);
+			})
+			.catch(error => {
+				console.log(error)
+			})
+
+	}
+
+	async function loadAllOrders() {
+
+		orders.setSelectedKeys('all')
+		orders.removeSelectedItems();
+
+		const headers = {
+			'Content-Type': 'application/json'
+		}
+
+		await axios
+			.get(`/orders/`, { headers: headers })
+			.then(response => response.data)
+			.then(data => {
+				orders.append(...data);
+			})
+			.catch(error => {
+				console.log('-------', error)
+			})
+
+	}
 
 	function formResponse(params: { method: string, data?: iOrder }) {
 		const { method, data } = params
@@ -132,14 +356,24 @@ const Order = () => {
 export default Order;
 
 type TableOrderProp = {
-	selectedId: number, 
+	selectedId: number,
 	orders: iOrder[],
+	finances: iFinance[],
+	branchs: iBranch[],
 	formResponse: (params: { method: string; data?: iOrder | undefined; }) => void,
 	updateChild: (data: iOrder) => void,
 	setSelectedId: React.Dispatch<React.SetStateAction<number>>
 }
 function TableOrder(props: TableOrderProp) {
-	const {selectedId, orders, formResponse,updateChild, setSelectedId} = props;
+	const {
+		selectedId,
+		orders,
+		formResponse,
+		updateChild,
+		setSelectedId,
+		finances,
+		branchs
+	} = props;
 
 	return <table>
 		<thead>
@@ -165,6 +399,8 @@ function TableOrder(props: TableOrderProp) {
 					<td colSpan={12} style={{ padding: '12px 0', color: selectedId >= 0 ? 'black' : 'auto' }}>
 						<React.Suspense fallback={<div>Please wait...</div>}>
 							<OrderForm order={item}
+								branchs={branchs}
+								finances={finances}
 								callback={(e) => formResponse(e)}
 								updateChild={e => updateChild(e)} />
 						</React.Suspense>
@@ -177,7 +413,7 @@ function TableOrder(props: TableOrderProp) {
 						{selectedId < 0 ? <Link isQuiet variant="primary"
 							UNSAFE_style={{ fontWeight: 700 }} onPress={(e) => {
 								setSelectedId(item.id);
-							} }>{item.name}</Link>
+							}}>{item.name}</Link>
 							:
 							item.name}
 					</td>

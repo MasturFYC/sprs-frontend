@@ -19,7 +19,7 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 	const [data, setData] = useState<iWarehouse>(initWarehouse)
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const isNameValid = React.useMemo(
-		() => data.name.length > 5,
+		() => data.name.length > 4,
 		[data]
 	)
 

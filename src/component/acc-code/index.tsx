@@ -69,7 +69,7 @@ const AccCode = () => {
           flex
           width={'auto'}
           value={txtSearch}
-          placeholder={'e.g. kas'}
+          placeholder={'e.g. kas | bank'}
           //validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
           maxLength={50}
           onClear={() => {
@@ -199,10 +199,10 @@ const AccCode = () => {
       'Content-Type': 'application/json'
     }
 
-    const txt = e.replace(/ /g, ' | ')
+    //const txt = e.replace(/ /g, ' | ')
 
     await axios
-      .get(`/acc-code/search-name/${txt}/`, { headers: headers })
+      .get(`/acc-code/search-name/${e}/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         accs.append(...data);

@@ -96,7 +96,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       id: 0,
       trxTypeId: 2,
       refId: p.id,
-      division: 'penarikan',
+      division: 'TRX-Order',
       trxDate: dateParam(null),
       descriptions: createDescription(p),
       memo: createMemo(p),
@@ -110,27 +110,27 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   }
 
   function createMemo(p: iOrder): string {
-    let memo: string = 'Berupa kendaraan ';
+    let memo: string = '';
     if (p.unit && p.unit.type && p.unit.type.merk && p.unit.type.wheel) {
-      memo += '(' + p.unit.type.wheel.shortName + ') ';
+      memo += p.unit.type.wheel.shortName + ' ';
       memo += p.unit.type.merk.name + ' ';
       memo += p.unit.type.name + ' ';
-      memo += ', Nopol: ' + p.unit.nopol + ' ';
+      memo += ' - ' + p.unit.nopol;
     }
 
-    if (p.customer) {
-      memo += ' atas nama ' + p.customer.name;
+    if (p.customer && p.customer.name.length > 0) {
+      memo += ' : ' + p.customer.name;
     }
 
     return memo;
   }
 
-  function isVerified(verifyName?: string): boolean {
-    if (verifyName) {
-      return verifyName.length > 0
-    }
-    return false;
-  }
+  // function isVerified(verifyName?: string): boolean {
+  //   if (verifyName) {
+  //     return verifyName.length > 0
+  //   }
+  //   return false;
+  // }
 
   function getFinanceName(p?: iFinance): string {
     if (p) {

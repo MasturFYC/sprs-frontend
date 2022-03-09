@@ -5,6 +5,7 @@ import { View } from "@react-spectrum/view";
 import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
+import MonthComponent from "../Bulan";
 
 const TrxForm = React.lazy(() => import('./form'));
 
@@ -12,6 +13,7 @@ const Trx = () => {
   const [selectedId, setSelectedId] = React.useState<number>(-1);
   const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
+	const [bulan, setBulan] = useState<number>(0);
 
   let accs = useAsyncList<iAccCodeType>({
     async load({ signal }) {
@@ -93,7 +95,7 @@ const Trx = () => {
           flex
           width={'auto'}
           value={txtSearch}
-          placeholder={'e.g. rokok kopi'}
+          placeholder={'e.g. invoic | rokok | kopi | kris'}
           //validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
           maxLength={50}
           onClear={() => {
@@ -104,6 +106,16 @@ const Trx = () => {
           }}
           onChange={(e) => setTxtSearch(e)}
         />
+				<MonthComponent width="125px" selectedId={bulan}
+					onChange={(e) => {
+						setBulan(e.id);
+						if (e.id > 0) {
+							console.log(e)
+							getTransactionByMonth(e.id)
+						} else {
+							loadAllCodes();
+						}
+					}} />
         <ComboBox
           flex
           width={'auto'}
@@ -247,10 +259,10 @@ const Trx = () => {
       'Content-Type': 'application/json'
     }
 
-    const txt = e.replace(/ /g, ' | ')
+    //const txt = e.replace(/ /g, ' | ')
 
     let res = await axios
-      .get(`/trx/search-desc/${txt}/`, { headers: headers })
+      .get(`/trx/search-desc/${e}/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         return data ? data : []
@@ -264,6 +276,27 @@ const Trx = () => {
     trxs.removeSelectedItems();
     trxs.append(...res);
 
+  }
+
+  async function getTransactionByMonth(id: number) {
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+
+    let res = await axios
+      .get(`/trx/month/${id}/`, { headers: headers })
+      .then(response => response.data)
+      .then(data => {
+        return data ? data : []
+      })
+      .catch(error => {
+        console.log('-------', error)
+        return []
+      })
+
+    trxs.setSelectedKeys('all')
+    trxs.removeSelectedItems();
+    trxs.append(...res);
   }
 
   async function searchTransactByType(id: number) {

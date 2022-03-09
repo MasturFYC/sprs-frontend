@@ -3,7 +3,7 @@ import axios from "../../../lib/axios-base";
 import { iAccCodeType, iTrxDetail } from '../../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import TrxDetailForm, { initDetail } from './form'
-import { Link, Text, Button, useAsyncList, Flex, Divider, ActionButton } from "@adobe/react-spectrum";
+import { Link, useAsyncList, Flex, Divider, ActionButton } from "@adobe/react-spectrum";
 import { FormatNumber } from "../../../lib/format";
 import AddIcon from '@spectrum-icons/workflow/Add'
 import SaveIcon from '@spectrum-icons/workflow/Checkmark'

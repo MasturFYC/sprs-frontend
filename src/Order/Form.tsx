@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable, iTask, iAddress } from '../lib/interfaces'
-import { Button, ComboBox, Flex, TextField, useAsyncList, View, Text, NumberField, Checkbox, Tabs, TabList, Divider } from '@adobe/react-spectrum';
+import { Button, ComboBox, Flex, TextField, View, Text, NumberField, Checkbox, Tabs, TabList, Divider } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
 import VerifyOrder from './VerifyOrder'
@@ -70,7 +70,7 @@ const initUnit: iUnit = {
 	warehouseId: 0
 }
 
-const initOrder: iOrder = {
+export const initOrder: iOrder = {
 	id: 0,
 	name: '',
 	orderAt: dateParam(null),
@@ -93,12 +93,14 @@ const initOrder: iOrder = {
 
 type OrderFormOptions = {
 	order: iOrder,
+	finances:iFinance[],
+	branchs: iBranch[],
 	updateChild: (data: iOrder) => void,
 	callback: (params: { method: string, data?: iOrder }) => void
 }
 
 const OrderForm = (props: OrderFormOptions) => {
-	const { order, callback, updateChild } = props;
+	const { order, callback, updateChild, finances, branchs } = props;
 	const [data, setData] = useState<iOrder>(initOrder)
 	let [tabId, setTabId] = useState(1);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
@@ -141,48 +143,6 @@ const OrderForm = (props: OrderFormOptions) => {
 		},
 		[data]
 	)
-
-	let finances = useAsyncList<iFinance>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/finances/", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data ? data : []
-				})
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iFinance) => item.id
-	})
-
-	let branchs = useAsyncList<iBranch>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/branchs/", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					//console.log(data)
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
-			return { items: res }
-		},
-		getKey: (item: iBranch) => item.id
-	})
 
 	React.useEffect(() => {
 		let isLoaded = true;
@@ -354,14 +314,14 @@ const OrderForm = (props: OrderFormOptions) => {
 								width={'auto'}
 								label={"Finance"}
 								placeholder={"e.g. Adira"}
-								defaultItems={finances.items}
+								defaultItems={finances}
 								selectedKey={data.financeId}
 								onSelectionChange={(e) => {
 									setIsDirty(true);
 									setData((o) => ({
 										...o,
 										financeId: +e,
-										finance: finances.getItem(+e)
+										finance: finances.filter(o=>o.id === +e)[0]
 									}))
 								}}
 							>
@@ -376,7 +336,7 @@ const OrderForm = (props: OrderFormOptions) => {
 								validationState={isBranchValid ? "valid" : "invalid"}								
 								label={"Cabang penerima order"}
 								placeholder={"e.g. Pusat"}
-								defaultItems={branchs.items}
+								defaultItems={branchs}
 								selectedKey={data.branchId}
 								onSelectionChange={(e) => {
 									setIsDirty(true);
@@ -384,7 +344,7 @@ const OrderForm = (props: OrderFormOptions) => {
 									({
 										...o,
 										branchId: +e,
-										branch: branchs.getItem(+e)
+										branch: branchs.filter(o=>o.id === +e)[0]
 									}))
 								}}
 							>
