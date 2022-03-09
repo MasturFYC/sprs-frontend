@@ -103,7 +103,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
           width={'auto'}
           placeholder={'e.g. Group yang memuat akun-akun kas.'}
           value={data.descriptions}
-          maxLength={128}
+          maxLength={256}
           onChange={(e) => changeData("descriptions", e)}
         />
       </Flex>
