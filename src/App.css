@@ -49,3 +49,22 @@
 .text-center {
   text-align: center;
 }
+
+.green-200 {
+  background-color: rgb(245, 255, 230);
+  border-radius: 6px;
+  border: 2px solid rgb(102, 167, 5);
+}
+
+/* top right */
+.padding-12 {
+  padding: 3px 12px;
+}
+
+.text-decoration-none {
+  text-decoration: none;
+}
+
+.text-decoration-none:hover {
+  text-decoration: underline;
+}

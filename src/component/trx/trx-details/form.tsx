@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { iAccCodeType, iTrxDetail } from '../../../lib/interfaces'
+import SaveIcon from '@spectrum-icons/workflow/Checkmark'
 import {
+  ActionButton,
   ComboBox, Flex, Item, NumberField,
   Text,
   View
@@ -17,11 +19,30 @@ export const initDetail: iTrxDetail = {
 type TrxDetailFormOptions = {
   data: iTrxDetail,
   accs: iAccCodeType[],
-  changeData: (fieldName: string, value: string | number | boolean | undefined | null) => void,
+  //changeData: (fieldName: string, value: string | number | boolean | undefined | null) => void,
+  updateData: (method: string, data: iTrxDetail) => void
   children: JSX.Element
 }
 
-const TrxDetailForm: React.FC<TrxDetailFormOptions> = ({ data, changeData, accs, children }) => {
+function TrxDetailForm(props: TrxDetailFormOptions) {
+  const {
+    data,
+    //changeData, 
+    accs,
+    children,
+    updateData } = props;
+
+  const [item, setItem] = useState<iTrxDetail>(initDetail);
+
+  React.useEffect(() => {
+    let isLoaded = false;
+
+    if (!isLoaded) {
+      setItem(data)
+    }
+
+    return () => { isLoaded = true }
+  }, [data])
 
   return (
     <Flex direction={{ base: 'column', M: 'row' }} columnGap='size-100'>
@@ -29,11 +50,14 @@ const TrxDetailForm: React.FC<TrxDetailFormOptions> = ({ data, changeData, accs,
         flex
         menuTrigger='focus'
         width={'auto'}
-        aria-label={"Kode akun"}
+        aria-label={"Kode-akun"}
         placeholder={"e.g. Kas / bank"}
-        defaultItems={accs}
-        selectedKey={data.accCodeId}
-        onSelectionChange={(e) => changeData("accCodeId", +e)}
+        items={accs}
+        selectedKey={item.accCodeId}
+        onSelectionChange={(e) => {
+          handleChange("accCodeId", +e)
+          //changeData("accCodeId", +e)
+        }}
       >
         {(item) => <Item textValue={`${item.id} - ${item.name}`}>
           <Text><div style={{ fontWeight: 700 }}>{item.id} - {item.name}</div></Text>
@@ -44,17 +68,33 @@ const TrxDetailForm: React.FC<TrxDetailFormOptions> = ({ data, changeData, accs,
         hideStepper={true}
         width={{ base: "auto", L: 'size-2000' }}
         aria-label={"debet-akun"}
-        onChange={(e) => changeData("debt", e)}
-        value={data.debt} />
+        onChange={(e) => {
+          handleChange("debt", e)
+          //changeData("debt", e)
+        }}
+        value={item.debt} />
       <NumberField
         hideStepper={true}
         width={{ base: "auto", L: 'size-2000' }}
         aria-label={"cred-akun"}
-        onChange={(e) => changeData("cred", e)}
-        value={data.cred} />
-      <View width={'size-1600'}>{children}</View>
+        onChange={(e) => {
+          handleChange("cred", e)
+          //changeData("cred", e)
+        }}
+        value={item.cred} />
+      <Flex direction={'row'} width={'size-1600'} columnGap={'size-50'}>
+        <ActionButton isQuiet height={'size-200'} marginTop={'size-50'}
+          onPress={() => updateData('save', item)}>
+          <SaveIcon size='M' />
+        </ActionButton>
+        {children}
+      </Flex>
     </Flex>
   );
+
+  function handleChange(fieldName: string, value: string | number | boolean | undefined | null) {
+    setItem(o => ({ ...o, [fieldName]: value }))
+  }
 }
 
 export default TrxDetailForm;

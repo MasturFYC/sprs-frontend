@@ -217,12 +217,15 @@ export interface iTrx {
     descriptions: string
     memo?: string
     saldo: number
-    details?: {
-        id: number
-        name: string
-        debt: number
-        cred: number
-    }[]
+    details?: iTrxDetail2[]
+}
+
+export interface iTrxDetail2 {
+    id: number
+    name: string
+    accCodeId: number
+    debt: number
+    cred: number
 }
 
 export interface iTrxDetail {

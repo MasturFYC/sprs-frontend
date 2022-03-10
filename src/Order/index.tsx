@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from "react";
+// import { Link as RouterLink } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
 //import OrderForm, { initOrder } from './Form'
@@ -199,7 +200,7 @@ const Order = () => {
 		//const txt = e.replace(/ /g, ' | ')
 
 		await axios
-			.get(`/orders/search/${e}/`, { headers: headers })
+			.post(`/orders/search/`, {txt: e}, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				orders.append(...data);
@@ -410,12 +411,15 @@ function TableOrder(props: TableOrderProp) {
 				<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
 					<td>
-						{selectedId < 0 ? <Link isQuiet variant="primary"
+						{selectedId < 0 ? 
+						<Link isQuiet variant="primary"
 							UNSAFE_style={{ fontWeight: 700 }} onPress={(e) => {
 								setSelectedId(item.id);
 							}}>{item.name}</Link>
+							// <RouterLink className="text-decoration-none" to={`/trx/8`}><span className="font-bold">#{item.name}</span></RouterLink>
 							:
-							item.name}
+							item.name
+							}
 					</td>
 					<td align="center" style={{ whiteSpace: 'nowrap' }}>{FormatDate(item.orderAt)}</td>
 					<td>{item.unit?.type?.merk?.name}</td>

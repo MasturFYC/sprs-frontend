@@ -45,19 +45,24 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   );
 
   function saveTransaction(p: iOrder) {
-    const trx = createTransaction(p)
-    const details = createTransactionDetails(p)
-    insertTrx(trx, details)
+    const trx = createTransaction(p);
+    const details = createTransactionDetails(p);
+    const token = createTransactionToken(p);
+    insertTrx(trx, details, token);
     //console.log(trx, details)
   }
 
-  async function insertTrx(p: iTrx, d: iTrxDetail[]) {
+  async function insertTrx(trx: iTrx, details: iTrxDetail[], token: string) {
     const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify({ ...p, details: d })
+    const xData = JSON.stringify({ 
+      trx: trx,
+      details: details,
+      token: token
+    })
 
     await axios
       .post(`/trx/`, xData, { headers: headers })
@@ -70,6 +75,36 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       .catch(error => {
         console.log(error)
       })
+  }
+
+  function createTransactionToken(p: iOrder): string {
+    let s: string[] = []
+
+    if (p.unit && p.unit.type && p.unit.type.merk && p.unit.type.wheel) {
+      s.push(p.unit.type.wheel.shortName);
+      s.push(p.unit.type.merk.name);
+      s.push(p.unit.type.name);
+      s.push(p.unit.nopol);
+    }
+
+    if (p.customer && p.customer.name.length > 0) {
+      s.push(p.customer.name);
+    }
+
+    if (p.finance) {
+      s.push(p.finance.name);
+      s.push(p.finance.shortName);
+    }
+
+    if (p.branch) {
+      s.push(p.branch.name);
+      s.push(p.branch.headBranch);
+    }
+
+    s.push('/ref-'+p.id)
+    s.push('TRX-Order')
+
+    return s.join(" ");
   }
 
   function createTransactionDetails(p: iOrder): iTrxDetail[] {
@@ -110,16 +145,16 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   }
 
   function createMemo(p: iOrder): string {
-    let memo: string = '';
+    let memo: string = 'Kendaraan ';
     if (p.unit && p.unit.type && p.unit.type.merk && p.unit.type.wheel) {
       memo += p.unit.type.wheel.shortName + ' ';
       memo += p.unit.type.merk.name + ' ';
       memo += p.unit.type.name + ' ';
-      memo += ' - ' + p.unit.nopol;
+      memo += ', Nopol ' + p.unit.nopol;
     }
 
     if (p.customer && p.customer.name.length > 0) {
-      memo += ' : ' + p.customer.name;
+      memo += ', atas nama ' + p.customer.name;
     }
 
     return memo;
@@ -138,8 +173,4 @@ export default function VerifyOrder(props: VerifyOrderProps) {
     }
     return ''
   }
-}
-
-function FormatNnumber(btMatel: number): React.ReactNode {
-  throw new Error('Function not implemented.');
 }

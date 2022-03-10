@@ -1,19 +1,23 @@
 import React, { useState } from "react";
+import { Link as RouterLink, useParams, useNavigate } from 'react-router-dom';
 import axios from "../../lib/axios-base";
 import { iAccCodeType, iTrx, iTrxType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
+import { Button, ComboBox, Divider, Flex, Heading, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
 import MonthComponent from "../Bulan";
+import RemainSaldo from '../saldo';
 
 const TrxForm = React.lazy(() => import('./form'));
 
 const Trx = () => {
-  const [selectedId, setSelectedId] = React.useState<number>(-1);
+  let { trxId } = useParams();
+  const [selectedId, setSelectedId] = React.useState<number>(trxId ? +trxId : -1);
   const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
-	const [bulan, setBulan] = useState<number>(0);
+  const [bulan, setBulan] = useState<number>(0);
+  const navigate = useNavigate();
 
   let accs = useAsyncList<iAccCodeType>({
     async load({ signal }) {
@@ -68,10 +72,12 @@ const Trx = () => {
         .get("/trx/", { headers: headers })
         .then(response => response.data)
         .then(data => {
-          return data ? data : []
+          //console.log(selectedId)
+          return data; 
         })
         .catch(error => {
           console.log('-------', error)
+          return [];
         })
 
       return { items: res }
@@ -79,13 +85,27 @@ const Trx = () => {
     getKey: (item: iTrx) => item.id
   })
 
+  React.useEffect(() => {
+    let isLoaded = false
+
+    if(!isLoaded) {
+      setSelectedId(trxId ? +trxId : -1);
+    }
+
+    return () => {isLoaded = true;}
+
+  }, [trxId])
+
   if (accs.isLoading || types.isLoading || trxs.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
   }
+
   return (
     <View>
-      <h1>Transaksi</h1>
-
+        <Flex direction={{base:'column',M:'row'}}>
+          <View alignSelf={"center"} flex><Heading level={1}>Transaksi</Heading></View>
+          <View alignSelf={"center"}><RemainSaldo /></View>
+        </Flex>
       <Flex direction={{ base: 'column', M: 'row' }} gap='size-200'
         marginY={'size-200'}>
         <Button variant="cta" onPress={() => addNewItem()}>Transaksi Baru</Button>
@@ -106,16 +126,16 @@ const Trx = () => {
           }}
           onChange={(e) => setTxtSearch(e)}
         />
-				<MonthComponent width="125px" selectedId={bulan}
-					onChange={(e) => {
-						setBulan(e.id);
-						if (e.id > 0) {
-							console.log(e)
-							getTransactionByMonth(e.id)
-						} else {
-							loadAllCodes();
-						}
-					}} />
+        <MonthComponent width="125px" selectedId={bulan}
+          onChange={(e) => {
+            setBulan(e.id);
+            if (e.id > 0) {
+              console.log(e)
+              getTransactionByMonth(e.id)
+            } else {
+              loadAllCodes();
+            }
+          }} />
         <ComboBox
           flex
           width={'auto'}
@@ -140,9 +160,16 @@ const Trx = () => {
           </Item>}
         </ComboBox>
       </Flex>
+      {trxId && +trxId >= 0 && 
+        <TrxForm
+        isNew={+trxId === 0}
+          accs={accs.items}
+        trx={trxs.getItem(+trxId)}
+          types={types.items}
+          callback={(e) => formResponse(e)}
+        /> }
 
-
-      {trxs.items && trxs.items.map(o => {
+      {trxs.items && !trxId && trxs.items.map(o => {
 
         return o.id === selectedId ?
           <View key={o.id}
@@ -169,13 +196,10 @@ const Trx = () => {
               <Flex flex direction={'row'} columnGap='size-200'>
                 <View flex width={'auto'}>
                   {o.refId === 0
-                  ?
-                  <Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
-                    onPress={() => o.refId === 0 ? setSelectedId(selectedId === o.id ? -1 : o.id) : undefined }>
-                    <span>#{o.id} - {o.descriptions}</span>
-                  </Link>
-                  :
-                  <span className='font-bold'>#{o.id} - {o.descriptions}</span>
+                    ?
+                    <RouterLink className="text-decoration-none" to={`/trx/${o.id}`}><span className="font-bold">#{o.id} - {o.descriptions}</span></RouterLink>
+                    :
+                    <span className='font-bold'>#{o.id} - {o.descriptions}</span>
                   }
                 </View>
                 <View borderRadius={'large'} paddingTop={'size-25'} paddingBottom={'size-50'} paddingX={'size-100'}
@@ -226,31 +250,36 @@ const Trx = () => {
     switch (method) {
       case 'save':
         if (data) {
-          if (selectedId === 0) {
+          if (selectedId === 0) {            
             trxs.update(0, data)
           } else {
             trxs.update(selectedId, data)
+            //setSelectedId(-1)
+           // return;
           }
         }
         break;
       case 'remove':
         trxs.remove(selectedId);
         break;
-      case 'cancel':
+      case 'cancel':        
+        //navigate('/trx/-1')
         if (selectedId === 0) {
           trxs.remove(0)
         }
         break;
     }
 
-    setSelectedId(-1)
+    navigate('/trx')
+    //setSelectedId(-1)
   }
 
   function addNewItem() {
     if (!trxs.getItem(0)) {
       trxs.insert(0, initTrx);
     }
-    setSelectedId(0)
+    //setSelectedId(0)
+    navigate('/trx/0')
   }
 
   async function searchTransact(e: string) {
@@ -262,7 +291,7 @@ const Trx = () => {
     //const txt = e.replace(/ /g, ' | ')
 
     let res = await axios
-      .get(`/trx/search-desc/${e}/`, { headers: headers })
+      .post(`/trx/search/`, { txt: e }, { headers: headers })
       .then(response => response.data)
       .then(data => {
         return data ? data : []

@@ -93,7 +93,7 @@ export const initOrder: iOrder = {
 
 type OrderFormOptions = {
 	order: iOrder,
-	finances:iFinance[],
+	finances: iFinance[],
 	branchs: iBranch[],
 	updateChild: (data: iOrder) => void,
 	callback: (params: { method: string, data?: iOrder }) => void
@@ -106,6 +106,11 @@ const OrderForm = (props: OrderFormOptions) => {
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>('');
 
+
+	const isFinanceValid = React.useMemo(
+		() => data.financeId > 0,
+		[data]
+	)
 	const isNameValid = React.useMemo(
 		() => data.name.length > 5,
 		[data]
@@ -171,7 +176,7 @@ const OrderForm = (props: OrderFormOptions) => {
 							<Flex flex direction={'row'} columnGap={'size-100'}>
 								<Button type='submit'
 									isDisabled={!isDirty || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
-										&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid)
+										&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid && isFinanceValid)
 										|| (data.verifiedBy ? true : false)}
 									variant='cta'>Save</Button>
 								<Button type='button' variant='primary'
@@ -180,24 +185,20 @@ const OrderForm = (props: OrderFormOptions) => {
 								</Button>
 							</Flex>
 							<View flex><span style={{ fontWeight: 700, fontSize: '16px' }}>DATA ORDER</span></View>
-							{ !data.verifiedBy &&
-							<View><VerifyOrder 
-								isDisable={!(isNameValid && isBranchValid && isMatrixValid && isPpnValid
-									&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid)}
-								order={data} 
+							<View><VerifyOrder
+								isDisable={!(data.verifiedBy) || (data.id === 0) || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
+									&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid && isFinanceValid)}
+								order={data}
 								onChange={(e) => {
 									changeData("verifiedBy", e);
-									updateData({...data, verifiedBy: e});
+									updateData({ ...data, verifiedBy: e });
 								}} />
 							</View>
-							}
-							{data.id > 0 &&
-								<View marginStart={'size-200'}>
-									<Button type='button' alignSelf={'flex-end'} variant='negative'
-										isDisabled={data.id === 0 || (data.verifiedBy ? true : false)}
-										onPress={() => deleteData(data.id)}>Remove</Button>
-								</View>
-							}
+							<View marginStart={'size-200'}>
+								<Button type='button' alignSelf={'flex-end'} variant='negative'
+									isDisabled={data.id === 0 || (data.verifiedBy ? true : false)}
+									onPress={() => deleteData(data.id)}>Remove</Button>
+							</View>
 						</Flex>
 						{
 							message.length > 0 &&
@@ -310,7 +311,7 @@ const OrderForm = (props: OrderFormOptions) => {
 							<ComboBox
 								menuTrigger="focus"
 								flex
-								validationState={isMatrixValid ? "valid" : "invalid"}
+								validationState={isFinanceValid ? "valid" : "invalid"}
 								width={'auto'}
 								label={"Finance"}
 								placeholder={"e.g. Adira"}
@@ -321,7 +322,7 @@ const OrderForm = (props: OrderFormOptions) => {
 									setData((o) => ({
 										...o,
 										financeId: +e,
-										finance: finances.filter(o=>o.id === +e)[0]
+										finance: finances.filter(o => o.id === +e)[0]
 									}))
 								}}
 							>
@@ -333,7 +334,7 @@ const OrderForm = (props: OrderFormOptions) => {
 							<ComboBox
 								flex
 								menuTrigger="focus"
-								validationState={isBranchValid ? "valid" : "invalid"}								
+								validationState={isBranchValid ? "valid" : "invalid"}
 								label={"Cabang penerima order"}
 								placeholder={"e.g. Pusat"}
 								defaultItems={branchs}
@@ -344,7 +345,7 @@ const OrderForm = (props: OrderFormOptions) => {
 									({
 										...o,
 										branchId: +e,
-										branch: branchs.filter(o=>o.id === +e)[0]
+										branch: branchs.filter(o => o.id === +e)[0]
 									}))
 								}}
 							>
@@ -373,7 +374,7 @@ const OrderForm = (props: OrderFormOptions) => {
 					<View paddingX={'size-400'}>
 						<Tabs
 							aria-label="Tab-Order"
-							disabledKeys={data.verifiedBy ? ['0','1'] : ['']}
+							disabledKeys={data.verifiedBy ? ['0', '1'] : ['']}
 							defaultSelectedKey={data.verifiedBy ? '2' : '0'}
 							density='compact'
 							onSelectionChange={(e) => setTabId(+e)}>

@@ -1,12 +1,14 @@
 import React, { FormEvent, useState } from 'react';
 import axios from '../../lib/axios-base';
-import { iTrx, iAccCodeType, dateParam, iAccType, dateOnly, iTrxDetail } from '../../lib/interfaces'
+import { iTrx, iAccCodeType, dateParam, iAccType, dateOnly, iTrxDetail, iTrxDetail2 } from '../../lib/interfaces'
 import {
   Button, ComboBox, Flex, Heading, Item,
   Text,
   TextArea, TextField, View
 } from '@adobe/react-spectrum';
 import TrxDetails from './trx-details';
+import { createToken } from '../../lib/format';
+
 
 export const initTrx: iTrx = {
   id: 0,
@@ -150,6 +152,7 @@ const TrxForm = (props: TrxFormOptions) => {
     </View>
   );
 
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (isTypeValid && isDescriptionsValid) {
@@ -162,19 +165,43 @@ const TrxForm = (props: TrxFormOptions) => {
     }
   }
 
+  function createIds(): number[] {
+
+    if (details.length > 0) {
+      return details.map(o => o.accCodeId);
+    }
+    return data.details ? data.details.map(o => o.accCodeId) : [];
+  }
+
   async function updateTrx(p: iTrx) {
     const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify({ ...p, details: details })
+    const ids = createIds();
+
+    const token = createToken(p, accs, ids);
+    const xData = JSON.stringify({
+      trx: p,
+      details: details,
+      token: token
+    });
 
     await axios
       .put(`/trx/${trx.id}/`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        callback({ method: 'save', data: p })
+
+        const newDs: iTrxDetail2[] = [];
+        if (details.length > 0) {
+          for (let c = 0; c < details.length; c++) {
+            const d = details[c];
+            newDs.push({ ...d, name: accs.filter(o => o.id === d.accCodeId)[0].name })
+          }
+        }
+        callback({ method: 'save', data: { ...p, details: newDs } })
+
       })
       .catch(error => {
         console.log(error)
@@ -187,14 +214,27 @@ const TrxForm = (props: TrxFormOptions) => {
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify({ ...p, details: details })
+    const ids = createIds();
+    const token = createToken(p, accs, ids);
+    const xData = JSON.stringify({
+      trx: p,
+      details: details,
+      token: token
+    });
 
     await axios
       .post(`/trx/`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         setData(o => ({ ...o, id: data.id }))
-        callback({ method: 'save', data: { ...p, id: data.id } })
+        const newDs: iTrxDetail2[] = [];
+        if (details.length > 0) {
+          for (let c = 0; c < details.length; c++) {
+            const d = details[c];
+            newDs.push({ ...d, name: accs.filter(o => o.id === d.accCodeId)[0].name })
+          }
+        }
+        callback({ method: 'save', data: { ...p, id: data.id, details: newDs } })
       })
       .catch(error => {
         console.log(error)

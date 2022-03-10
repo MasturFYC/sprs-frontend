@@ -6,7 +6,6 @@ import TrxDetailForm, { initDetail } from './form'
 import { Link, useAsyncList, Flex, Divider, ActionButton } from "@adobe/react-spectrum";
 import { FormatNumber } from "../../../lib/format";
 import AddIcon from '@spectrum-icons/workflow/Add'
-import SaveIcon from '@spectrum-icons/workflow/Checkmark'
 import Removecon from '@spectrum-icons/workflow/Remove'
 import CancelIcon from '@spectrum-icons/workflow/Cancel'
 
@@ -51,16 +50,17 @@ const TrxDetails = (props: TrxDetailsParam) => {
             <TrxDetailForm              
               accs={accs.filter(o => o.isActive)}
               data={detail}
-              changeData={changeData}
+              updateData={(m, e) => saveDetail(m, e)}
             >
               <View paddingTop={'size-50'}>
                 <ActionButton isQuiet height={'size-200'}
-                  onPress={() => saveDetail('save', detail)}>
-                  <SaveIcon size='M' />
-                </ActionButton>
-                <ActionButton isQuiet height={'size-200'}
                   marginStart={'size-100'}                  
-                  onPress={() => setSelectedId(0)}>
+                  onPress={() => {
+                    if(o.debt === 0 && o.cred === 0) {
+                      saveDetail('remove', details.getItem(o.id))
+                    }
+                    setSelectedId(0)
+                  }}>
                   <CancelIcon size='M' />
                 </ActionButton>
               </View>

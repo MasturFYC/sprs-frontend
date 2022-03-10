@@ -43,9 +43,7 @@ const Main = () => {
       <React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
       <Route path="/finance" element={
       <React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
-      <Route path="/order" element={
-        <React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>
-      } />
+      <Route path="/order" element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
       <Route path="/acc-type" element={
         <React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>
       } />
@@ -55,9 +53,9 @@ const Main = () => {
       <Route path="/trx-type" element={
         <React.Suspense fallback={<div>Please wait...</div>}><TrxType /></React.Suspense>
       } />
-      <Route path="/trx" element={
-        <React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>
-      } />
+      <Route path="/trx" element={<React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>}>
+        <Route path=":trxId" element={<Trx />} />
+      </Route>
 
     </Routes>
   );
