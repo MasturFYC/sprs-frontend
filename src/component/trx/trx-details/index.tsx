@@ -88,20 +88,10 @@ const TrxDetails = (props: TrxDetailsParam) => {
     </View>
   );
 
-  function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
-    const detailUpdate = { ...detail, [fieldName]: value }
-    setDetail(o => (detailUpdate))
-    //setIsDirty(true)
-  }
-
-  //   details.update(detail.id, detail)
-  //   setSelectedId(0);
-  //   if(details.items && details.items.length > 0) {
-  //   const debt = details.items.reduce((a,b)=> a + b.debt,0)
-  //   const cred = details.items.reduce((a,b)=> a + b.cred,0)
-  //   //console.log((debt > 0) && (cred > 0) && (debt - cred) === 0);
-  //   detailCallback((debt > 0) && (cred > 0) && (debt - cred) === 0);
-  //   }
+  // function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+  //   const detailUpdate = { ...detail, [fieldName]: value }
+  //   setDetail(o => (detailUpdate))
+  //   //setIsDirty(true)
   // }
 
   function getCodeName(id: number) {

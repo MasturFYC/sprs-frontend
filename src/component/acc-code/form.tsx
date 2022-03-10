@@ -133,7 +133,6 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
 
-    //console.log(data)
     if (isNameValid && isIDValid && isTypeValid) {
 
       if (isNew) {

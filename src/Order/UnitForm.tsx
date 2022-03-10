@@ -316,7 +316,6 @@ const UnitForm = (props: UnitFormOptions) => {
 			.put(`/units/${p.orderId}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', dataUnit: p })
 				setIsDirty(false)
 			})
@@ -338,7 +337,6 @@ const UnitForm = (props: UnitFormOptions) => {
 			.post(`/units/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', dataUnit: p })
 				setIsDirty(false)
 			})

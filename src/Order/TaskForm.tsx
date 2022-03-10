@@ -194,7 +194,6 @@ const TaskForm = (props: TaskFormOptions) => {
       .put(`/tasks/${p.orderId}/`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        //console.log(data)
         callback({ method: 'save', task: p })
         setIsDirty(false)
       })

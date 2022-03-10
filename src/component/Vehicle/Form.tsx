@@ -64,7 +64,6 @@ const TypeForm = (props: TypeFormOptions) => {
 				.get("/merks/", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
-					//console.log(data)
 					return data
 				})
 				.catch(error => {
@@ -188,7 +187,6 @@ const TypeForm = (props: TypeFormOptions) => {
 			.put(`/types/${vehicle.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
 				callback({ method: 'save', data: vehicle })
 			})
 			.catch(error => {
@@ -208,7 +206,6 @@ const TypeForm = (props: TypeFormOptions) => {
 			.post(`/types/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
 				callback({ method: 'save', data: data })
 			})
 			.catch(error => {
@@ -227,7 +224,6 @@ const TypeForm = (props: TypeFormOptions) => {
 			.delete(`/types/${vehicel.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
 				callback({ method: 'remove', data: data })
 			})
 			.catch(error => {

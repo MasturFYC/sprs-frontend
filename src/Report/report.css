@@ -1,3 +1,35 @@
 td, th {
   padding: 3px 6px;
 }
+
+.width-50 {
+  width: 50px;
+}
+
+.width-100 {
+  width: 100px;
+}
+
+.collapse-none {
+  border-collapse: collapse;
+}
+
+.bg-gray-50 {
+  background-color: #ececec;
+}
+
+.width-200 {
+  width: 200px;
+}
+
+.width-50-percent {
+  width: 50%
+}
+
+.border-t-1 {
+  border-top: 1px solid  rgb(102, 167, 5);
+}
+
+.border-b-1 {
+  border-bottom: 1px solid  rgb(102, 167, 5);
+}

@@ -103,7 +103,6 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 			.put(`/warehouses/${warehouse.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', data: warehouse })
 			})
 			.catch(error => {
@@ -123,7 +122,6 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 			.post(`/warehouses/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', data: data })
 			})
 			.catch(error => {
@@ -142,7 +140,6 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 			.delete(`/warehouses/${warehouse.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'remove', data: warehouse })
 			})
 			.catch(error => {

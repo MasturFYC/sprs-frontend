@@ -1,5 +1,5 @@
-import { ActionButton, Button, Flex, NumberField, ProgressCircle, Text } from '@adobe/react-spectrum';
-import React, { useState } from 'react'
+import { ActionButton, Flex, Link, NumberField, ProgressCircle, Text } from '@adobe/react-spectrum';
+import React, { Fragment, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { FormatNumber } from '../lib/format';
@@ -35,7 +35,6 @@ const ReportTrxtByMonth = () => {
 			const headers = {
 				'Content-Type': 'application/json'
 			}
-			//console.log('1111111111111', `/report/trx/month/${month}/${year}/`)
 			await axios
 				.get(`/report/trx/month/${month}/${year}/`, { headers: headers })
 				//.get(`/report/trx/month/${month}/${month2}/${year}/`, { headers: headers })
@@ -48,7 +47,6 @@ const ReportTrxtByMonth = () => {
 					setYearId(year)
 				})
 				.catch(error => {
-					console.log('-------', error)
 					setLoaded(true)
 				})
 
@@ -73,7 +71,7 @@ const ReportTrxtByMonth = () => {
 		return () => { isLoaded = true }
 
 	}, [m, y])
-// }, [m, m2, y])
+	// }, [m, m2, y])
 
 	if (!loaded) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
@@ -106,9 +104,10 @@ const ReportTrxtByMonth = () => {
 					<Text>Load</Text>
 				</ActionButton>
 			</Flex>
-			<table className='table-100'>
+			<table className='table-100 collapse-none'>
 				<thead>
 					<tr className='back-green-700 text-white'>
+						<td className='font-bold'>AKUN</td>
 						<td className='font-bold'>DESKRIPSI</td>
 						<td className='text-right font-bold'>DEBET</td>
 						<td className='text-right font-bold'>CREDIT</td>
@@ -119,23 +118,103 @@ const ReportTrxtByMonth = () => {
 					{trxs.map((o, i) => {
 						if (i === 0) {
 							return (<tr key={`${o.id}-${i}`} className={i % 2 === 0 ? '' : 'back-green-200'}>
+								<td>{o.id}</td>
 								<td className='font-bold' colSpan={3}>{o.name}</td>
 								<td className='text-right font-bold'>{FormatNumber(o.saldo)}</td>
 							</tr>)
-
 						}
-						return (<tr key={`${o.id}-${i}`} className={i % 2 === 0 ? '' : 'back-green-200'}>
-							<td>{o.name}</td>
-							<td className='text-right'>{FormatNumber(o.debt)}</td>
-							<td className='text-right'>{FormatNumber(o.cred)}</td>
-							<td className='text-right'>{FormatNumber(o.saldo)}</td>
-						</tr>)
+						return <RowDetail key={o.id} trx={o} month={monthId} year={yearId} />
 					})}
 				</tbody>
+				<tfoot>
+					<tr className='border-t-1'>
+						<td colSpan={2}>Total</td>
+						<td className='text-right width-100'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t,c) => t + c.debt, 0))}</td>
+						<td className='text-right width-100'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t, c) => t + c.cred, 0))}</td>
+						<td className='text-right width-100'>{' '}</td>
+					</tr>
+
+				</tfoot>
 			</table>
 		</div>
-
 	)
 }
 
+type RowDetailProps = {
+	trx: reportTrxByMonth
+	month: number
+	year: number
+}
+
+function RowDetail(props: RowDetailProps) {
+	const { month, year, trx } = props
+	const [isSlelected, setIsSelected] = useState<boolean>(false);
+	return (
+		<Fragment>
+			<tr>
+				<td className='width-50'>{trx.id}</td>
+				<td><Link isQuiet UNSAFE_className='font-bold' onPress={() => setIsSelected(!isSlelected)}>{trx.name}</Link></td>
+				<td className='text-right width-100'>{FormatNumber(trx.debt)}</td>
+				<td className='text-right width-100'>{FormatNumber(trx.cred)}</td>
+				<td className='text-right width-100'>{FormatNumber(trx.saldo)}</td>
+			</tr>
+			{isSlelected &&
+				<tr>
+					<td></td>
+					<td colSpan={4}>
+						<DetailByAccountType accId={trx.id} month={month} year={year} />
+					</td>
+				</tr>}
+		</Fragment>
+	);
+}
+
 export default ReportTrxtByMonth;
+
+type DetailByAccountTypeProps = {
+	accId: number, month: number, year: number
+}
+function DetailByAccountType({ accId, month, year }: DetailByAccountTypeProps) {
+	let [trxs, setTrxs] = useState<reportTrxByMonth[]>([]);
+
+	React.useEffect(() => {
+		let isLoaded = false
+
+		async function loadData(accId: number, month: number, year: number) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
+			await axios
+				.get(`/report/trx/month/acc/${accId}/${month}/${year}/`, { headers: headers })
+				.then(response => response.data)
+				.then(data => {
+					setTrxs(data);
+				})
+				.catch(error => {
+					console.log('-------', error)
+				})
+		}
+
+		if (!isLoaded) {
+			loadData(accId, month, year);
+		}
+
+		return () => { isLoaded = true }
+
+	}, [accId, month, year])
+
+	return (
+		<div className='border-t-1 border-b-1 bg-gray-50'>
+			<table className='collapse-none table-100'>
+			<tbody>
+				{trxs.map((o, i) => (<tr key={`${o.id}-${i}`} className={i % 2 === 0 ? '' : 'back-green-200'}>
+					<td className='text-left width-50'>{o.id}</td>
+					<td className='text-left'>{o.name}</td>
+					<td className='text-right width-100'>{FormatNumber(o.saldo)}</td>
+				</tr>)
+				)}
+			</tbody>
+		</table>
+		</div>
+	);
+}

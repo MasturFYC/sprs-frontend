@@ -185,8 +185,12 @@ const OrderForm = (props: OrderFormOptions) => {
 								</Button>
 							</Flex>
 							<View flex><span style={{ fontWeight: 700, fontSize: '16px' }}>DATA ORDER</span></View>
+							{/* <View>
+								{data.verifiedBy} - {data.id > 0 ? 'true' : 'false'} - {(isNameValid && isBranchValid && isMatrixValid && isPpnValid
+								&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid && isFinanceValid) ? 'true' : 'false'} 
+							</View> */}
 							<View><VerifyOrder
-								isDisable={!(data.verifiedBy) || (data.id === 0) || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
+								isDisable={isDirty || !(data.verifiedBy ? false : true) || !(data.id > 0) || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
 									&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid && isFinanceValid)}
 								order={data}
 								onChange={(e) => {
@@ -582,7 +586,6 @@ const OrderForm = (props: OrderFormOptions) => {
 			.put(`/orders/${p.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', data: p })
 				setIsDirty(false)
 			})

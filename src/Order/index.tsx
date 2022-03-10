@@ -49,7 +49,6 @@ const Order = () => {
 				.get("/branchs/", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
-					//console.log(data)
 					return data
 				})
 				.catch(error => {

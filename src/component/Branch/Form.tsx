@@ -175,7 +175,6 @@ const BranchForm = (props: BranchFormOptions) => {
 			.put(`/branchs/${branch.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', data: branch })
 			})
 			.catch(error => {
@@ -201,7 +200,6 @@ const BranchForm = (props: BranchFormOptions) => {
 			.post(`/branchs/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', data: data })
 			})
 			.catch(error => {
@@ -220,7 +218,6 @@ const BranchForm = (props: BranchFormOptions) => {
 			.delete(`/branchs/${branch.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'remove', data: branch })
 			})
 			.catch(error => {

@@ -1,24 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Flex, View } from '@adobe/react-spectrum';
 import { Link } from '@adobe/react-spectrum';
 import { Link as RouterLink } from 'react-router-dom';
 
 
 const Aside = () => {
-  const [showMaster, setShowMaster] = React.useState(false);
-  const [showCoa, setShowCoa] = React.useState(false);
-  const [showReport, setShowReport] = React.useState(false);
 
   return (
-    <Flex rowGap={'size-200'} direction='column'>
-      <View><Link isQuiet variant='primary'><RouterLink to="/">Home</RouterLink></Link></View>
+    <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginX={'size-200'}>
+      <View><Link isQuiet variant='primary' UNSAFE_className='font-bold'><RouterLink to="/">Home</RouterLink></Link></View>
 
-      <View>
-        <Link variant='secondary' onPress={() => setShowMaster(!showMaster)}>Master</Link>
-      </View>
+      <MasterMenu title={'Master'}>
 
-      {showMaster &&
-        <Flex direction={'column'} rowGap='size-200' marginX={'size-200'}>
+        <Flex direction={'column'} rowGap='size-200'>
           <View>
             <Link isQuiet variant='primary'>
               <RouterLink to="/wheel">Jenis Roda</RouterLink>
@@ -45,25 +39,22 @@ const Aside = () => {
             </Link>
           </View>
           <View>
-            <Link isQuiet variant='primary' UNSAFE_style={{ lineHeight: '120%' }}>
+            <Link isQuiet variant='primary'>
               <RouterLink to="/finance">Pengelola Keuangan (Finance)</RouterLink>
             </Link>
           </View>
         </Flex>
-      }
+      </MasterMenu>
 
       <View>
-        <Link isQuiet variant='primary'>
+        <Link isQuiet variant='primary' UNSAFE_className='font-bold'>
           <RouterLink to="/order">Order (SPK)</RouterLink>
         </Link>
       </View>
 
-      <View>
-        <Link variant='secondary' onPress={() => setShowCoa(!showCoa)}>COA (Char of Accounts)</Link>
-      </View>
+      <MasterMenu title={'COA (Char of Accounts)'}>
 
-      {showCoa &&
-        <Flex direction={'column'} rowGap='size-200' marginX={'size-200'}>
+        <Flex direction={'column'} rowGap='size-200'>
           <View>
             <Link isQuiet variant='primary'>
               <RouterLink to="/acc-type">Tipe Akun</RouterLink>
@@ -85,25 +76,45 @@ const Aside = () => {
             </Link>
           </View>
         </Flex>
-      }
+      </MasterMenu>
 
-      <View>
-        <Link variant='secondary' onPress={() => setShowReport(!showReport)}>Laporan</Link>
-      </View>
-
-      {showReport &&
-        <Flex direction={'column'} rowGap='size-200' marginX={'size-200'}>
+      <MasterMenu title={'Laporan'}>
+        <Flex direction={'column'} rowGap='size-200'>
           <View>
+            <Link isQuiet variant='primary'>
             <RouterLink to={`/report/trx/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}>Laporan Saldo</RouterLink>
+            </Link>
           </View>
           <View>
+            <Link isQuiet variant='primary'>
             <RouterLink to="/report/trx/profit">Laporan Laba Rugi</RouterLink>
+            </Link>
           </View>
         </Flex>
-      }
+      </MasterMenu>
 
     </Flex>
   )
+}
+type MasterMenuProps = {
+  title: String
+  children: React.ReactNode
+}
+function MasterMenu(props: MasterMenuProps) {
+  const { title, children } = props;
+  const [show, setShow] = useState<Boolean>(false);
+
+
+  return (
+    <div>
+      <View UNSAFE_className='font-bold'>
+        <Link variant='secondary' onPress={() => setShow(!show)}>{title}</Link>
+      </View>
+
+      {show && <View marginTop={'size-150'} marginX={'size-200'} UNSAFE_style={{ lineHeight: "80%"}}>{children}</View>}
+    </div>
+  )
+
 }
 
 export default Aside;

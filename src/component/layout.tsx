@@ -18,13 +18,13 @@ export const siteTitle = "SPRS";
 
 const Layout = () => {
 
-  let titleStyle = {
-    fontSize: "110%",
-    fontWeight: 700,
-    lineHeight: "100%",
-    textDecoration: 'none',
-    color: "Highlight"
-  };
+  // let titleStyle = {
+  //   fontSize: "110%",
+  //   fontWeight: 700,
+  //   lineHeight: "100%",
+  //   textDecoration: 'none',
+  //   color: "Highlight"
+  // };
 
   return (
     <Router>
@@ -65,9 +65,7 @@ const Layout = () => {
         borderBottomWidth={{base: "thin", L:undefined}}
         borderBottomColor={"gray-200"}
       >
-        <div style={titleStyle} >
           <Aside />
-        </div>
       </View>
 
       <View gridArea="content" backgroundColor="gray-50" height={"100%"}>

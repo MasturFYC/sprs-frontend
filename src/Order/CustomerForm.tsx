@@ -135,7 +135,6 @@ const CustomerForm = (props: CustomerFormOptions) => {
 			.put(`/customers/${p.orderId}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', customer: p })
 				setIsDirty(false)
 			})

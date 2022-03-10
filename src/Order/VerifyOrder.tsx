@@ -40,7 +40,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
             </ButtonGroup>
           </Dialog>
         )}
-      </DialogTrigger>      
+      </DialogTrigger>
     </View>
   );
 
@@ -49,7 +49,6 @@ export default function VerifyOrder(props: VerifyOrderProps) {
     const details = createTransactionDetails(p);
     const token = createTransactionToken(p);
     insertTrx(trx, details, token);
-    //console.log(trx, details)
   }
 
   async function insertTrx(trx: iTrx, details: iTrxDetail[], token: string) {
@@ -58,7 +57,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       'Content-Type': 'application/json'
     }
 
-    const xData = JSON.stringify({ 
+    const xData = JSON.stringify({
       trx: trx,
       details: details,
       token: token
@@ -68,7 +67,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       .post(`/trx/`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        if(data) {
+        if (data) {
 
         }
       })
@@ -79,6 +78,8 @@ export default function VerifyOrder(props: VerifyOrderProps) {
 
   function createTransactionToken(p: iOrder): string {
     let s: string[] = []
+
+    s.push('/' + p.name);
 
     if (p.unit && p.unit.type && p.unit.type.merk && p.unit.type.wheel) {
       s.push(p.unit.type.wheel.shortName);
@@ -101,29 +102,61 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       s.push(p.branch.headBranch);
     }
 
-    s.push('/ref-'+p.id)
+    s.push('/ref-' + p.id)
     s.push('TRX-Order')
 
     return s.join(" ");
   }
 
   function createTransactionDetails(p: iOrder): iTrxDetail[] {
-    return [
-      {
-        id: 1,
-        accCodeId: 1211,
+    const details: iTrxDetail[] = [];
+
+    let stnk = 0; //, ppn = 0;
+
+    // if (p.nominal > 0) {
+    //   ppn = p.nominal;
+    // }
+    if (p.stnkPrice > 0) {
+      stnk = p.stnkPrice;
+    }
+
+    details.push({
+      id: 1,
+      accCodeId: 1112, // Bank BCA
+      trxId: 0,
+      debt: 0,
+      cred: p.btMatel
+    })
+
+    // if (ppn > 0) {
+    //   details.push({
+    //     id: 2,
+    //     accCodeId: 1113, // Utang Pajak
+    //     trxId: 0,
+    //     debt: 0,
+    //     cred: ppn
+    //   })
+    // }
+
+    details.push({
+      id: 2,
+      accCodeId: 1211, // Order (SPK)
+      trxId: 0,
+      debt: p.btMatel - stnk,
+      cred: 0
+    })
+
+    if (stnk > 0) {
+      details.push({
+        id: 3,
+        accCodeId: 5211, // Biaya STNK
         trxId: 0,
-        debt: p.btMatel,
+        debt: stnk,
         cred: 0
-      },
-      {
-        id: 2,
-        accCodeId: 1112,
-        trxId: 0,
-        debt: 0,
-        cred: p.btMatel
-      }
-    ]
+      })
+    }
+
+    return details;
   }
 
   function createTransaction(p: iOrder): iTrx {

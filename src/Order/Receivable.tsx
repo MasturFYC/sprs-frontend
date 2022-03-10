@@ -222,7 +222,6 @@ async function updateData(p: iReceivable) {
     .put(`/receivables/${p.orderId}/`, xData, { headers: headers })
     .then(response => response.data)
     .then(data => {
-      //console.log(data)
       callback({ method: 'save', receivable: p })
       setIsDirty(false)
     })
@@ -244,7 +243,6 @@ async function inserData(p: iReceivable) {
     .post(`/receivables/`, xData, { headers: headers })
     .then(response => response.data)
     .then(data => {
-      //console.log(data)
       callback({ method: 'save', receivable: p })
       setIsDirty(false)
     })

@@ -71,7 +71,6 @@ const Trx = () => {
         .get("/trx/", { headers: headers })
         .then(response => response.data)
         .then(data => {
-          //console.log(selectedId)
           return data;
         })
         .catch(error => {
@@ -129,7 +128,6 @@ const Trx = () => {
           onChange={(e) => {
             setBulan(e.id);
             if (e.id > 0) {
-              console.log(e)
               getTransactionByMonth(e.id)
             } else {
               loadAllCodes();
@@ -422,7 +420,7 @@ function OrderDetail(props: OrderDetailProp) {
 function ShowHeader() {
   return <Flex direction={{ base: 'column', M: 'row' }}
     marginBottom={{ base: 'size-100', M: 'size-50' }}>
-    <View flex>KETERANGAN AKUN</View>
+    <View flex>DESKRIPSI</View>
     <Flex direction={'row'} columnGap={'size-200'} width={{ base: 'auto', M: '50%' }}>
       <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>DEBET</View>
       <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>KREDIT</View>

@@ -167,7 +167,6 @@ const AddressForm = (props: AddressFormOptions) => {
 			.put(`/${apiAddress}/${p.orderId}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				//console.log(data)
 				callback({ method: 'save', address: p })
 				setIsDirty(false)
 			})

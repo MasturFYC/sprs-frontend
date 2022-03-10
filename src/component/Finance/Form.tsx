@@ -184,7 +184,6 @@ const FinanceForm = (props: FinanceFormOptions) => {
 			.put(`/finances/${finance.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
 				callback({ method: 'save', data: finance })
 			})
 			.catch(error => {
@@ -204,7 +203,6 @@ const FinanceForm = (props: FinanceFormOptions) => {
 			.post(`/finances/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
 				callback({ method: 'save', data: data })
 			})
 			.catch(error => {
@@ -223,7 +221,6 @@ const FinanceForm = (props: FinanceFormOptions) => {
 			.delete(`/finances/${finance.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				console.log(data)
 				callback({ method: 'remove', data: data })
 			})
 			.catch(error => {

@@ -83,7 +83,6 @@ const MerkForm = (props: MerkFormOptions) => {
             .put(`/merks/${merk.id}/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
-                console.log(data)
                 callback({ method: 'save', data: merk })
             })
             .catch(error => {
@@ -103,7 +102,6 @@ const MerkForm = (props: MerkFormOptions) => {
             .post(`/merks/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
-                console.log(data)
                 callback({ method: 'save', data: data })
             })
             .catch(error => {
@@ -122,7 +120,6 @@ const MerkForm = (props: MerkFormOptions) => {
             .delete(`/merks/${merk.id}/`, { headers: headers })
             .then(response => response.data)
             .then(data => {
-                console.log(data)
                 callback({ method: 'remove', data: data })
             })
             .catch(error => {

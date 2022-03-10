@@ -107,7 +107,6 @@ const WheelForm = (props: WheelFormOptions) => {
             .put(`/wheels/${wheel.id}/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
-                console.log(data)
                 callback({ method: 'save', data: wheel })
             })
             .catch(error => {
@@ -127,7 +126,6 @@ const WheelForm = (props: WheelFormOptions) => {
             .post(`/wheels/`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
-                console.log(data)
                 callback({ method: 'save', data: data })
             })
             .catch(error => {
@@ -146,7 +144,6 @@ const WheelForm = (props: WheelFormOptions) => {
             .delete(`/wheels/${wheel.id}/`, { headers: headers })
             .then(response => response.data)
             .then(data => {
-                console.log(data)
                 callback({ method: 'remove', data: data })
             })
             .catch(error => {
