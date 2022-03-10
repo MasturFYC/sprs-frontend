@@ -13,11 +13,12 @@ type MonthComponentProps = {
 	removeId?: number | undefined | null,
 	onChange?: (e: iBulan) => void,
 	ValidationState?: ValidationState,
+	labelPosition?: 'top' | 'side',
 	label?: string,
 	width?: string
 }
 
-const monthNames: iBulan[] = [
+export const monthNames: iBulan[] = [
 	{ id: 0, name: "Bulan" },
 	{ id: 1, name: "Januari" },
 	{ id: 2, name: "Februari" },
@@ -39,6 +40,7 @@ export default function MonthComponent(props: MonthComponentProps) {
 		onChange: onchange, 
 		removeId, 
 		ValidationState: vstate,
+		labelPosition,
 		label,
 		width
 	} = props;
@@ -51,6 +53,7 @@ export default function MonthComponent(props: MonthComponentProps) {
 				width={{base: 'auto', M: width}}
 				label={label}
 				aria-label={'bulan-component'}
+				labelPosition={labelPosition}
 				placeholder={"e.g. Agustus"}
 				defaultItems={removeId ? monthNames : monthNames.filter(o => o.id !== removeId)}
 				selectedKey={selectedId}

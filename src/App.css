@@ -56,6 +56,21 @@
   border: 2px solid rgb(102, 167, 5);
 }
 
+.back-green-200 {
+  background-color: rgb(245, 255, 230);
+}
+.back-green-700 {
+  background-color: rgb(102, 167, 5);
+}
+
+.table-100 {
+  width: 100%;
+}
+
+.text-white {
+  color: #fff
+}
+
 /* top right */
 .padding-12 {
   padding: 3px 12px;

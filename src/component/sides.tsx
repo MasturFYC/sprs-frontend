@@ -7,6 +7,7 @@ import { Link as RouterLink } from 'react-router-dom';
 const Aside = () => {
   const [showMaster, setShowMaster] = React.useState(false);
   const [showCoa, setShowCoa] = React.useState(false);
+  const [showReport, setShowReport] = React.useState(false);
 
   return (
     <Flex rowGap={'size-200'} direction='column'>
@@ -50,7 +51,7 @@ const Aside = () => {
           </View>
         </Flex>
       }
-      
+
       <View>
         <Link isQuiet variant='primary'>
           <RouterLink to="/order">Order (SPK)</RouterLink>
@@ -82,6 +83,21 @@ const Aside = () => {
             <Link isQuiet variant='primary'>
               <RouterLink to="/trx">Transaksi</RouterLink>
             </Link>
+          </View>
+        </Flex>
+      }
+
+      <View>
+        <Link variant='secondary' onPress={() => setShowReport(!showReport)}>Laporan</Link>
+      </View>
+
+      {showReport &&
+        <Flex direction={'column'} rowGap='size-200' marginX={'size-200'}>
+          <View>
+            <RouterLink to={`/report/trx/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}>Laporan Saldo</RouterLink>
+          </View>
+          <View>
+            <RouterLink to="/report/trx/profit">Laporan Laba Rugi</RouterLink>
           </View>
         </Flex>
       }

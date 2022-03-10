@@ -4,8 +4,7 @@ import SaveIcon from '@spectrum-icons/workflow/Checkmark'
 import {
   ActionButton,
   ComboBox, Flex, Item, NumberField,
-  Text,
-  View
+  Text
 } from '@adobe/react-spectrum';
 
 export const initDetail: iTrxDetail = {

@@ -3,12 +3,12 @@ import { Flex } from '@adobe/react-spectrum'
 import { Route, Routes } from 'react-router-dom'
 import logo from '../logo.svg';
 
-const Merk = React.lazy(()=> import('./Merk'))
-const Wheel = React.lazy(()=> import('./Wheel'));
-const Vehicle = React.lazy(()=> import('./Vehicle'))
-const Branch = React.lazy(()=> import('./Branch'));
-const Warehouse = React.lazy(()=> import('./Warehouse'));
-const Finance = React.lazy(()=> import('./Finance'));
+const Merk = React.lazy(() => import('./Merk'))
+const Wheel = React.lazy(() => import('./Wheel'));
+const Vehicle = React.lazy(() => import('./Vehicle'))
+const Branch = React.lazy(() => import('./Branch'));
+const Warehouse = React.lazy(() => import('./Warehouse'));
+const Finance = React.lazy(() => import('./Finance'));
 
 const Order = React.lazy(() => import('../Order'));
 const AccType = React.lazy(() => import('./acc-type'));
@@ -16,6 +16,7 @@ const AccCode = React.lazy(() => import('./acc-code'));
 const TrxType = React.lazy(() => import('./trx-type'));
 const Trx = React.lazy(() => import('./trx'));
 
+const ReportTrxtByMonth = React.lazy(() => import('../Report/ReportTrxByMonth'));
 
 const Main = () => {
   return (
@@ -32,17 +33,17 @@ const Main = () => {
         </React.Suspense>
       } />
       <Route path="/vehicle" element={
-      <React.Suspense fallback={<div>Please wait...</div>}>
-      <Vehicle /></React.Suspense>} />
+        <React.Suspense fallback={<div>Please wait...</div>}>
+          <Vehicle /></React.Suspense>} />
       <Route path="/branch" element={
         <React.Suspense fallback={<div>Please wait...</div>}>
           <Branch />
         </React.Suspense>
       } />
       <Route path="/warehouse" element={
-      <React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
+        <React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
       <Route path="/finance" element={
-      <React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
+        <React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
       <Route path="/order" element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
       <Route path="/acc-type" element={
         <React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>
@@ -56,7 +57,14 @@ const Main = () => {
       <Route path="/trx" element={<React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>}>
         <Route path=":trxId" element={<Trx />} />
       </Route>
-
+      <Route path="/report">
+        <Route path="trx">
+          <Route path=":m/:y" element={
+            <React.Suspense fallback={<div>Please wait...</div>}>
+              <ReportTrxtByMonth />
+            </React.Suspense>} />
+        </Route>
+      </Route>
     </Routes>
   );
 }

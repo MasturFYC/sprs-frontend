@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Link as RouterLink, useParams, useNavigate } from 'react-router-dom';
 import axios from "../../lib/axios-base";
 import { iAccCodeType, iTrx, iTrxType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
@@ -12,12 +11,12 @@ import RemainSaldo from '../saldo';
 const TrxForm = React.lazy(() => import('./form'));
 
 const Trx = () => {
-  let { trxId } = useParams();
-  const [selectedId, setSelectedId] = React.useState<number>(trxId ? +trxId : -1);
+  //let { trxId } = useParams();
+  const [selectedId, setSelectedId] = React.useState<number>(-1);
   const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
   const [bulan, setBulan] = useState<number>(0);
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   let accs = useAsyncList<iAccCodeType>({
     async load({ signal }) {
@@ -73,7 +72,7 @@ const Trx = () => {
         .then(response => response.data)
         .then(data => {
           //console.log(selectedId)
-          return data; 
+          return data;
         })
         .catch(error => {
           console.log('-------', error)
@@ -85,16 +84,16 @@ const Trx = () => {
     getKey: (item: iTrx) => item.id
   })
 
-  React.useEffect(() => {
-    let isLoaded = false
+  // React.useEffect(() => {
+  //   let isLoaded = false
 
-    if(!isLoaded) {
-      setSelectedId(trxId ? +trxId : -1);
-    }
+  //   if (!isLoaded && trxId) {
+  //       setSelectedId(+trxId);
+  //   }
 
-    return () => {isLoaded = true;}
+  //   return () => { isLoaded = true; }
 
-  }, [trxId])
+  // }, [trxId])
 
   if (accs.isLoading || types.isLoading || trxs.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
@@ -102,10 +101,10 @@ const Trx = () => {
 
   return (
     <View>
-        <Flex direction={{base:'column',M:'row'}}>
-          <View alignSelf={"center"} flex><Heading level={1}>Transaksi</Heading></View>
-          <View alignSelf={"center"}><RemainSaldo /></View>
-        </Flex>
+      <Flex direction={{ base: 'column', M: 'row' }}>
+        <View alignSelf={"center"} flex><Heading level={1}>Transaksi</Heading></View>
+        <View alignSelf={"center"}><RemainSaldo /></View>
+      </Flex>
       <Flex direction={{ base: 'column', M: 'row' }} gap='size-200'
         marginY={'size-200'}>
         <Button variant="cta" onPress={() => addNewItem()}>Transaksi Baru</Button>
@@ -160,16 +159,16 @@ const Trx = () => {
           </Item>}
         </ComboBox>
       </Flex>
-      {trxId && +trxId >= 0 && 
+      {/* {selectedId > 0 &&
         <TrxForm
-        isNew={+trxId === 0}
+          isNew={selectedId === 0}
           accs={accs.items}
-        trx={trxs.getItem(+trxId)}
+          trx={trxs.getItem(selectedId)}
           types={types.items}
           callback={(e) => formResponse(e)}
-        /> }
+        />} */}
 
-      {trxs.items && !trxId && trxs.items.map(o => {
+      {trxs.items && trxs.items.map(o => {
 
         return o.id === selectedId ?
           <View key={o.id}
@@ -197,7 +196,7 @@ const Trx = () => {
                 <View flex width={'auto'}>
                   {o.refId === 0
                     ?
-                    <RouterLink className="text-decoration-none" to={`/trx/${o.id}`}><span className="font-bold">#{o.id} - {o.descriptions}</span></RouterLink>
+                    <Link isQuiet UNSAFE_className="font-bold" onPress={() => setSelectedId(o.id)}><span>#{o.id} - {o.descriptions}</span></Link>
                     :
                     <span className='font-bold'>#{o.id} - {o.descriptions}</span>
                   }
@@ -246,23 +245,24 @@ const Trx = () => {
 
   function formResponse(params: { method: string, data?: iTrx }) {
     const { method, data } = params
+    //navigate('/trx')
 
     switch (method) {
       case 'save':
         if (data) {
-          if (selectedId === 0) {            
+          if (selectedId === 0) {
             trxs.update(0, data)
           } else {
             trxs.update(selectedId, data)
-            //setSelectedId(-1)
-           // return;
+            setSelectedId(-1)
+             return;
           }
         }
         break;
       case 'remove':
         trxs.remove(selectedId);
         break;
-      case 'cancel':        
+      case 'cancel':
         //navigate('/trx/-1')
         if (selectedId === 0) {
           trxs.remove(0)
@@ -270,16 +270,15 @@ const Trx = () => {
         break;
     }
 
-    navigate('/trx')
-    //setSelectedId(-1)
+    setSelectedId(-1)
   }
 
   function addNewItem() {
     if (!trxs.getItem(0)) {
       trxs.insert(0, initTrx);
     }
-    //setSelectedId(0)
-    navigate('/trx/0')
+    setSelectedId(0)
+    //navigate('/trx/0')
   }
 
   async function searchTransact(e: string) {
@@ -384,7 +383,7 @@ type OrderDetailProp = {
 }
 
 function Summary(getTotalTransaction: (typeId: number) => string) {
-  return <View marginY={'size-400'}>
+  return (<View marginY={'size-400'}>
     <Divider size='M' marginY={'size-200'} />
     <View UNSAFE_className="font-bold">Summary:</View>
     <Flex width={{ base: 'auto', M: 'size-3400' }} direction={'column'}>
@@ -401,7 +400,7 @@ function Summary(getTotalTransaction: (typeId: number) => string) {
         <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(2)}</View>
       </Flex>
     </Flex>
-  </View>;
+  </View>);
 }
 
 function OrderDetail(props: OrderDetailProp) {
