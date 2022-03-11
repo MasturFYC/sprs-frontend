@@ -2,10 +2,36 @@ import { ActionButton, Flex, Link, NumberField, ProgressCircle, Text } from '@ad
 import React, { Fragment, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from "../lib/axios-base";
-import { FormatNumber } from '../lib/format';
+import { FormatDate, FormatNumber } from '../lib/format';
 import './report.css'
 import MonthComponent from "../component/Bulan";
 import SearchIcon from '@spectrum-icons/workflow/Search'
+
+// type reportTrxBase = {
+// 	id: number
+// 	name: string
+// 	debt: number
+// 	cred: number
+// 	saldo: number
+// }
+
+type reportTrxAccount = {
+	id: number
+	name: string
+	debt: number
+	cred: number
+	saldo: number
+	trxDate: string
+}
+
+type reportType = {
+	id: number
+	name: string
+	debt: number
+	cred: number
+	saldo: number
+	accounts?: reportTrxAccount[]
+}
 
 type reportTrxByMonth = {
 	group: number
@@ -14,7 +40,9 @@ type reportTrxByMonth = {
 	debt: number
 	cred: number
 	saldo: number
+	types?: reportType[]
 }
+
 
 const ReportTrxtByMonth = () => {
 	let { m, y } = useParams();
@@ -43,7 +71,6 @@ const ReportTrxtByMonth = () => {
 					setTrxs(data);
 					setLoaded(true);
 					setMonthId(month)
-					//setMonthTo(month2)
 					setYearId(year)
 				})
 				.catch(error => {
@@ -107,33 +134,33 @@ const ReportTrxtByMonth = () => {
 			<table className='table-100 collapse-none'>
 				<thead>
 					<tr className='back-green-700 text-white'>
-						<td className='font-bold'>AKUN</td>
+						<td className='font-bold width-50 padding-left-6'>AKUN</td>
 						<td className='font-bold'>DESKRIPSI</td>
-						<td className='text-right font-bold'>DEBET</td>
-						<td className='text-right font-bold'>CREDIT</td>
-						<td className='text-right font-bold'>SALDO</td>
+						<td className='text-right width-100 font-bold'>DEBET</td>
+						<td className='text-right width-100 font-bold'>CREDIT</td>
+						<td className='text-right width-100 font-bold padding-right-6'>SALDO</td>
 					</tr>
 				</thead>
 				<tbody>
 					{trxs.map((o, i) => {
 						if (i === 0) {
-							return (<tr key={`${o.id}-${i}`} className={i % 2 === 0 ? '' : 'back-green-200'}>
-								<td>{o.id}</td>
+							return (
+							<tr key={i} className={'border-b-1'}>
+								<td className='padding-left-6'>{o.id}</td>
 								<td className='font-bold' colSpan={3}>{o.name}</td>
-								<td className='text-right font-bold'>{FormatNumber(o.saldo)}</td>
+								<td className='text-right font-bold padding-right-6'>{FormatNumber(o.saldo)}</td>
 							</tr>)
 						}
-						return <RowDetail key={o.id} trx={o} month={monthId} year={yearId} />
+						return <RowDetail key={o.id} data={o} />
 					})}
 				</tbody>
 				<tfoot>
-					<tr className='border-t-1'>
-						<td colSpan={2}>Total</td>
-						<td className='text-right width-100'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t,c) => t + c.debt, 0))}</td>
-						<td className='text-right width-100'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t, c) => t + c.cred, 0))}</td>
-						<td className='text-right width-100'>{' '}</td>
+					<tr className='border-t-1 border-b-1'>
+						<td colSpan={2} className={'padding-left-6'}>Total</td>
+						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t, c) => t + c.debt, 0))}</td>
+						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t, c) => t + c.cred, 0))}</td>
+						<td className='text-right width-100 font-bold'>{' '}</td>
 					</tr>
-
 				</tfoot>
 			</table>
 		</div>
@@ -141,28 +168,26 @@ const ReportTrxtByMonth = () => {
 }
 
 type RowDetailProps = {
-	trx: reportTrxByMonth
-	month: number
-	year: number
+	data: reportTrxByMonth
 }
 
 function RowDetail(props: RowDetailProps) {
-	const { month, year, trx } = props
-	const [isSlelected, setIsSelected] = useState<boolean>(false);
+	const { data } = props
+	const [isSelected, setIsSelected] = useState<boolean>(false);
 	return (
 		<Fragment>
-			<tr>
-				<td className='width-50'>{trx.id}</td>
-				<td><Link isQuiet UNSAFE_className='font-bold' onPress={() => setIsSelected(!isSlelected)}>{trx.name}</Link></td>
-				<td className='text-right width-100'>{FormatNumber(trx.debt)}</td>
-				<td className='text-right width-100'>{FormatNumber(trx.cred)}</td>
-				<td className='text-right width-100'>{FormatNumber(trx.saldo)}</td>
+			<tr className={'border-b-gray-50'}>
+				<td className='width-50 padding-left-6'>{data.id}</td>
+				<td><Link isQuiet UNSAFE_className='font-bold' onPress={() => setIsSelected(!isSelected)}>{data.name}</Link></td>
+				<td className='text-right width-100'>{FormatNumber(data.debt)}</td>
+				<td className='text-right width-100'>{FormatNumber(data.cred)}</td>
+				<td className='text-right width-100 padding-right-6'>{FormatNumber(data.saldo)}</td>
 			</tr>
-			{isSlelected &&
-				<tr>
+			{isSelected &&
+				<tr className='border-t-gray-50'>
 					<td></td>
 					<td colSpan={4}>
-						<DetailByAccountType accId={trx.id} month={month} year={year} />
+						<DetailByType types={data.types} />
 					</td>
 				</tr>}
 		</Fragment>
@@ -171,50 +196,55 @@ function RowDetail(props: RowDetailProps) {
 
 export default ReportTrxtByMonth;
 
-type DetailByAccountTypeProps = {
-	accId: number, month: number, year: number
+type DetailByTypePRops = {
+	types?: reportType[]
 }
-function DetailByAccountType({ accId, month, year }: DetailByAccountTypeProps) {
-	let [trxs, setTrxs] = useState<reportTrxByMonth[]>([]);
 
-	React.useEffect(() => {
-		let isLoaded = false
+function DetailByType({ types }: DetailByTypePRops) {
 
-		async function loadData(accId: number, month: number, year: number) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-			await axios
-				.get(`/report/trx/month/acc/${accId}/${month}/${year}/`, { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					setTrxs(data);
-				})
-				.catch(error => {
-					console.log('-------', error)
-				})
+	if (types) {
+		return (
+			<div>
+				<table className='collapse-none table-100'>
+					<tbody>
+						{types.map((o, i) => (
+							<Fragment key={i}>
+								<tr className={`bg-gray-50 text-left border-b-1 ${i % 2 === 0 ? '' : 'back-green-200'}`}>
+									<td className='padding-left-6 text-left width-50'>{o.id}</td>
+									<td colSpan={5}>{o.name}</td>
+									{/* <td className='text-right width-100'>{FormatNumber(o.debt)}</td>
+								<td className='text-right width-100'>{FormatNumber(o.cred)}</td>
+								<td className='width-100'>{' '}</td> */}
+								</tr>
+								<DetailByAccount accounts={o.accounts} />
+							</Fragment>)
+						)}
+					</tbody>
+				</table>
+			</div>
+		)
+	}
+
+	return null;
+}
+
+
+type DetailByAccountPRops = {
+	accounts?: reportTrxAccount[]
+}
+
+function DetailByAccount({ accounts }: DetailByAccountPRops) {
+	return (<Fragment>
+		{accounts &&
+			accounts.map((o, i) => (
+			<tr key={i} className={`${i%2 === 0 ? 'tr-bg-green' : ''}`}>
+				<td className='width-50 bg-white border-bottom-none'>{' '}</td>
+				<td className={`border-b-gray-50 padding-left-6 text-left width-100`}>{FormatDate(o.trxDate)}</td>
+				<td className={`text-left border-b-gray-50`}>{o.name}</td>
+				<td className={`text-right width-100 border-b-gray-50`}>{FormatNumber(o.debt)}</td>
+				<td className={`text-right width-100 border-b-gray-50`}>{FormatNumber(o.cred)}</td>
+				<td className={`width-100 border-b-gray-50 padding-right-6`}>{' '}</td>
+			</tr>))
 		}
-
-		if (!isLoaded) {
-			loadData(accId, month, year);
-		}
-
-		return () => { isLoaded = true }
-
-	}, [accId, month, year])
-
-	return (
-		<div className='border-t-1 border-b-1 bg-gray-50'>
-			<table className='collapse-none table-100'>
-			<tbody>
-				{trxs.map((o, i) => (<tr key={`${o.id}-${i}`} className={i % 2 === 0 ? '' : 'back-green-200'}>
-					<td className='text-left width-50'>{o.id}</td>
-					<td className='text-left'>{o.name}</td>
-					<td className='text-right width-100'>{FormatNumber(o.saldo)}</td>
-				</tr>)
-				)}
-			</tbody>
-		</table>
-		</div>
-	);
+	</Fragment>);
 }
