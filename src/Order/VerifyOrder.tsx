@@ -122,7 +122,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
 
     details.push({
       id: 1,
-      accCodeId: 1112, // Bank BCA
+      codeId: 1112, // Bank BCA
       trxId: 0,
       debt: 0,
       cred: p.btMatel
@@ -140,7 +140,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
 
     details.push({
       id: 2,
-      accCodeId: 1211, // Order (SPK)
+      codeId: 1211, // Order (SPK)
       trxId: 0,
       debt: p.btMatel - stnk,
       cred: 0
@@ -149,7 +149,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
     if (stnk > 0) {
       details.push({
         id: 3,
-        accCodeId: 5211, // Biaya STNK
+        codeId: 5211, // Biaya STNK
         trxId: 0,
         debt: stnk,
         cred: 0
@@ -162,7 +162,6 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   function createTransaction(p: iOrder): iTrx {
     const initTrx: iTrx = {
       id: 0,
-      trxTypeId: 2,
       refId: p.id,
       division: 'TRX-Order',
       trxDate: dateParam(null),

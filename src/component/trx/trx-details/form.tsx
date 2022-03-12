@@ -9,7 +9,7 @@ import {
 
 export const initDetail: iTrxDetail = {
   id: 0,
-  accCodeId: 0,
+  codeId: 0,
   trxId: 0,
   debt: 0,
   cred: 0
@@ -51,15 +51,15 @@ function TrxDetailForm(props: TrxDetailFormOptions) {
         width={'auto'}
         aria-label={"Kode-akun"}
         placeholder={"e.g. Kas / bank"}
-        items={accs}
-        selectedKey={item.accCodeId}
+        defaultItems={accs}
+        selectedKey={item.codeId}
         onSelectionChange={(e) => {
-          handleChange("accCodeId", +e)
+          handleChange("codeId", +e)
           //changeData("accCodeId", +e)
         }}
       >
         {(item) => <Item textValue={`${item.id} - ${item.name}`}>
-          <Text><div style={{ fontWeight: 700 }}>{item.id} - {item.name}</div></Text>
+          <Text><div className='font-bold'>{item.id} - {item.name}</div></Text>
           <Text slot='description'><span className='font-bold'>{item.typeName}</span>{item.descriptions && `, ${item.descriptions}`}</Text>
         </Item>}
       </ComboBox>

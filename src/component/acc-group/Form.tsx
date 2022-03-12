@@ -1,23 +1,23 @@
 import React, { FormEvent } from 'react';
-import { iTrxType } from '../../lib/interfaces'
+import { iAccGroup } from '../../lib/interfaces'
 import { Button, Flex, NumberField, TextArea, TextField, View } from '@adobe/react-spectrum';
 import axios from '../../lib/axios-base';
 
-export const initTrxType: iTrxType = {
+export const initAccGrop: iAccGroup = {
 	id: 0,
 	name: '',
 	descriptions: ''
 }
 
-type AccTypeFormOptions = {
-	trxType: iTrxType,
+type AccGroupFormOptions = {
+	accGroup: iAccGroup,
 	isNew: boolean,
-	callback: (params: { method: string, data?: iTrxType }) => void
+	callback: (params: { method: string, data?: iAccGroup }) => void
 }
 
-const AccTypeForm = (props: AccTypeFormOptions) => {
-	const { trxType, callback, isNew } = props;
-	const [data, setData] = React.useState<iTrxType>(initTrxType)
+const AccGroupForm = (props: AccGroupFormOptions) => {
+	const { accGroup, callback, isNew } = props;
+	const [data, setData] = React.useState<iAccGroup>(initAccGrop)
 	const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
 	const isIDValid = React.useMemo(
@@ -34,19 +34,19 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 		let isLoaded = true;
 
 		if (isLoaded) {
-			setData(trxType)
+			setData(accGroup)
 		}
 
 		return () => { isLoaded = false }
 
-	}, [trxType])
+	}, [accGroup])
 
 	return (
 			<form onSubmit={(e) => handleSubmit(e)}>
 				<Flex rowGap='size-50' direction={'column'}>
 					<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap='size-50'>
 						<NumberField
-							label='Nomor jenis transaksi'
+							label='Nomor group'
 							autoFocus={isNew}
 							isReadOnly={!isNew}
 							formatOptions={{ useGrouping: false }}
@@ -57,12 +57,12 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 							onChange={(e) => changeData("id", e)}
 						/>
 						<TextField
-							label='Nama jenis transaksi'
+							label='Nama group akun'
 							autoFocus={!isNew}
 							flex
 							width={'auto'}
 							value={data.name}
-							placeholder={'e.g. Pendapatan'}
+							placeholder={'e.g. Harta'}
 							validationState={isNameValid ? 'valid' : 'invalid'}
 							maxLength={50}
 							onChange={(e) => changeData("name", e)}
@@ -89,7 +89,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 							<Button type='button' alignSelf={'flex-end'}
 								isDisabled={data.id === 0}
 								variant='negative'
-								onPress={() => deleteTrxType(data)}>Remove</Button>
+								onPress={() => deleteGroup(data)}>Remove</Button>
 						</View>
 					}
 				</Flex>
@@ -101,14 +101,14 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 		if (isNameValid && isIDValid) {
 
 			if (isNew) {
-				await insertTrxType(data);
+				await insertGroup(data);
 			} else {
-				await updateTrxType(data);
+				await updateGroup(data);
 			}
 		}
 	}
 
-	async function updateTrxType(p: iTrxType) {
+	async function updateGroup(p: iAccGroup) {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -117,7 +117,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.put(`/trx-type/${trxType.id}/`, xData, { headers: headers })
+			.put(`/acc-group/${accGroup.id}/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: p })
@@ -127,7 +127,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 			})
 	}
 
-	async function insertTrxType(p: iTrxType) {
+	async function insertGroup(p: iAccGroup) {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -136,7 +136,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.post(`/trx-type/`, xData, { headers: headers })
+			.post(`/acc-group/`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: p })
@@ -147,14 +147,14 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 	}
 
 
-	async function deleteTrxType(p: iTrxType) {
+	async function deleteGroup(p: iAccGroup) {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
 		}
 
 		await axios
-			.delete(`/trx-type/${p.id}/`, { headers: headers })
+			.delete(`/acc-group/${p.id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove', data: p })
@@ -171,4 +171,4 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 
 }
 
-export default AccTypeForm;
+export default AccGroupForm;

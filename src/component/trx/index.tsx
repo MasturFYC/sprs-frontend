@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from "../../lib/axios-base";
-import { iAccCodeType, iTrx, iTrxType } from '../../lib/interfaces'
+import { iAccCodeType, iTrx, iAccGroup } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, ComboBox, Divider, Flex, Heading, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
+import { Button, Divider, Heading, Flex, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
 import MonthComponent from "../Bulan";
@@ -13,7 +13,6 @@ const TrxForm = React.lazy(() => import('./form'));
 const Trx = () => {
   //let { trxId } = useParams();
   const [selectedId, setSelectedId] = React.useState<number>(-1);
-  const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
   const [bulan, setBulan] = useState<number>(0);
   //const navigate = useNavigate();
@@ -39,14 +38,14 @@ const Trx = () => {
     getKey: (item: iAccCodeType) => item.id
   })
 
-  let types = useAsyncList<iTrxType>({
+  let types = useAsyncList<iAccGroup>({
     async load({ signal }) {
       const headers = {
         'Content-Type': 'application/json'
       }
 
       let res = await axios
-        .get("/trx-type/", { headers: headers })
+        .get("/acc-group/", { headers: headers })
         .then(response => response.data)
         .then(data => {
           return data ? data : []
@@ -57,7 +56,7 @@ const Trx = () => {
 
       return { items: res }
     },
-    getKey: (item: iTrxType) => item.id
+    getKey: (item: iAccGroup) => item.id
   })
 
 
@@ -133,40 +132,17 @@ const Trx = () => {
               loadAllCodes();
             }
           }} />
-        <ComboBox
-          flex
-          width={'auto'}
-          label={"Jenis transaksi"}
-          labelPosition={'side'}
-          menuTrigger='focus'
-          placeholder={"e.g. Pengeluaran"}
-          defaultItems={[{ id: 0, name: 'Pilih jenis transaksi', descriptions: '' }, ...types.items]}
-          selectedKey={typeId}
-          onSelectionChange={(e) => {
-            setTypeId(+e);
-            if (+e === 0) {
-              loadAllCodes();
-            } else {
-              searchTransactByType(+e)
-            }
-          }}
-        >
-          {(item) => <Item textValue={item.id === 0 ? item.name : `${item.id} - ${item.name}`}>
-            <Text><span className="font-bold">{item.id === 0 ? item.name : `${item.id} - ${item.name}`}</span></Text>
-            <Text slot='description'>{item.descriptions}</Text>
-          </Item>}
-        </ComboBox>
-      </Flex>
-      {/* {selectedId > 0 &&
-        <TrxForm
-          isNew={selectedId === 0}
-          accs={accs.items}
-          trx={trxs.getItem(selectedId)}
-          types={types.items}
-          callback={(e) => formResponse(e)}
-        />} */}
 
-      {trxs.items && trxs.items.map(o => {
+        {/* {selectedId > 0 &&
+          <TrxForm
+            isNew={selectedId === 0}
+            accs={accs.items}
+            trx={trxs.getItem(selectedId)}
+            types={types.items}
+            callback={(e) => formResponse(e)}
+          />} */}
+      </Flex>
+      {trxs.items.map(o => {
 
         return o.id === selectedId ?
           <View key={o.id}
@@ -183,7 +159,6 @@ const Trx = () => {
               isNew={o.id === 0}
               accs={accs.items}
               trx={o}
-              types={types.items}
               callback={(e) => formResponse(e)}
             />
           </View>
@@ -199,12 +174,12 @@ const Trx = () => {
                     <span className='font-bold'>#{o.id} - {o.descriptions}</span>
                   }
                 </View>
-                <View borderRadius={'large'} paddingTop={'size-25'} paddingBottom={'size-50'} paddingX={'size-100'}
+                {/* <View borderRadius={'large'} paddingTop={'size-25'} paddingBottom={'size-50'} paddingX={'size-100'}
                   justifySelf={'center'}
                   alignSelf={"center"}
-                  backgroundColor={o.refId > 0 ? 'gray-400' : (o.trxTypeId === 2 ? 'red-700' : o.trxTypeId === 3 ? 'green-700' : 'gray-50')}>
-                  <span style={{ padding: '6px', color: o.trxTypeId === 1 ? '#000000' : '#ffffff' }}>{o.trxTypeId > 0 ? types.getItem(o.trxTypeId).name : ''}</span>
-                </View>
+                  backgroundColor={o.refId > 0 ? 'gray-400' : (o.groupId === 2 ? 'red-700' : o.groupId === 3 ? 'green-700' : 'gray-50')}>
+                  <span style={{ padding: '6px', color: o.groupId === 1 ? '#000000' : '#ffffff' }}>{o.groupId > 0 ? types.getItem(o.groupId).name : ''}</span>
+                </View> */}
               </Flex>
             </View>
             <View padding={'size-100'}>
@@ -229,17 +204,18 @@ const Trx = () => {
             </View>
           </View>
       })}
-      {Summary(getTotalTransaction)}
+      {/* Summary(getTotalTransaction) */}
+
     </View >
   );
 
-  function getTotalTransaction(typeId: number): string {
-    const value = trxs.items.filter(o => o.trxTypeId === typeId).reduce((t, c) => t + c.saldo, 0)
-    // const debt = trxs.items.filter(o=>o.trxTypeId===1).reduce((t,c)=>t+c.saldo,0)
-    // const cred = trxs.items.filter(o=>o.trxTypeId===2).reduce((t,c)=>t+c.saldo,0)
+  // function getTotalTransaction(typeId: number): string {
+  //   const value = trxs.items.filter(o => o.groupId === typeId).reduce((t, c) => t + c.saldo, 0)
+  //   // const debt = trxs.items.filter(o=>o.trxTypeId===1).reduce((t,c)=>t+c.saldo,0)
+  //   // const cred = trxs.items.filter(o=>o.trxTypeId===2).reduce((t,c)=>t+c.saldo,0)
 
-    return FormatNumber(value)
-  }
+  //   return FormatNumber(value)
+  // }
 
   function formResponse(params: { method: string, data?: iTrx }) {
     const { method, data } = params
@@ -253,7 +229,7 @@ const Trx = () => {
           } else {
             trxs.update(selectedId, data)
             setSelectedId(-1)
-             return;
+            return;
           }
         }
         break;
@@ -380,26 +356,26 @@ type OrderDetailProp = {
   }
 }
 
-function Summary(getTotalTransaction: (typeId: number) => string) {
-  return (<View marginY={'size-400'}>
-    <Divider size='M' marginY={'size-200'} />
-    <View UNSAFE_className="font-bold">Summary:</View>
-    <Flex width={{ base: 'auto', M: 'size-3400' }} direction={'column'}>
-      <Flex direction={'row'}>
-        <View flex>Financing:</View>
-        <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(3)}</View>
-      </Flex>
-      <Flex direction={'row'}>
-        <View flex>Pendapatan:</View>
-        <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(1)}</View>
-      </Flex>
-      <Flex direction={'row'}>
-        <View flex>Pengeluaran:</View>
-        <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(2)}</View>
-      </Flex>
-    </Flex>
-  </View>);
-}
+// function Summary(getTotalTransaction: (typeId: number) => string) {
+//   return (<View marginY={'size-400'}>
+//     <Divider size='M' marginY={'size-200'} />
+//     <View UNSAFE_className="font-bold">Summary:</View>
+//     <Flex width={{ base: 'auto', M: 'size-3400' }} direction={'column'}>
+//       <Flex direction={'row'}>
+//         <View flex>Financing:</View>
+//         <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(3)}</View>
+//       </Flex>
+//       <Flex direction={'row'}>
+//         <View flex>Pendapatan:</View>
+//         <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(1)}</View>
+//       </Flex>
+//       <Flex direction={'row'}>
+//         <View flex>Pengeluaran:</View>
+//         <View width={'size-2000'} UNSAFE_className="font-bold text-right">{getTotalTransaction(2)}</View>
+//       </Flex>
+//     </Flex>
+//   </View>);
+// }
 
 function OrderDetail(props: OrderDetailProp) {
   const { detail: p } = props;

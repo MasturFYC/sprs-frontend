@@ -1,5 +1,5 @@
 import React, { FormEvent } from 'react';
-import { iAccCode, iAccType } from '../../lib/interfaces'
+import { iAccCode, iAccGroup, iAccType } from '../../lib/interfaces'
 import {
   Button, Checkbox, ComboBox, Flex, Item, NumberField,
   Text,
@@ -9,7 +9,7 @@ import axios from '../../lib/axios-base';
 
 export const initAccCode: iAccCode = {
   id: 0,
-  accTypeId: 0,
+  typeId: 0,
   name: '',
   descriptions: '',
   isActive: true
@@ -38,7 +38,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
   )
 
   const isTypeValid = React.useMemo(
-    () => data.accTypeId > 0,
+    () => data.typeId > 0,
     [data]
   )
 
@@ -65,16 +65,17 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
             validationState={isTypeValid ? "valid" : "invalid"}
             width={'auto'}
             label={"Tipe akun"}
-            placeholder={"e.g. Adira"}
+            placeholder={"Pilih tipe"}
             defaultItems={types}
-            selectedKey={data.accTypeId}
-            onSelectionChange={(e) => changeData("accTypeId", +e)}
+            selectedKey={data.typeId}
+            onSelectionChange={(e) => changeData("typeId", +e)}
           >
             {(item) => <Item textValue={`${item.id} - ${item.name}`}>
               <Text><span className="font-bold">{item.id} - {item.name}</span></Text>
               <Text slot='description'>{item.descriptions}</Text>
             </Item>}
           </ComboBox>
+
           <NumberField
             label='Nomor kode akun'
             //isReadOnly={!isNew}
@@ -86,7 +87,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
             onChange={(e) => changeData("id", e)}
           />
           <TextField
-            label='Nama kode akun'            
+            label='Nama kode akun'
             flex
             autoFocus={!isNew}
             width={'auto'}

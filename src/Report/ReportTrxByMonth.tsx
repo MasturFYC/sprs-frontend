@@ -24,7 +24,7 @@ type reportTrxAccount = {
 	trxDate: string
 }
 
-type reportType = {
+type reportTrxType = {
 	id: number
 	name: string
 	debt: number
@@ -34,13 +34,13 @@ type reportType = {
 }
 
 type reportTrxByMonth = {
-	group: number
 	id: number
 	name: string
 	debt: number
 	cred: number
 	saldo: number
-	types?: reportType[]
+	groupId: number
+	types?: reportTrxType[]
 }
 
 
@@ -69,6 +69,7 @@ const ReportTrxtByMonth = () => {
 				.then(response => response.data)
 				.then(data => {
 					setTrxs(data);
+					console.log(data);
 					setLoaded(true);
 					setMonthId(month)
 					setYearId(year)
@@ -157,8 +158,8 @@ const ReportTrxtByMonth = () => {
 				<tfoot>
 					<tr className='border-t-1 border-b-1'>
 						<td colSpan={2} className={'padding-left-6'}>Total</td>
-						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t, c) => t + c.debt, 0))}</td>
-						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.group !== 0).reduce((t, c) => t + c.cred, 0))}</td>
+						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.groupId !== 0).reduce((t, c) => t + c.debt, 0))}</td>
+						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.groupId !== 0).reduce((t, c) => t + c.cred, 0))}</td>
 						<td className='text-right width-100 font-bold'>{' '}</td>
 					</tr>
 				</tfoot>
@@ -197,7 +198,7 @@ function RowDetail(props: RowDetailProps) {
 export default ReportTrxtByMonth;
 
 type DetailByTypePRops = {
-	types?: reportType[]
+	types?: reportTrxType[]
 }
 
 function DetailByType({ types }: DetailByTypePRops) {

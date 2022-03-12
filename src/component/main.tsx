@@ -13,7 +13,7 @@ const Finance = React.lazy(() => import('./Finance'));
 const Order = React.lazy(() => import('../Order'));
 const AccType = React.lazy(() => import('./acc-type'));
 const AccCode = React.lazy(() => import('./acc-code'));
-const TrxType = React.lazy(() => import('./trx-type'));
+const TrxType = React.lazy(() => import('./acc-group'));
 const Trx = React.lazy(() => import('./trx'));
 
 const ReportTrxtByMonth = React.lazy(() => import('../Report/ReportTrxByMonth'));
@@ -51,7 +51,7 @@ const Main = () => {
       <Route path="/acc-code" element={
         <React.Suspense fallback={<div>Please wait...</div>}><AccCode /></React.Suspense>
       } />
-      <Route path="/trx-type" element={
+      <Route path="/acc-group" element={
         <React.Suspense fallback={<div>Please wait...</div>}><TrxType /></React.Suspense>
       } />
       <Route path="/trx" element={<React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>}>

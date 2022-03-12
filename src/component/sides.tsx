@@ -57,17 +57,17 @@ const Aside = () => {
         <Flex direction={'column'} rowGap='size-200'>
           <View>
             <Link isQuiet variant='primary'>
+              <RouterLink to="/acc-group">Group Akun</RouterLink>
+            </Link>
+          </View>
+          <View>
+            <Link isQuiet variant='primary'>
               <RouterLink to="/acc-type">Tipe Akun</RouterLink>
             </Link>
           </View>
           <View>
             <Link isQuiet variant='primary'>
               <RouterLink to="/acc-code">Kode Akun</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/trx-type">Jenis Transaksi</RouterLink>
             </Link>
           </View>
           <View>

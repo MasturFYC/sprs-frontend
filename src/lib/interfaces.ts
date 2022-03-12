@@ -188,29 +188,28 @@ export interface iTask {
     giverName: string
 }
 
-export interface iAccType {
+export interface iAccGroup {
     id: number
     name: string
     descriptions?: string
 }
 
+export interface iAccType {
+    groupId: number
+    id: number
+    name: string
+    descriptions?: string
+}
 export interface iAccCode {
     id: number
     name: string
-    accTypeId: number
+    typeId: number
     descriptions?: string
     isActive: boolean
 }
 
-export interface iTrxType {
-    id: number
-    name: string
-    descriptions?: string
-}
-
 export interface iTrx {
     id: number
-    trxTypeId: number
     refId: number
     division: string
     trxDate: string
@@ -223,14 +222,14 @@ export interface iTrx {
 export interface iTrxDetail2 {
     id: number
     name: string
-    accCodeId: number
+    codeId: number
     debt: number
     cred: number
 }
 
 export interface iTrxDetail {
     id: number
-    accCodeId: number
+    codeId: number
     trxId: number
     debt: number
     cred: number

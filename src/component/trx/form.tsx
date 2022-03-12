@@ -2,8 +2,7 @@ import React, { FormEvent, useState } from 'react';
 import axios from '../../lib/axios-base';
 import { iTrx, iAccCodeType, dateParam, iAccType, dateOnly, iTrxDetail, iTrxDetail2 } from '../../lib/interfaces'
 import {
-  Button, ComboBox, Flex, Heading, Item,
-  Text,
+  Button, Flex, Heading,
   TextArea, TextField, View
 } from '@adobe/react-spectrum';
 import TrxDetails from './trx-details';
@@ -12,7 +11,6 @@ import { createToken } from '../../lib/format';
 
 export const initTrx: iTrx = {
   id: 0,
-  trxTypeId: 0,
   refId: 0,
   division: 'TRX-Umum',
   trxDate: dateParam(null),
@@ -25,23 +23,17 @@ export const initTrx: iTrx = {
 type TrxFormOptions = {
   trx: iTrx,
   accs: iAccCodeType[],
-  types: iAccType[],
   isNew: boolean,
   callback: (params: { method: string, data?: iTrx }) => void
 }
 
 const TrxForm = (props: TrxFormOptions) => {
-  const { trx, callback, isNew, types, accs } = props;
+  const { trx, callback, isNew, accs } = props;
   const [data, setData] = React.useState<iTrx>(initTrx)
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [debt, setDebt] = useState<number>(0);
   const [cred, setCred] = useState<number>(0);
   const [details, setDetails] = useState<iTrxDetail[]>([]);
-
-  const isTypeValid = React.useMemo(
-    () => data.trxTypeId > 0,
-    [data]
-  )
 
   const isBalancedValid = React.useMemo(
     () => data.saldo > 0 && (debt - cred) === 0,
@@ -69,7 +61,7 @@ const TrxForm = (props: TrxFormOptions) => {
         <Flex direction={'row'} gap='size-100' marginBottom={'size-100'} marginTop={'size-50'}>
           <Flex flex direction={'row'} columnGap={'size-125'}>
             <Button type='submit' variant='cta'
-              isDisabled={!isBalancedValid || !isDirty || !(isDescriptionsValid && isTypeValid)}>Save</Button>
+              isDisabled={!isBalancedValid || !isDirty || !(isDescriptionsValid)}>Save</Button>
             <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
               {isDirty ? 'Cancel' : 'Close'}</Button>
           </Flex>
@@ -83,19 +75,7 @@ const TrxForm = (props: TrxFormOptions) => {
         </Flex>
 
         <Flex rowGap='size-50' direction={'column'}>
-          <TextField
-            flex
-            label='Keterangan'
-            autoFocus
-            width={'auto'}
-            validationState={isDescriptionsValid ? 'valid' : 'invalid'}
-            placeholder={'e.g. Beli kopi dan rokok untuk om Mastur.'}
-            value={data.descriptions}
-            maxLength={128}
-            onChange={(e) => changeData("descriptions", e)}
-          />
-
-          <Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap='size-50'>
+          <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-100'}>
             <TextField
               type={'date'}
               label='Tanggal transaksi'
@@ -104,25 +84,19 @@ const TrxForm = (props: TrxFormOptions) => {
               maxLength={10}
               onChange={(e) => changeData("trxDate", e)}
             />
-            <ComboBox
+            <TextField
               flex
-              menuTrigger='focus'
-              validationState={isTypeValid ? "valid" : "invalid"}
+              label='Keterangan'
+              autoFocus
               width={'auto'}
-              label={"Jenis transaksi"}
-              placeholder={"e.g. Pendapatan"}
-              defaultItems={types}
-              selectedKey={data.trxTypeId}
-              onSelectionChange={(e) => changeData("trxTypeId", +e)}
-            >
-              {(item) => <Item textValue={`${item.id} - ${item.name}`}>
-                <Text><span style={{ fontWeight: 700 }}>{item.id} - {item.name}</span></Text>
-                <Text slot='description'>
-                  {item.descriptions}
-                </Text>
-              </Item>}
-            </ComboBox>
+              validationState={isDescriptionsValid ? 'valid' : 'invalid'}
+              placeholder={'e.g. Beli kopi dan rokok untuk om Mastur.'}
+              value={data.descriptions}
+              maxLength={128}
+              onChange={(e) => changeData("descriptions", e)}
+            />
           </Flex>
+
           <Flex direction={'column'} alignContent={'center'}>
             <Heading level={5}>Detail transaksi</Heading>
             <View marginY={'size-50'}>
@@ -149,13 +123,13 @@ const TrxForm = (props: TrxFormOptions) => {
           />
         </Flex>
       </form>
-    </View>
+    </View >
   );
 
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (isTypeValid && isDescriptionsValid) {
+    if (isDescriptionsValid) {
 
       if (isNew) {
         await insertTrx(data);
@@ -168,9 +142,9 @@ const TrxForm = (props: TrxFormOptions) => {
   function createIds(): number[] {
 
     if (details.length > 0) {
-      return details.map(o => o.accCodeId);
+      return details.map(o => o.codeId);
     }
-    return data.details ? data.details.map(o => o.accCodeId) : [];
+    return data.details ? data.details.map(o => o.codeId) : [];
   }
 
   async function updateTrx(p: iTrx) {
@@ -197,7 +171,7 @@ const TrxForm = (props: TrxFormOptions) => {
         if (details.length > 0) {
           for (let c = 0; c < details.length; c++) {
             const d = details[c];
-            newDs.push({ ...d, name: accs.filter(o => o.id === d.accCodeId)[0].name })
+            newDs.push({ ...d, name: accs.filter(o => o.id === d.codeId)[0].name })
           }
         }
         callback({ method: 'save', data: { ...p, details: newDs } })
@@ -231,7 +205,7 @@ const TrxForm = (props: TrxFormOptions) => {
         if (details.length > 0) {
           for (let c = 0; c < details.length; c++) {
             const d = details[c];
-            newDs.push({ ...d, name: accs.filter(o => o.id === d.accCodeId)[0].name })
+            newDs.push({ ...d, name: accs.filter(o => o.id === d.codeId)[0].name })
           }
         }
         callback({ method: 'save', data: { ...p, id: data.id, details: newDs } })

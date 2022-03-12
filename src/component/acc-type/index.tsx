@@ -1,12 +1,33 @@
 import React from "react";
 import axios from "../../lib/axios-base";
-import { iAccType } from '../../lib/interfaces'
+import { iAccGroup, iAccType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, Divider, Flex, Link, useAsyncList } from "@adobe/react-spectrum";
 import AccTypeForm, { initAccType } from './Form'
 
 const AccType = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
+
+
+	let groups = useAsyncList<iAccGroup>({
+		async load({ signal }) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
+
+			let res = await axios
+				.get("/acc-group/", { headers: headers })
+				.then(response => response.data)
+				.then(data => data)
+				.catch(error => {
+					console.log('-------', error)
+					return []
+				})
+
+			return { items: res || [] }
+		},
+		getKey: (item: iAccGroup) => item.id
+	})
 
 	let accs = useAsyncList<iAccType>({
 		async load({ signal }) {
@@ -55,6 +76,7 @@ const AccType = () => {
 						<AccTypeForm
 							isNew={o.id === 0}
 							accType={o}
+							groups={groups.items}
 							callback={(e) => formResponse(e)}
 						/>
 					</View>

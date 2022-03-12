@@ -1,9 +1,10 @@
 import React, { FormEvent } from 'react';
-import { iAccType } from '../../lib/interfaces'
-import { Button, Flex, NumberField, TextArea, TextField, View } from '@adobe/react-spectrum';
+import { iAccGroup, iAccType } from '../../lib/interfaces'
+import { Button, ComboBox, Flex, Text, Item, NumberField, TextArea, TextField, View } from '@adobe/react-spectrum';
 import axios from '../../lib/axios-base';
 
 export const initAccType: iAccType = {
+	groupId: 0,
 	id: 0,
 	name: '',
 	descriptions: ''
@@ -12,15 +13,21 @@ export const initAccType: iAccType = {
 type AccTypeFormOptions = {
 	accType: iAccType,
 	isNew: boolean,
+	groups: iAccGroup[],
 	callback: (params: { method: string, data?: iAccType }) => void
 }
 
 const AccTypeForm = (props: AccTypeFormOptions) => {
-	const { accType, callback, isNew } = props;
+	const { accType, groups, callback, isNew } = props;
 	const [data, setData] = React.useState<iAccType>(initAccType)
 	const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
 	const isIDValid = React.useMemo(
+		() => data.id > 10 && data.id < 100,
+		[data]
+	)
+
+	const isGroupValid = React.useMemo(
 		() => data.id > 10 && data.id < 100,
 		[data]
 	)
@@ -45,6 +52,24 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 			<form onSubmit={(e) => handleSubmit(e)}>
 				<Flex rowGap='size-50' direction={'column'}>
 					<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap='size-50'>
+					<ComboBox
+						flex
+						autoFocus={isNew}
+						menuTrigger='focus'
+						validationState={isGroupValid ? "valid" : "invalid"}
+						width={'auto'}
+						label={"Group akun"}
+						placeholder={"Pilih group"}
+						defaultItems={groups}
+						selectedKey={data.groupId}
+						onSelectionChange={(e) => changeData("groupId", +e)}
+					>
+						{(item) => <Item textValue={`${item.id} - ${item.name}`}>
+							<Text><span className="font-bold">{item.id} - {item.name}</span></Text>
+							<Text slot='description'>{item.descriptions}</Text>
+						</Item>}
+					</ComboBox>
+					
 						<NumberField
 							label='Nomor tipe akun'
 							autoFocus={isNew}

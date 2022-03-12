@@ -167,7 +167,7 @@ function ShowDetail(props: ShowDetailParam): JSX.Element {
         <Link isQuiet flex={'none'} variant="primary"
           UNSAFE_className={'font-bold'}
           onPress={() => setSelected(o.id)}>
-          <div>{getCodeName(o.accCodeId)}</div>
+          <div>{getCodeName(o.codeId)}</div>
         </Link>
       </View>
       <View width={'size-2000'}>{FormatNumber(o.debt)}</View>

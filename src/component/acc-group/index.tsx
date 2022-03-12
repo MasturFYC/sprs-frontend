@@ -1,21 +1,21 @@
 import React from "react";
 import axios from "../../lib/axios-base";
-import { iTrxType } from '../../lib/interfaces'
+import { iAccGroup } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, Divider, Flex, Link, useAsyncList } from "@adobe/react-spectrum";
-import TrxTypeForm, { initTrxType } from './Form'
+import TrxTypeForm, { initAccGrop } from './Form'
 
 const TrxType = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 
-	let trxs = useAsyncList<iTrxType>({
+	let groups = useAsyncList<iAccGroup>({
 		async load({ signal }) {
 			const headers = {
 				'Content-Type': 'application/json'
 			}
 
 			let res = await axios
-				.get("/trx-type/", { headers: headers })
+				.get("/acc-group/", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
 					return data ? data : []
@@ -26,7 +26,7 @@ const TrxType = () => {
 
 			return { items: res }
 		},
-		getKey: (item: iTrxType) => item.id
+		getKey: (item: iAccGroup) => item.id
 	})
 
 	return (
@@ -34,12 +34,12 @@ const TrxType = () => {
 			<h1>Jenis Transaksi</h1>
 
 			<View marginY={'size-200'}>
-				<Button variant="cta" onPress={() => addNewItem()}>Jenis Transaksi Baru</Button>
+				<Button variant="cta" onPress={() => addNewItem()}>Group Akun Baru</Button>
 			</View>
 
 			<Divider size="S" marginY='size-100' />
 
-			{trxs.items.map(o => {
+			{groups.items.map(o => {
 
 				return o.id === selectedId ?
 					<View key={o.id}
@@ -54,7 +54,7 @@ const TrxType = () => {
 					>
 						<TrxTypeForm
 							isNew={o.id === 0}
-							trxType={o}
+							accGroup={o}
 							callback={(e) => formResponse(e)}
 						/>
 					</View>
@@ -77,7 +77,7 @@ const TrxType = () => {
 		</View>
 	);
 
-	function formResponse(params: { method: string, data?: iTrxType }) {
+	function formResponse(params: { method: string, data?: iAccGroup }) {
 		const { method, data } = params
 
 
@@ -85,18 +85,18 @@ const TrxType = () => {
 			case 'save':
 				if (data) {
 					if (selectedId === 0) {
-						trxs.update(0, data)
+						groups.update(0, data)
 					} else {
-						trxs.update(selectedId, data)
+						groups.update(selectedId, data)
 					}
 				}
 				break;
 			case 'remove':
-				trxs.remove(selectedId);
+				groups.remove(selectedId);
 				break;
 			case 'cancel':
 				if (selectedId === 0) {
-					trxs.remove(0)
+					groups.remove(0)
 				}
 				break;
 		}
@@ -105,8 +105,8 @@ const TrxType = () => {
 	}
 
 	function addNewItem() {
-		if (!trxs.getItem(0)) {
-			trxs.insert(0, initTrxType);
+		if (!groups.getItem(0)) {
+			groups.insert(0, initAccGrop);
 		}
 		setSelectedId(0)
 	}
