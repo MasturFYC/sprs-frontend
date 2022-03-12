@@ -15,6 +15,7 @@ const AccType = React.lazy(() => import('./acc-type'));
 const AccCode = React.lazy(() => import('./acc-code'));
 const TrxType = React.lazy(() => import('./acc-group'));
 const Trx = React.lazy(() => import('./trx'));
+const TrxAutoDebet = React.lazy(() => import('./trx-auto-debet/form'));
 
 const ReportTrxtByMonth = React.lazy(() => import('../Report/ReportTrxByMonth'));
 
@@ -56,6 +57,12 @@ const Main = () => {
       } />
       <Route path="/trx" element={<React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>}>
         <Route path=":trxId" element={<Trx />} />
+      </Route>
+      <Route path="/trx-auto-debet">
+        <Route path=":trxId" element={
+        <React.Suspense fallback={<div>Please wait...</div>}>
+          <TrxAutoDebet />
+        </React.Suspense>} />
       </Route>
       <Route path="/report">
         <Route path="trx">

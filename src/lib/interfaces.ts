@@ -206,6 +206,7 @@ export interface iAccCode {
     typeId: number
     descriptions?: string
     isActive: boolean
+    isAutoDebet: boolean
 }
 
 export interface iTrx {

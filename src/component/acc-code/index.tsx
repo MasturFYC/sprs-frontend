@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "../../lib/axios-base";
-import { iAccCode, iAccGroup, iAccType } from '../../lib/interfaces'
+import { iAccCode, iAccType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import AccCodeForm, { initAccCode } from './form'

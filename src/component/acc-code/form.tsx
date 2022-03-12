@@ -1,5 +1,5 @@
 import React, { FormEvent } from 'react';
-import { iAccCode, iAccGroup, iAccType } from '../../lib/interfaces'
+import { iAccCode, iAccType } from '../../lib/interfaces'
 import {
   Button, Checkbox, ComboBox, Flex, Item, NumberField,
   Text,
@@ -12,7 +12,8 @@ export const initAccCode: iAccCode = {
   typeId: 0,
   name: '',
   descriptions: '',
-  isActive: true
+  isActive: true,
+  isAutoDebet: false,
 }
 
 type AccCodeFormOptions = {
@@ -117,6 +118,9 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
         <View flex>
           <Checkbox isSelected={data.isActive} onChange={(e) => changeData("isActive", e)}>
             Aktif ?
+          </Checkbox>
+          <Checkbox isSelected={data.isAutoDebet} onChange={(e) => changeData("isAutoDebet", e)}>
+            Auto Debet ?
           </Checkbox>
         </View>
         {data.id > 0 &&

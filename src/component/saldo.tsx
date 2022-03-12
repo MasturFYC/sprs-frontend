@@ -1,9 +1,9 @@
-import { Checkbox, Flex, Link, useAsyncList, View } from '@adobe/react-spectrum'
-import { FormatNumber } from '../lib/format'
 import React, { useState } from 'react'
+import { Checkbox, Flex, Link, View } from '@adobe/react-spectrum'
+import { FormatNumber } from '../lib/format'
 import useSWR from 'swr'
 import axios from '../lib/axios-base'
-import { iAccGroup } from '@src/lib/interfaces'
+// import { iAccGroup } from '@src/lib/interfaces'
 
 interface iSaldo {
 	id: number
@@ -52,12 +52,12 @@ function RemainSaldo() {
 	function saldo() {
 		if (data) {
 			
-			const debt = data.filter(f => f.id <= 3).reduce((t, c) => t + c.saldo, 0);
-			const cred = data.filter(f => f.id > 3).reduce((t, c) => t + c.saldo, 0);
+			// const debt = data.filter(f => f.id <= 3).reduce((t, c) => t + c.saldo, 0);
+			// const cred = data.filter(f => f.id > 3).reduce((t, c) => t + c.saldo, 0);
 			//const modal = data.filter(f => f.id === 3).reduce((t, c) => t + c.debt, 0);
 
 			//return (debt + modal) - cred;
-			return (debt - cred);
+			return data.reduce((t, c) => t + c.saldo, 0);
 		}
 		return 0;
 	}

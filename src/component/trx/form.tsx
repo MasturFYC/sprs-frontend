@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import axios from '../../lib/axios-base';
-import { iTrx, iAccCodeType, dateParam, iAccType, dateOnly, iTrxDetail, iTrxDetail2 } from '../../lib/interfaces'
+import { iTrx, iAccCodeType, dateParam, dateOnly, iTrxDetail, iTrxDetail2 } from '../../lib/interfaces'
 import {
   Button, Flex, Heading,
   TextArea, TextField, View

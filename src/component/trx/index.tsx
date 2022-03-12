@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "../../lib/axios-base";
 import { iAccCodeType, iTrx, iAccGroup } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, Divider, Heading, Flex, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
+import { Button, Divider, Heading, Flex, Link, ProgressCircle, SearchField, useAsyncList } from "@adobe/react-spectrum";
 import { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
 import MonthComponent from "../Bulan";
@@ -301,27 +301,27 @@ const Trx = () => {
     trxs.append(...res);
   }
 
-  async function searchTransactByType(id: number) {
+  // async function searchTransactByType(id: number) {
 
-    const headers = {
-      'Content-Type': 'application/json'
-    }
+  //   const headers = {
+  //     'Content-Type': 'application/json'
+  //   }
 
-    let res = await axios
-      .get(`/trx/group-type/${id}/`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        return data ? data : []
-      })
-      .catch(error => {
-        console.log('-------', error)
-        return []
-      })
+  //   let res = await axios
+  //     .get(`/trx/group-type/${id}/`, { headers: headers })
+  //     .then(response => response.data)
+  //     .then(data => {
+  //       return data ? data : []
+  //     })
+  //     .catch(error => {
+  //       console.log('-------', error)
+  //       return []
+  //     })
 
-    trxs.setSelectedKeys('all')
-    trxs.removeSelectedItems();
-    trxs.append(...res);
-  }
+  //   trxs.setSelectedKeys('all')
+  //   trxs.removeSelectedItems();
+  //   trxs.append(...res);
+  // }
 
   async function loadAllCodes() {
 
