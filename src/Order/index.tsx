@@ -3,7 +3,7 @@ import React, { Fragment, useState } from "react";
 import axios from "../lib/axios-base";
 import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
 //import OrderForm, { initOrder } from './Form'
-import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, useAsyncList } from "@adobe/react-spectrum";
+import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, useAsyncList, View } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "../lib/format";
 import './table.css'
 import MonthComponent from "../component/Bulan";
@@ -87,7 +87,7 @@ const Order = () => {
 
 	return (
 		<Fragment>
-			<h1>Order (SPK)</h1>
+			<View marginBottom={'size-200'}><span className="div-h1">Order (SPK)</span></View>
 
 			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>
 				<Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button>

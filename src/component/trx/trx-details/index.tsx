@@ -144,7 +144,7 @@ function ShowHeader() {
     <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
       <View flex>KETERANGAN</View>
       <View width={'size-2000'}>DEBET</View>
-      <View width={'size-2000'}>KREDIT</View>
+      <View width={'size-2000'}>CREDIT</View>
       <View width={'size-1600'}>COMMAND</View>
     </Flex>
     <Divider size="S" marginY={'size-50'} />

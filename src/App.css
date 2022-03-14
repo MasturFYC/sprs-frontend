@@ -83,3 +83,8 @@
 .text-decoration-none:hover {
   text-decoration: underline;
 }
+
+.div-h1 {
+  font-size: calc(100% + 16px);
+  color: indigo
+}

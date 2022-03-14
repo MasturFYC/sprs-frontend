@@ -1,7 +1,6 @@
 import React, { FormEvent } from 'react';
 import { iAccGroup, iAccType } from '../../lib/interfaces'
 import { Button, ComboBox, Flex, Text, Item, NumberField, TextArea, TextField, View } from '@adobe/react-spectrum';
-import axios from '../../lib/axios-base';
 
 export const initAccType: iAccType = {
 	groupId: 0,
@@ -14,11 +13,14 @@ type AccTypeFormOptions = {
 	accType: iAccType,
 	isNew: boolean,
 	groups: iAccGroup[],
-	callback: (params: { method: string, data?: iAccType }) => void
+	onInsert: (data: iAccType) => void,
+	onCancel: (id: number) => void,
+	onUpdate: (id: number, data: iAccType) => void,
+	onDelete: (id: number) => void,
 }
 
 const AccTypeForm = (props: AccTypeFormOptions) => {
-	const { accType, groups, callback, isNew } = props;
+	const { accType, groups, onInsert, onCancel, onDelete, onUpdate, isNew } = props;
 	const [data, setData] = React.useState<iAccType>(initAccType)
 	const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
@@ -28,7 +30,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 	)
 
 	const isGroupValid = React.useMemo(
-		() => data.id > 10 && data.id < 100,
+		() => data.groupId > 0,
 		[data]
 	)
 
@@ -62,14 +64,14 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 						placeholder={"Pilih group"}
 						defaultItems={groups}
 						selectedKey={data.groupId}
-						onSelectionChange={(e) => changeData("groupId", +e)}
+						onSelectionChange={(e) => handleChange("groupId", +e)}
 					>
 						{(item) => <Item textValue={`${item.id} - ${item.name}`}>
 							<Text><span className="font-bold">{item.id} - {item.name}</span></Text>
 							<Text slot='description'>{item.descriptions}</Text>
 						</Item>}
 					</ComboBox>
-					
+
 						<NumberField
 							label='Nomor tipe akun'
 							autoFocus={isNew}
@@ -79,7 +81,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 							validationState={isIDValid ? 'valid' : 'invalid'}
 							width={{ base: 'auto', M: '120px' }}
 							value={data.id}
-							onChange={(e) => changeData("id", e)}
+							onChange={(e) => handleChange("id", e)}
 						/>
 						<TextField
 							label='Nama tipe akun'
@@ -90,7 +92,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 							placeholder={'e.g. Kas'}
 							validationState={isNameValid ? 'valid' : 'invalid'}
 							maxLength={50}
-							onChange={(e) => changeData("name", e)}
+							onChange={(e) => handleChange("name", e)}
 						/>
 					</Flex>
 					<TextArea
@@ -100,13 +102,13 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 						placeholder={'e.g. Group yang memuat akun-akun kas.'}
 						value={data.descriptions}
 						maxLength={256}
-						onChange={(e) => changeData("descriptions", e)}
+						onChange={(e) => handleChange("descriptions", e)}
 					/>
 				</Flex>
 				<Flex direction={'row'} gap='size-100' marginY={'size-200'}>
 					<Flex flex direction={'row'} columnGap={'size-125'}>
 						<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isIDValid)}>Save</Button>
-						<Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+						<Button type='button' variant='primary' onPress={() => onCancel(accType.id)}>
 							{isDirty ? 'Cancel' : 'Close'}</Button>
 					</Flex>
 					{data.id > 0 &&
@@ -114,7 +116,7 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 							<Button type='button' alignSelf={'flex-end'}
 								isDisabled={data.id === 0}
 								variant='negative'
-								onPress={() => deleteAccType(data)}>Remove</Button>
+								onPress={() => onDelete(accType.id)}>Remove</Button>
 						</View>
 					}
 				</Flex>
@@ -123,77 +125,18 @@ const AccTypeForm = (props: AccTypeFormOptions) => {
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
-		if (isNameValid && isIDValid) {
 
-			if (isNew) {
-				await insertAccType(data);
-			} else {
-				await updateAccType(data);
-			}
-		}
-	}
-
-	async function updateAccType(p: iAccType) {
-		const headers = {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
+		if(accType.id === 0) {
+			onInsert(data)
+		} else {
+			onUpdate(accType.id, data)
 		}
 
-		const xData = JSON.stringify(p)
-
-		await axios
-			.put(`/acc-type/${accType.id}/`, xData, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				callback({ method: 'save', data: p })
-			})
-			.catch(error => {
-				console.log(error)
-			})
 	}
-
-	async function insertAccType(p: iAccType) {
-		const headers = {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		}
-
-		const xData = JSON.stringify(p)
-
-		await axios
-			.post(`/acc-type/`, xData, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				callback({ method: 'save', data: p })
-			})
-			.catch(error => {
-				console.log(error)
-			})
-	}
-
-
-	async function deleteAccType(p: iAccType) {
-		const headers = {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.delete(`/acc-type/${p.id}/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				callback({ method: 'remove', data: p })
-			})
-			.catch(error => {
-				console.log(error)
-			})
-	}
-
-	function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+	function handleChange(fieldName: string, value: string | number | boolean | undefined | null) {
 		setData(o => ({ ...o, [fieldName]: value }))
 		setIsDirty(true)
 	}
-
 }
 
 export default AccTypeForm;

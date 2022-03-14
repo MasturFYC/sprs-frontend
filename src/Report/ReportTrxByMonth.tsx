@@ -1,4 +1,4 @@
-import { ActionButton, Flex, Link, NumberField, ProgressCircle, Text } from '@adobe/react-spectrum';
+import { ActionButton, Flex, Link, NumberField, ProgressCircle, Text, View } from '@adobe/react-spectrum';
 import React, { Fragment, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from "../lib/axios-base";
@@ -7,13 +7,6 @@ import './report.css'
 import MonthComponent from "../component/Bulan";
 import SearchIcon from '@spectrum-icons/workflow/Search'
 
-// type reportTrxBase = {
-// 	id: number
-// 	name: string
-// 	debt: number
-// 	cred: number
-// 	saldo: number
-// }
 
 type reportTrxAccount = {
 	id: number
@@ -63,35 +56,32 @@ const ReportTrxtByMonth = () => {
 			const headers = {
 				'Content-Type': 'application/json'
 			}
-			await axios
+			const res = await axios
 				.get(`/report/trx/month/${month}/${year}/`, { headers: headers })
 				//.get(`/report/trx/month/${month}/${month2}/${year}/`, { headers: headers })
 				.then(response => response.data)
-				.then(data => {
-					setTrxs(data);
-					console.log(data);
-					setLoaded(true);
-					setMonthId(month)
-					setYearId(year)
-				})
+				.then(data => data)
 				.catch(error => {
 					setLoaded(true)
 				})
 
+
+			setTrxs(res ? res : []);
+			//console.log(data);
+			setLoaded(true);
+			setMonthId(month)
+			setYearId(year)
+
+
 		}
 
-
 		if (!isLoaded && m && y) {
-			//if (!isLoaded && m && m2 && y) {
 			if (+m === 0 || +y === 0) {
 				const t = new Date();
 				const m = t.getMonth() + 1;
-				//const m2 = m;
 				const y = t.getFullYear();
-				//loadData(m, m2, y);
 				loadData(m, y);
 			} else {
-				//loadData(+m, +m2, +y);
 				loadData(+m, +y);
 			}
 		}
@@ -106,7 +96,8 @@ const ReportTrxtByMonth = () => {
 	}
 
 	return (
-		<div>
+		<View>
+			<View marginBottom={'size-200'}><span className='div-h1'>Laporan Saldo (Group Akun)</span></View>
 			<Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-100'} marginBottom={'size-100'}>
 				<MonthComponent removeId={0} labelPosition='side' label={'Dari bulan'} selectedId={monthId} onChange={(e) => setMonthId(e.id)} />
 				{/* <MonthComponent removeId={0} labelPosition='side' label={'Sampai bulan'} selectedId={monthTo} onChange={(e) => setMonthTo(e.id)} /> */}
@@ -135,37 +126,46 @@ const ReportTrxtByMonth = () => {
 			<table className='table-100 collapse-none'>
 				<thead>
 					<tr className='back-green-700 text-white'>
-						<td className='font-bold width-50 padding-left-6'>AKUN</td>
-						<td className='font-bold'>DESKRIPSI</td>
-						<td className='text-right width-100 font-bold'>DEBET</td>
-						<td className='text-right width-100 font-bold'>CREDIT</td>
-						<td className='text-right width-100 font-bold padding-right-6'>SALDO</td>
+						<td className='padding-y-6 font-bold width-50 padding-left-6'>AKUN</td>
+						<td className='padding-y-6 font-bold'>DESKRIPSI</td>
+						<td className='padding-y-6 text-right width-100 font-bold'>DEBET</td>
+						<td className='padding-y-6 text-right width-100 font-bold'>CREDIT</td>
+						<td className='padding-y-6 text-right width-100 font-bold padding-right-6'>SALDO</td>
 					</tr>
 				</thead>
 				<tbody>
 					{trxs.map((o, i) => {
 						if (i === 0) {
 							return (
-							<tr key={i} className={'border-b-1'}>
-								<td className='padding-left-6'>{o.id}</td>
-								<td className='font-bold' colSpan={3}>{o.name}</td>
-								<td className='text-right font-bold padding-right-6'>{FormatNumber(o.saldo)}</td>
-							</tr>)
+								<tr key={i} className={'border-b-1'}>
+									<td className='font-bold padding-y-6 padding-left-6' colSpan={4}>{o.name}</td>
+									<td className='text-right font-bold padding-y-6 padding-right-6'>{FormatNumber(o.saldo)}</td>
+								</tr>)
 						}
 						return <RowDetail key={o.id} data={o} />
 					})}
 				</tbody>
 				<tfoot>
-					<tr className='border-t-1 border-b-1'>
-						<td colSpan={2} className={'padding-left-6'}>Total</td>
-						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.groupId !== 0).reduce((t, c) => t + c.debt, 0))}</td>
-						<td className='text-right width-100 font-bold'>{FormatNumber(trxs.filter(f => f.groupId !== 0).reduce((t, c) => t + c.cred, 0))}</td>
-						<td className='text-right width-100 font-bold'>{' '}</td>
+					<tr className='border-b-1'>
+						<td colSpan={2} className={'border-t-1 padding-left-6 padding-y-6'}>Total</td>
+						<td className='border-t-1 text-right width-100 font-bold padding-y-6'>{FormatNumber(trxs.filter(f => f.groupId !== 0).reduce((t, c) => t + c.debt, 0))}</td>
+						<td className='border-t-1 text-right width-100 font-bold padding-y-6'>{FormatNumber(trxs.filter(f => f.groupId !== 0).reduce((t, c) => t + c.cred, 0))}</td>
+						<td className='border-t-1 text-right width-100 font-bold padding-y-6 padding-right-6' title={'SALDO AWAL + CREDIT - DEBET'}>
+							{getRemainSaldo(trxs)}
+						</td>
 					</tr>
 				</tfoot>
 			</table>
-		</div>
+		</View>
 	)
+
+	function getRemainSaldo(p?: reportTrxByMonth[]): string {
+		if(p && p.length > 0) {
+			const remain = p[p.length - 1].saldo
+			return FormatNumber(remain)
+		}
+		return '0'
+	} 
 }
 
 type RowDetailProps = {
@@ -180,9 +180,9 @@ function RowDetail(props: RowDetailProps) {
 			<tr className={'border-b-gray-50'}>
 				<td className='width-50 padding-left-6'>{data.id}</td>
 				<td><Link isQuiet UNSAFE_className='font-bold' onPress={() => setIsSelected(!isSelected)}>{data.name}</Link></td>
-				<td className='text-right width-100'>{FormatNumber(data.debt)}</td>
-				<td className='text-right width-100'>{FormatNumber(data.cred)}</td>
-				<td className='text-right width-100 padding-right-6'>{FormatNumber(data.saldo)}</td>
+				<td className={`text-right width-100 ${isSelected ? 'font-bold':''}`}>{FormatNumber(data.debt)}</td>
+				<td className={`text-right width-100 ${isSelected ? 'font-bold' : ''}`}>{FormatNumber(data.cred)}</td>
+				<td className={`text-right width-100 ${isSelected ? 'font-bold' : ''} padding-right-6`}>{FormatNumber(data.saldo)}</td>
 			</tr>
 			{isSelected &&
 				<tr className='border-t-gray-50'>
@@ -229,7 +229,6 @@ function DetailByType({ types }: DetailByTypePRops) {
 	return null;
 }
 
-
 type DetailByAccountPRops = {
 	accounts?: reportTrxAccount[]
 }
@@ -238,14 +237,14 @@ function DetailByAccount({ accounts }: DetailByAccountPRops) {
 	return (<Fragment>
 		{accounts &&
 			accounts.map((o, i) => (
-			<tr key={i} className={`${i%2 === 0 ? 'tr-bg-green' : ''}`}>
-				<td className='width-50 bg-white border-bottom-none'>{' '}</td>
-				<td className={`border-b-gray-50 padding-left-6 text-left width-100`}>{FormatDate(o.trxDate)}</td>
-				<td className={`text-left border-b-gray-50`}>{o.name}</td>
-				<td className={`text-right width-100 border-b-gray-50`}>{FormatNumber(o.debt)}</td>
-				<td className={`text-right width-100 border-b-gray-50`}>{FormatNumber(o.cred)}</td>
-				<td className={`width-100 border-b-gray-50 padding-right-6`}>{' '}</td>
-			</tr>))
+				<tr key={i} className={`${i % 2 === 0 ? 'tr-bg-green' : ''}`}>
+					<td className='text-right width-50 bg-white border-bottom-none padding-right-6'>{' '}</td>
+					<td className={`border-b-gray-50 padding-left-6 text-left width-100`}>{FormatDate(o.trxDate)}</td>
+					<td className={`text-left border-b-gray-50`}>{o.name}</td>
+					<td className={`text-right width-100 border-b-gray-50`}>{FormatNumber(o.debt)}</td>
+					<td className={`text-right width-100 border-b-gray-50`}>{FormatNumber(o.cred)}</td>
+					<td className={`width-100 border-b-gray-50 padding-right-6`}>{' '}</td>
+				</tr>))
 		}
 	</Fragment>);
 }

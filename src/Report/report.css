@@ -66,3 +66,14 @@ td {
 .border-bottom-none {
   border-bottom: none
 }
+
+.padding-y-6 {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+
+.padding-y-6 {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}

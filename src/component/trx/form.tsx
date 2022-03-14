@@ -41,7 +41,7 @@ const TrxForm = (props: TrxFormOptions) => {
   )
 
   const isDescriptionsValid = React.useMemo(
-    () => data.descriptions.length > 10,
+    () => data.descriptions.length > 5,
     [data]
   )
 

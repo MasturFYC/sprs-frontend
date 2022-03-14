@@ -15,7 +15,7 @@ const AccType = React.lazy(() => import('./acc-type'));
 const AccCode = React.lazy(() => import('./acc-code'));
 const TrxType = React.lazy(() => import('./acc-group'));
 const Trx = React.lazy(() => import('./trx'));
-const TrxAutoDebet = React.lazy(() => import('./trx-auto-debet/form'));
+const TrxAutoDebet = React.lazy(() => import('./trx-auto-debet'));
 
 const ReportTrxtByMonth = React.lazy(() => import('../Report/ReportTrxByMonth'));
 
@@ -28,41 +28,26 @@ const Main = () => {
           <Merk />
         </React.Suspense>
       } />
-      <Route path="/wheel" element={
-        <React.Suspense fallback={<div>Please wait...</div>}>
-          <Wheel />
-        </React.Suspense>
-      } />
-      <Route path="/vehicle" element={
-        <React.Suspense fallback={<div>Please wait...</div>}>
-          <Vehicle /></React.Suspense>} />
-      <Route path="/branch" element={
-        <React.Suspense fallback={<div>Please wait...</div>}>
-          <Branch />
-        </React.Suspense>
-      } />
-      <Route path="/warehouse" element={
-        <React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
-      <Route path="/finance" element={
-        <React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
+      <Route path="/wheel" element={<React.Suspense fallback={<div>Please wait...</div>}><Wheel /></React.Suspense>} />
+      <Route path="/vehicle" element={<React.Suspense fallback={<div>Please wait...</div>}><Vehicle /></React.Suspense>} />
+      <Route path="/branch" element={<React.Suspense fallback={<div>Please wait...</div>}><Branch /></React.Suspense>} />
+      <Route path="/warehouse" element={<React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
+      <Route path="/finance" element={<React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
       <Route path="/order" element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
-      <Route path="/acc-type" element={
-        <React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>
-      } />
-      <Route path="/acc-code" element={
-        <React.Suspense fallback={<div>Please wait...</div>}><AccCode /></React.Suspense>
-      } />
-      <Route path="/acc-group" element={
-        <React.Suspense fallback={<div>Please wait...</div>}><TrxType /></React.Suspense>
-      } />
-      <Route path="/trx" element={<React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>}>
-        <Route path=":trxId" element={<Trx />} />
+      <Route path="/acc-type" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>}>
+        <Route path=":id/:name" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>} />
+      </Route>
+      <Route path="/acc-code" element={<React.Suspense fallback={<div>Please wait...</div>}><AccCode /></React.Suspense>}>
+        <Route path=":id/:name" element={<React.Suspense fallback={<div>Please wait...</div>}><AccCode /></React.Suspense>} />
+      </Route>
+      <Route path="/acc-group" element={<React.Suspense fallback={<div>Please wait...</div>}><TrxType /></React.Suspense>} />
+      <Route path="/trx" element={<React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>}><Route path=":trxId" element={<Trx />} />
       </Route>
       <Route path="/trx-auto-debet">
         <Route path=":trxId" element={
-        <React.Suspense fallback={<div>Please wait...</div>}>
-          <TrxAutoDebet />
-        </React.Suspense>} />
+          <React.Suspense fallback={<div>Please wait...</div>}>
+            <TrxAutoDebet />
+          </React.Suspense>} />
       </Route>
       <Route path="/report">
         <Route path="trx">

@@ -4,9 +4,11 @@ import { iAccCode, iAccType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
 import AccCodeForm, { initAccCode } from './form'
+import { useParams } from "react-router-dom";
 
 
 const AccCode = () => {
+  const { id: paramId, name: typeName } = useParams()
   const [selectedId, setSelectedId] = React.useState<number>(-1);
   const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
@@ -38,7 +40,7 @@ const AccCode = () => {
       }
 
       let res = await axios
-        .get("/acc-code/", { headers: headers })
+        .get(`/acc-code/group-type/${paramId ? paramId : 0}/`, { headers: headers })
         .then(response => response.data)
         .then(data => {
           return data
@@ -59,7 +61,8 @@ const AccCode = () => {
 
   return (
     <View>
-      <h1>Kode Akun</h1>
+      <View><span className="div-h1">Akun{typeName ? ` - (Tipe ${typeName})` : ''}</span></View>
+
 
       <Flex direction='row' gap='size-200' marginY={'size-200'}>
         <Button variant="cta" onPress={() => addNewItem()}>Kode Akun Baru</Button>
@@ -119,8 +122,15 @@ const AccCode = () => {
               isNew={o.id === 0}
               accCode={o}
               types={types.items}
-              callback={(e) => formResponse(e)}
-            />
+              onInsert={(e) => insertAccCode(e)}
+              onUpdate={(id, e) => updateAccCode(id, e)}
+              onDelete={(e) => deleteAccCode(e)}
+              onCancel={(e) => {
+                setSelectedId(-1)
+                if (e === 0) {
+                  accs.remove(0)
+                }}}
+              />
           </View>
           :
           <View key={o.id}>
@@ -156,36 +166,9 @@ const AccCode = () => {
     }
     return [];
   }
-
-  function formResponse(params: { method: string, data?: iAccCode }) {
-    const { method, data } = params
-
-    switch (method) {
-      case 'save':
-        if (data) {
-          if (selectedId === 0) {
-            accs.update(0, data)
-          } else {
-            accs.update(selectedId, data)
-          }
-        }
-        break;
-      case 'remove':
-        accs.remove(selectedId);
-        break;
-      case 'cancel':
-        if (selectedId === 0) {
-          accs.remove(0)
-        }
-        break;
-    }
-
-    setSelectedId(-1)
-  }
-
   function addNewItem() {
     if (!accs.getItem(0)) {
-      accs.insert(0, initAccCode);
+      accs.insert(0, {...initAccCode, typeId: paramId? +paramId : 0});
     }
     setSelectedId(0)
   }
@@ -254,6 +237,67 @@ const AccCode = () => {
       })
 
   }
+
+
+  async function updateAccCode(oldId: number, p: iAccCode) {
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    }
+
+    const xData = JSON.stringify(p)
+
+    await axios
+      .put(`/acc-code/${oldId}/`, xData, { headers: headers })
+      .then(response => response.data)
+      .then(data => {
+        accs.update(oldId, p)
+        setSelectedId(-1)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
+  async function insertAccCode(p: iAccCode) {
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    }
+    const xData = JSON.stringify(p)
+
+    await axios
+      .post(`/acc-code/`, xData, { headers: headers })
+      .then(response => response.data)
+      .then(data => {
+        accs.insert(0, p)
+        accs.remove(0)
+        setSelectedId(-1)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
+
+  async function deleteAccCode(p: number) {
+    const headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    }
+
+    await axios
+      .delete(`/acc-code/${p}/`, { headers: headers })
+      .then(response => response.data)
+      .then(data => {
+        accs.remove(p)
+        setSelectedId(-1)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
 
 }
 

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+//import { useNavigate } from 'react-router-dom';
 import axios from "../../lib/axios-base";
 import { iAccCodeType, iTrx, iAccGroup } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, Divider, Heading, Flex, Link, ProgressCircle, SearchField, useAsyncList } from "@adobe/react-spectrum";
+import { Button, Divider, Flex, Link, ProgressCircle, SearchField, useAsyncList } from "@adobe/react-spectrum";
 import { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
 import MonthComponent from "../Bulan";
@@ -27,18 +28,18 @@ const Trx = () => {
         .get("/acc-code/props/", { headers: headers })
         .then(response => response.data)
         .then(data => {
-          return data ? data : []
+          return data
         })
         .catch(error => {
           console.log('-------', error)
         })
 
-      return { items: res }
+      return { items: res ? res : [] }
     },
     getKey: (item: iAccCodeType) => item.id
   })
 
-  let types = useAsyncList<iAccGroup>({
+  let groups = useAsyncList<iAccGroup>({
     async load({ signal }) {
       const headers = {
         'Content-Type': 'application/json'
@@ -48,13 +49,13 @@ const Trx = () => {
         .get("/acc-group/", { headers: headers })
         .then(response => response.data)
         .then(data => {
-          return data ? data : []
+          return data
         })
         .catch(error => {
           console.log('-------', error)
         })
 
-      return { items: res }
+      return { items: res ? res : [] }
     },
     getKey: (item: iAccGroup) => item.id
   })
@@ -69,145 +70,125 @@ const Trx = () => {
       let res = await axios
         .get("/trx/", { headers: headers })
         .then(response => response.data)
-        .then(data => {
+        .then(data => {          
           return data;
         })
         .catch(error => {
           console.log('-------', error)
-          return [];
         })
 
-      return { items: res }
+      return { items: res ? res : [] }
     },
     getKey: (item: iTrx) => item.id
   })
 
-  // React.useEffect(() => {
-  //   let isLoaded = false
-
-  //   if (!isLoaded && trxId) {
-  //       setSelectedId(+trxId);
-  //   }
-
-  //   return () => { isLoaded = true; }
-
-  // }, [trxId])
-
-  if (accs.isLoading || types.isLoading || trxs.isLoading) {
+  if (accs.isLoading || groups.isLoading || trxs.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
   }
 
-  return (
-    <View>
-      <Flex direction={{ base: 'column', M: 'row' }}>
-        <View alignSelf={"center"} flex><Heading level={1}>Transaksi</Heading></View>
-        <View alignSelf={"center"}><RemainSaldo /></View>
-      </Flex>
-      <Flex direction={{ base: 'column', M: 'row' }} gap='size-200'
-        marginY={'size-200'}>
-        <Button variant="cta" onPress={() => addNewItem()}>Transaksi Baru</Button>
-        <SearchField
-          type="search"
-          aria-label="trx-search-transaction"
-          flex
-          width={'auto'}
-          value={txtSearch}
-          placeholder={'e.g. invoic | rokok | kopi | kris'}
-          //validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
-          maxLength={50}
-          onClear={() => {
+  return (<View>
+    <Flex direction={{ base: 'column', M: 'row' }}>
+      <View alignSelf={"center"} flex><span className='div-h1'>Ledger</span></View>
+      <View alignSelf={"center"}><RemainSaldo /></View>
+    </Flex>
+    <Flex direction={{ base: 'column', M: 'row' }} gap='size-200'
+      marginY={'size-200'}>
+      <Button variant="cta" onPress={() => addNewItem()}>Transaksi Baru </Button>
+      <SearchField
+        type="search"
+        aria-label="trx-search-transaction"
+        flex
+        width={'auto'}
+        value={txtSearch}
+        placeholder={'e.g. invoic | rokok | kopi | kris'}
+        //validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
+        maxLength={50}
+        onClear={() => {
+          loadAllCodes();
+        }}
+        onSubmit={(e) => {
+          searchTransact(e)
+        }}
+        onChange={(e) => setTxtSearch(e)}
+      />
+      <MonthComponent width="125px" selectedId={bulan}
+        onChange={(e) => {
+          setBulan(e.id);
+          if (e.id > 0) {
+            getTransactionByMonth(e.id)
+          } else {
             loadAllCodes();
-          }}
-          onSubmit={(e) => {
-            searchTransact(e)
-          }}
-          onChange={(e) => setTxtSearch(e)}
-        />
-        <MonthComponent width="125px" selectedId={bulan}
-          onChange={(e) => {
-            setBulan(e.id);
-            if (e.id > 0) {
-              getTransactionByMonth(e.id)
-            } else {
-              loadAllCodes();
-            }
-          }} />
+          }
+        }} />
 
-        {/* {selectedId > 0 &&
+    </Flex>
+    {trxs.items.map(o => o.id === selectedId ?
+      <View key={o.id}
+        backgroundColor={'gray-100'}
+        borderRadius={'medium'}
+        borderColor={'indigo-400'}
+        borderWidth={'thin'}
+        paddingX={'size-200'}
+        paddingTop={'size-50'}
+        paddingBottom={'size-200'}
+        marginBottom={'size-200'}
+      >
+
+        <React.Suspense fallback={<div>Please wait...</div>}>
           <TrxForm
-            isNew={selectedId === 0}
+            isNew={o.id === 0}
             accs={accs.items}
-            trx={trxs.getItem(selectedId)}
-            types={types.items}
+            trx={o}
             callback={(e) => formResponse(e)}
-          />} */}
-      </Flex>
-      {trxs.items.map(o => {
+          />
+        </React.Suspense>
 
-        return o.id === selectedId ?
-          <View key={o.id}
-            backgroundColor={'gray-100'}
-            borderRadius={'medium'}
-            borderColor={'indigo-400'}
-            borderWidth={'thin'}
-            paddingX={'size-200'}
-            paddingTop={'size-50'}
-            paddingBottom={'size-200'}
-            marginBottom={'size-200'}
-          >
-            <TrxForm
-              isNew={o.id === 0}
-              accs={accs.items}
-              trx={o}
-              callback={(e) => formResponse(e)}
-            />
-          </View>
-          :
-          <View key={o.id}>
-            <View backgroundColor={'gray-100'} padding={'size-100'}>
-              <Flex flex direction={'row'} columnGap='size-200'>
-                <View flex width={'auto'}>
-                  {o.refId === 0
-                    ?
-                    <Link isQuiet UNSAFE_className="font-bold" onPress={() => setSelectedId(o.id)}><span>#{o.id} - {o.descriptions}</span></Link>
-                    :
-                    <span className='font-bold'>#{o.id} - {o.descriptions}</span>
-                  }
-                </View>
-                {/* <View borderRadius={'large'} paddingTop={'size-25'} paddingBottom={'size-50'} paddingX={'size-100'}
+      </View>
+      :
+      <View key={o.id}>
+        <View backgroundColor={'gray-100'} padding={'size-100'}>
+          <Flex flex direction={'row'} columnGap='size-200'>
+            <View flex width={'auto'}>
+              {o.refId === 0
+                ?
+                <Link isQuiet UNSAFE_className="font-bold" onPress={() => setSelectedId(o.id)}><span>#{o.id} - {o.descriptions}</span></Link>
+                :
+                <span className='font-bold'>#{o.id} - {o.descriptions}</span>
+              }
+            </View>
+            {/* <View borderRadius={'large'} paddingTop={'size-25'} paddingBottom={'size-50'} paddingX={'size-100'}
                   justifySelf={'center'}
                   alignSelf={"center"}
                   backgroundColor={o.refId > 0 ? 'gray-400' : (o.groupId === 2 ? 'red-700' : o.groupId === 3 ? 'green-700' : 'gray-50')}>
                   <span style={{ padding: '6px', color: o.groupId === 1 ? '#000000' : '#ffffff' }}>{o.groupId > 0 ? types.getItem(o.groupId).name : ''}</span>
                 </View> */}
-              </Flex>
+          </Flex>
+        </View>
+        <View padding={'size-100'}>
+          <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-400'}>
+            <Flex flex direction={'column'} rowGap='size-50'>
+              {/* <Flex flex direction={{ base: 'row', M: 'column' }} columnGap='size-100' rowGap='size-50'> */}
+              <View flex>{FormatDate(o.trxDate)}</View>
+              {/* <View>Saldo: <b>{FormatNumber(o.saldo)}</b><br /></View> */}
+              {/* </Flex> */}
+              <View>Memo: {o.memo || ''}</View>
+            </Flex>
+            <View width={{ base: 'auto', M: '70%' }}>
+              <View isHidden={{ base: true, M: false }}>
+                <ShowHeader />
+                <Divider flex size="S" />
+                {
+                  o.details && o.details.map(item => <OrderDetail key={item.id} detail={item} />)
+                }
+              </View>
             </View>
-            <View padding={'size-100'}>
-              <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-400'}>
-                <Flex flex direction={'column'} rowGap='size-50'>
-                  <Flex flex direction={{ base: 'row', M: 'column' }} columnGap='size-100' rowGap='size-50'>
-                    <View flex>{FormatDate(o.trxDate)}</View>
-                    <View>Saldo: <b>{FormatNumber(o.saldo)}</b><br /></View>
-                  </Flex>
-                  <View>Memo: {o.memo || ''}</View>
-                </Flex>
-                <View width={{ base: 'auto', M: '70%' }}>
-                  <View isHidden={{ base: true, M: false }}>
-                    <ShowHeader />
-                    <Divider flex size="S" />
-                    {
-                      o.details && o.details.map(item => <OrderDetail key={item.id} detail={item} />)
-                    }
-                  </View>
-                </View>
-              </Flex>
-            </View>
-          </View>
-      })}
-      {/* Summary(getTotalTransaction) */}
+          </Flex>
+        </View>
+      </View>
+    )}
 
-    </View >
-  );
+  </View>
+);
 
   // function getTotalTransaction(typeId: number): string {
   //   const value = trxs.items.filter(o => o.groupId === typeId).reduce((t, c) => t + c.saldo, 0)
@@ -399,7 +380,7 @@ function ShowHeader() {
     <View flex>DESKRIPSI</View>
     <Flex direction={'row'} columnGap={'size-200'} width={{ base: 'auto', M: '50%' }}>
       <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>DEBET</View>
-      <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>KREDIT</View>
+      <View width={{ base: '50%' }} UNSAFE_className={'text-right'}>CREDIT</View>
     </Flex>
   </Flex>;
 }

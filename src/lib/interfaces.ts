@@ -199,6 +199,7 @@ export interface iAccType {
     id: number
     name: string
     descriptions?: string
+    accounts?: iAccCode[]
 }
 export interface iAccCode {
     id: number
@@ -207,6 +208,13 @@ export interface iAccCode {
     descriptions?: string
     isActive: boolean
     isAutoDebet: boolean
+    option: number
+}
+
+export interface iAccountInfo extends iAccCode {
+    isGroup: boolean
+    isType: boolean
+    isAccount: boolean
 }
 
 export interface iTrx {
@@ -243,4 +251,11 @@ export interface iAccCodeType {
     typeName: string
     descriptions?: string
     isActive: boolean
+}
+
+export type iAccountSpecific = {
+    id: number
+    name: string
+    descriptions?: string
+
 }

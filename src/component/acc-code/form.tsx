@@ -2,10 +2,11 @@ import React, { FormEvent } from 'react';
 import { iAccCode, iAccType } from '../../lib/interfaces'
 import {
   Button, Checkbox, ComboBox, Flex, Item, NumberField,
+  Radio,
+  RadioGroup,
   Text,
   TextArea, TextField, View
 } from '@adobe/react-spectrum';
-import axios from '../../lib/axios-base';
 
 export const initAccCode: iAccCode = {
   id: 0,
@@ -14,17 +15,21 @@ export const initAccCode: iAccCode = {
   descriptions: '',
   isActive: true,
   isAutoDebet: false,
+  option: 2 // {0: None, 1: Kas, 2: Receivable, 3: Paayable}
 }
 
 type AccCodeFormOptions = {
   accCode: iAccCode,
   types: iAccType[],
   isNew: boolean,
-  callback: (params: { method: string, data?: iAccCode }) => void
+  onInsert: (data: iAccCode) => void,
+  onCancel: (id: number) => void,
+  onUpdate: (id: number, data: iAccCode) => void,
+  onDelete: (id: number) => void,
 }
 
 const AccCodeForm = (props: AccCodeFormOptions) => {
-  const { accCode, callback, isNew, types } = props;
+  const { accCode, onInsert, onCancel, onDelete, onUpdate, isNew, types } = props;
   const [data, setData] = React.useState<iAccCode>(initAccCode)
   const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
@@ -34,7 +39,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
   )
 
   const isNameValid = React.useMemo(
-    () => data.name.length > 5,
+    () => data.name.length > 2,
     [data]
   )
 
@@ -54,7 +59,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
     return () => { isLoaded = false }
 
   }, [accCode])
-
+ 
   return (
     <form onSubmit={(e) => handleSubmit(e)}>
       <Flex rowGap='size-50' direction={'column'}>
@@ -69,7 +74,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
             placeholder={"Pilih tipe"}
             defaultItems={types}
             selectedKey={data.typeId}
-            onSelectionChange={(e) => changeData("typeId", +e)}
+            onSelectionChange={(e) => handleChange("typeId", +e)}
           >
             {(item) => <Item textValue={`${item.id} - ${item.name}`}>
               <Text><span className="font-bold">{item.id} - {item.name}</span></Text>
@@ -78,17 +83,17 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
           </ComboBox>
 
           <NumberField
-            label='Nomor kode akun'
-            //isReadOnly={!isNew}
+            label='Nomor akun'
+            isReadOnly={!isNew}
             formatOptions={{ useGrouping: false }}
             hideStepper={true}
             validationState={isIDValid ? 'valid' : 'invalid'}
             width={{ base: 'auto', M: '120px' }}
             value={data.id}
-            onChange={(e) => changeData("id", e)}
+            onChange={(e) => handleChange("id", e)}
           />
           <TextField
-            label='Nama kode akun'
+            label='Nama akun'
             flex
             autoFocus={!isNew}
             width={'auto'}
@@ -96,7 +101,7 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
             placeholder={'e.g. Kas'}
             validationState={isNameValid ? 'valid' : 'invalid'}
             maxLength={50}
-            onChange={(e) => changeData("name", e)}
+            onChange={(e) => handleChange("name", e)}
           />
         </Flex>
         <TextArea
@@ -106,29 +111,36 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
           placeholder={'e.g. Group yang memuat akun-akun kas.'}
           value={data.descriptions}
           maxLength={256}
-          onChange={(e) => changeData("descriptions", e)}
+          onChange={(e) => handleChange("descriptions", e)}
         />
       </Flex>
+      <View>
+        <RadioGroup label="Seting akun"
+        marginTop={'size-100'}
+        orientation='horizontal'
+        onChange={(e) => handleChange("option", +e)} value={''+data.option}>
+          <Radio value="0">None</Radio>
+          <Radio value="1">Kas</Radio>
+          <Radio value="2">Receivable</Radio>
+          <Radio value="3">Payable</Radio>
+        </RadioGroup>
+      </View>
       <Flex direction={'row'} gap='size-100' marginY={'size-200'}>
         <Flex flex direction={'row'} columnGap={'size-125'}>
           <Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isIDValid && isTypeValid)}>Save</Button>
-          <Button type='button' variant='primary' onPress={() => callback({ method: 'cancel' })}>
+          <Button type='button' variant='primary' onPress={() => onCancel(accCode.id)}>
             {isDirty ? 'Cancel' : 'Close'}</Button>
         </Flex>
         <View flex>
-          <Checkbox isSelected={data.isActive} onChange={(e) => changeData("isActive", e)}>
-            Aktif ?
-          </Checkbox>
-          <Checkbox isSelected={data.isAutoDebet} onChange={(e) => changeData("isAutoDebet", e)}>
-            Auto Debet ?
-          </Checkbox>
+          <Checkbox isSelected={data.isActive} onChange={(e) => handleChange("isActive", e)}>Aktif ?</Checkbox>
+          <Checkbox isSelected={data.isAutoDebet} onChange={(e) => handleChange("isAutoDebet", e)}>Auto Debet ?</Checkbox>
         </View>
         {data.id > 0 &&
           <View>
             <Button type='button' alignSelf={'flex-end'}
               isDisabled={data.id === 0}
               variant='negative'
-              onPress={() => deleteAccCode(data)}>Remove</Button>
+              onPress={() => onDelete(accCode.id)}>Remove</Button>
           </View>
         }
       </Flex>
@@ -139,72 +151,14 @@ const AccCodeForm = (props: AccCodeFormOptions) => {
     e.preventDefault()
 
     if (isNameValid && isIDValid && isTypeValid) {
-
-      if (isNew) {
-        await insertAccCode(data);
+      if (accCode.id === 0) {
+        onInsert(data)
       } else {
-        await updateAccCode(data);
+        onUpdate(accCode.id, data)
       }
     }
   }
-
-  async function updateAccCode(p: iAccCode) {
-    const headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    }
-
-    const xData = JSON.stringify(p)
-
-    await axios
-      .put(`/acc-code/${accCode.id}/`, xData, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        callback({ method: 'save', data: p })
-      })
-      .catch(error => {
-        console.log(error)
-      })
-  }
-
-  async function insertAccCode(p: iAccCode) {
-    const headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    }
-
-    const xData = JSON.stringify(p)
-
-    await axios
-      .post(`/acc-code/`, xData, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        callback({ method: 'save', data: p })
-      })
-      .catch(error => {
-        console.log(error)
-      })
-  }
-
-
-  async function deleteAccCode(p: iAccCode) {
-    const headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    }
-
-    await axios
-      .delete(`/acc-code/${p.id}/`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        callback({ method: 'remove', data: p })
-      })
-      .catch(error => {
-        console.log(error)
-      })
-  }
-
-  function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
+  function handleChange(fieldName: string, value: string | number | boolean | undefined | null) {
     setData(o => ({ ...o, [fieldName]: value }))
     setIsDirty(true)
   }

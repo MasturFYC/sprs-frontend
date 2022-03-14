@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Flex, ProgressCircle, View } from '@adobe/react-spectrum';
 import { Link } from '@adobe/react-spectrum';
 import { Link as RouterLink } from 'react-router-dom';
-import { iAccCode, iAccGroup, iAccType } from '@src/lib/interfaces';
+import { iAccountInfo } from '@src/lib/interfaces';
 import axios from "../lib/axios-base";
 
 
@@ -54,7 +54,7 @@ const Aside = () => {
         </Link>
       </View>
 
-      <MasterMenu title={'COA (Char of Accounts)'}>
+      <MasterMenu title={'COA (Chart of Accounts)'}>
 
         <Flex direction={'column'} rowGap='size-50'>
           <View>
@@ -72,11 +72,6 @@ const Aside = () => {
               <RouterLink to="/acc-code">Kode Akun</RouterLink>
             </Link>
           </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/trx">Transaksi</RouterLink>
-            </Link>
-          </View>
         </Flex>
       </MasterMenu>
 
@@ -86,7 +81,7 @@ const Aside = () => {
         <Flex direction={'column'} rowGap='size-50'>
           <View>
             <Link isQuiet variant='primary'>
-              <RouterLink to={`/report/trx/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}>Laporan Saldo</RouterLink>
+              <RouterLink to={`/report/trx/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}>Laporan Saldo (Group Akun)</RouterLink>
             </Link>
           </View>
           <View>
@@ -102,16 +97,20 @@ const Aside = () => {
 type MasterMenuProps = {
   title: String
   children: React.ReactNode
+  onLinkPress?: (show: boolean) => void
 }
 function MasterMenu(props: MasterMenuProps) {
-  const { title, children } = props;
+  const { title, children, onLinkPress } = props;
   const [show, setShow] = useState<Boolean>(false);
 
 
   return (
     <div>
       <View UNSAFE_className='font-bold' marginTop={'size-100'}>
-        <Link variant='secondary' onPress={() => setShow(!show)}>{title}</Link>
+        <Link variant='secondary' onPress={() => {
+          onLinkPress && onLinkPress(!show);
+          setShow(!show);
+        }}>{title}</Link>
       </View>
 
       {show && <View marginTop={'size-100'} marginX={'size-200'}>{children}</View>}
@@ -121,15 +120,11 @@ function MasterMenu(props: MasterMenuProps) {
 }
 
 
-
-type allAccount = {
-  groups?: iAccGroup[]
-  types?: iAccType[]
-  accounts?: iAccCode[]
-}
-
 function AutoMenu() {
-  const [account, setAccount] = useState<allAccount>();
+  const [types, setTypes] = useState<iAccountInfo[]>([]);
+  const [accounts, setAccounts] = useState<iAccountInfo[]>([]);
+  const [isMenuLoaded, SetMenuLoaded] = useState<boolean>(false)
+  const [show, setShow] = useState<boolean>(false);
 
   useEffect(() => {
     let isLoaded = false;
@@ -142,42 +137,56 @@ function AutoMenu() {
         .get(`/acc-group/all-accounts/`, { headers: headers })
         .then(response => response.data)
         .then(data => {
-          setAccount(data)
+          setTypes(data.filter((c: iAccountInfo) => c.isType));
+          setAccounts(data.filter((c: iAccountInfo) => c.isAutoDebet && c.isActive && c.isAccount));
+          SetMenuLoaded(true)
         })
         .catch(error => {
           console.log({ 'Error': error })
-          return []
         })
+
     }
 
-    if (!isLoaded) {
-      loadAccounts()
+    if (!isLoaded || !show) {
+      loadAccounts();
     }
-    return () => { isLoaded = true }
-  },[])
 
-  if (!account) {
+    return () => {
+      isLoaded = true
+    }
+  }, [isMenuLoaded, show])
+
+  if (!isMenuLoaded) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
+
   return (
-    <MasterMenu title={'Transaksi'}>
-      {account.types && account.types.filter(f => f.groupId > 1).map(t => {
-        if (account.accounts && account.accounts.filter(f => f.typeId === t.id && f.isAutoDebet).length > 0) {
+    <MasterMenu title={'Transaksi'} onLinkPress={(e) => setShow(!show)}>
+      <View>
+        <Link isQuiet variant='primary'>
+          <RouterLink to="/trx"><b>Ledger (Buku Besar)</b></RouterLink>
+        </Link>
+      </View>
+
+      {types.map(t => {
+
+        if (accounts.filter(f => f.typeId === t.id).length > 0) {
           return <View key={t.id}>
             <MasterMenu title={t.name}>
               {
-                account.accounts && account.accounts.filter(f => f.typeId === t.id && f.isAutoDebet).map(a => {
-                    return (<View key={a.id} marginY={'size-50'}>
-                      <Link isQuiet variant='primary'>
-                        <RouterLink to={`/trx-auto-debet/${a.id}`}>{a.name}</RouterLink>
-                      </Link>
-                    </View>)
-                  })
+                accounts.filter(f => f.typeId === t.id).map(a => {
+                  return (<View key={a.id} marginY={'size-50'}>
+                    <Link isQuiet variant='primary'>
+                      <RouterLink to={`/trx-auto-debet/${a.id}`}>{a.name}</RouterLink>
+                    </Link>
+                  </View>)
+                })
               }
             </MasterMenu>
           </View>
         }
-        return <Fragment></Fragment>
+
+        return <Fragment key={t.id}></Fragment>
       })
       }
     </MasterMenu>

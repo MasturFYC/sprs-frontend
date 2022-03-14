@@ -1,8 +1,8 @@
 import React from 'react'
 import { View } from '@react-spectrum/view'
 import axios from '../lib/axios-base'
-import { dateParam, iFinance, iOrder, iTrx, iTrxDetail } from '../lib/interfaces';
-import { ActionButton, Button, ButtonGroup, Content, Dialog, DialogTrigger, Divider, Heading, Text } from '@adobe/react-spectrum';
+import { dateOnly, dateParam, iAccountSpecific, iFinance, iOrder, iTrx, iTrxDetail } from '../lib/interfaces';
+import { ActionButton, Button, ButtonGroup, ComboBox, Content, Dialog, DialogTrigger, Divider, Heading, Item, Text } from '@adobe/react-spectrum';
 import { FormatNumber } from '../lib/format';
 import MarkIcon from '@spectrum-icons/workflow/Checkmark'
 
@@ -14,6 +14,35 @@ type VerifyOrderProps = {
 
 export default function VerifyOrder(props: VerifyOrderProps) {
   const { order, onChange, isDisable } = props;
+  const [accountCashes, setAccountCashes] = React.useState<iAccountSpecific[]>([]);
+  const [cashId, setCashId] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    let isLoaded = false;
+
+    async function loadAccountCash() {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+      await axios
+        .get(`/acc-code/spec/1/`, { headers: headers })
+        .then(response => response.data)
+        .then(data => {
+          setAccountCashes(data)
+        })
+        .catch(error => {
+          console.log({ 'Error': error })
+          return []
+        })
+    }
+
+    if (!isLoaded) {
+      loadAccountCash()
+    }
+    return () => { isLoaded = true }
+
+  }, [])
+
   return (
     <View flex>
       <DialogTrigger>
@@ -29,10 +58,28 @@ export default function VerifyOrder(props: VerifyOrderProps) {
               {' '}tidak bisa diubah lagi. Yakinkan semua data sudah valid.<br />
               Jumlah dana yang akan dialokasikan sebesar BT Matel yaitu Rp
               <b>{FormatNumber(order.btMatel)}</b>
+              <View marginTop={'size-200'}>
+                <ComboBox
+                  flex
+                  menuTrigger='focus'
+                  width={'auto'}
+                  labelPosition={'side'}
+                  label={"Akun kas yg terlibat transaksi"}
+                  placeholder={"e.g. Kas / bank"}
+                  defaultItems={accountCashes}
+                  selectedKey={cashId}
+                  onSelectionChange={(e) => setCashId(+e)}
+                >
+                  {(item) => <Item textValue={`${item.id} - ${item.name}`}>
+                    <Text><div className='font-bold'>{item.id} - {item.name}</div></Text>
+                    <Text slot='description'><span className='font-bold'>{item.name}</span>{item.descriptions && `, ${item.descriptions}`}</Text>
+                  </Item>}
+                </ComboBox>
+              </View>
             </Content>
             <ButtonGroup>
               <Button variant="secondary" onPress={close}>Cancel</Button>
-              <Button variant="cta" onPress={() => {
+              <Button variant="cta" isDisabled={cashId === 0} onPress={() => {
                 saveTransaction(order);
                 onChange('test');
                 close()
@@ -62,6 +109,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       details: details,
       token: token
     })
+
 
     await axios
       .post(`/trx/`, xData, { headers: headers })
@@ -111,22 +159,14 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   function createTransactionDetails(p: iOrder): iTrxDetail[] {
     const details: iTrxDetail[] = [];
 
-    let stnk = 0; //, ppn = 0;
+    //    let stnk = 0; //, ppn = 0;
 
     // if (p.nominal > 0) {
     //   ppn = p.nominal;
     // }
-    if (p.stnkPrice > 0) {
-      stnk = p.stnkPrice;
-    }
-
-    details.push({
-      id: 1,
-      codeId: 1112, // Bank BCA
-      trxId: 0,
-      debt: 0,
-      cred: p.btMatel
-    })
+    // if (p.stnkPrice > 0) {
+    //   stnk = p.stnkPrice;
+    // }
 
     // if (ppn > 0) {
     //   details.push({
@@ -139,22 +179,30 @@ export default function VerifyOrder(props: VerifyOrderProps) {
     // }
 
     details.push({
-      id: 2,
-      codeId: 1211, // Order (SPK)
+      id: 1,
+      codeId: 5511, // Order (SPK)
       trxId: 0,
-      debt: p.btMatel - stnk,
+      debt: p.btMatel,
       cred: 0
     })
+    details.push({
+      id: 2,
+      codeId: cashId, // Kas / Bank BCA
+      trxId: 0,
+      debt: 0,
+      cred: p.btMatel
+    })
 
-    if (stnk > 0) {
-      details.push({
-        id: 3,
-        codeId: 5211, // Biaya STNK
-        trxId: 0,
-        debt: stnk,
-        cred: 0
-      })
-    }
+
+    // if (stnk > 0) {
+    //   details.push({
+    //     id: 3,
+    //     codeId: 5211, // Biaya STNK
+    //     trxId: 0,
+    //     debt: stnk,
+    //     cred: 0
+    //   })
+    //}
 
     return details;
   }
@@ -164,7 +212,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       id: 0,
       refId: p.id,
       division: 'TRX-Order',
-      trxDate: dateParam(null),
+      trxDate: dateOnly(dateParam(null)),
       descriptions: createDescription(p),
       memo: createMemo(p),
       saldo: p.btMatel
@@ -173,7 +221,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   }
 
   function createDescription(p: iOrder) {
-    return 'Piutang jasa ' + getFinanceName(p.finance) + ' #Order SPK: ' + p.name
+    return 'Piutang jasa ' + getFinanceName(p.finance) + ' Order SPK: /' + p.name
   }
 
   function createMemo(p: iOrder): string {
