@@ -70,7 +70,8 @@ const Trx = () => {
       let res = await axios
         .get("/trx/", { headers: headers })
         .then(response => response.data)
-        .then(data => {          
+        .then(data => {
+          console.log(data)
           return data;
         })
         .catch(error => {
@@ -248,7 +249,7 @@ const Trx = () => {
       .post(`/trx/search/`, { txt: e }, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        return data ? data : []
+        return data
       })
       .catch(error => {
         console.log('-------', error)
@@ -257,7 +258,7 @@ const Trx = () => {
 
     trxs.setSelectedKeys('all')
     trxs.removeSelectedItems();
-    trxs.append(...res);
+    res && trxs.append(...res);
 
   }
 
@@ -270,7 +271,7 @@ const Trx = () => {
       .get(`/trx/month/${id}/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        return data ? data : []
+        return data
       })
       .catch(error => {
         console.log('-------', error)
@@ -279,7 +280,7 @@ const Trx = () => {
 
     trxs.setSelectedKeys('all')
     trxs.removeSelectedItems();
-    trxs.append(...res);
+    res && trxs.append(...res);
   }
 
   // async function searchTransactByType(id: number) {
@@ -314,7 +315,7 @@ const Trx = () => {
       .get(`/trx/`, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        return data ? data : []
+        return data
       })
       .catch(error => {
         console.log('-------', error)
@@ -323,7 +324,7 @@ const Trx = () => {
 
     trxs.setSelectedKeys('all')
     trxs.removeSelectedItems();
-    trxs.append(...res);
+    res && trxs.append(...res);
   }
 
 }

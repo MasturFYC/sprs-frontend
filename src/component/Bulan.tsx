@@ -19,7 +19,7 @@ type MonthComponentProps = {
 }
 
 export const monthNames: iBulan[] = [
-	{ id: 0, name: "Bulan" },
+	{ id: 0, name: "Semua bulan" },
 	{ id: 1, name: "Januari" },
 	{ id: 2, name: "Februari" },
 	{ id: 3, name: "Maret" },

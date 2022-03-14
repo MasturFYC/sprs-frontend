@@ -75,6 +75,12 @@ const TrxDetails = (props: TrxDetailsParam) => {
             <View>
               <ActionButton isQuiet
                 onPress={() => saveDetail('remove', details.getItem(o.id))}
+                  // deleteDetail(trxId, o.id).then(res => {
+                  //   if(res) {
+                    // saveDetail('remove', details.getItem(o.id))
+                    // }
+                  // })
+                // }}
                 height={'size-200'}
               >
                 <Removecon size='S' marginBottom={'size-100'} />
@@ -93,6 +99,26 @@ const TrxDetails = (props: TrxDetailsParam) => {
   //   setDetail(o => (detailUpdate))
   //   //setIsDirty(true)
   // }
+
+  async function deleteDetail(trxid: number, id: number): Promise<Boolean> {
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+
+    console.log(trxid, id)
+
+    let res = await axios
+      .delete(`/trx-detail/${trxid}/${id}/`, { headers: headers })
+      .then(response => response.data)
+      .then(data => {
+        return true
+      })
+      .catch(error => {
+        console.log('-------', error)
+        return false
+      })
+      return res
+  }
 
   function getCodeName(id: number) {
     const c = accs.filter(o => o.id === id)[0];

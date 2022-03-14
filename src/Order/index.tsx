@@ -28,13 +28,13 @@ const Order = () => {
 				.get("/finances/", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
-					return data ? data : []
+					return data
 				})
 				.catch(error => {
 					console.log(error)
 				})
 
-			return { items: res }
+			return { items:  res ? res : [] }
 		},
 		getKey: (item: iFinance) => item.id
 	})
@@ -54,7 +54,7 @@ const Order = () => {
 				.catch(error => {
 					console.log(error)
 				})
-			return { items: res }
+			return { items: res ? res : [] }
 		},
 		getKey: (item: iBranch) => item.id
 	})
@@ -73,10 +73,9 @@ const Order = () => {
 				})
 				.catch(error => {
 					console.log(error)
-					return [];
 				})
 
-			return { items: res }
+			return { items: res ? res : [] }
 		},
 		getKey: (item: iOrder) => item.id
 	})

@@ -53,6 +53,11 @@ const Aside = () => {
           <RouterLink to="/order">Order (SPK)</RouterLink>
         </Link>
       </View>
+      <View>
+        <Link isQuiet variant='primary'>
+          <RouterLink to="/invoice/list"><b>Invoices</b></RouterLink>
+        </Link>
+      </View>
 
       <MasterMenu title={'COA (Chart of Accounts)'}>
 

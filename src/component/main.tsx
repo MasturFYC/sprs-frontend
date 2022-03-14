@@ -11,6 +11,8 @@ const Warehouse = React.lazy(() => import('./Warehouse'));
 const Finance = React.lazy(() => import('./Finance'));
 
 const Order = React.lazy(() => import('../Order'));
+const Invoice = React.lazy(() => import('../Invoice'));
+const InvoiceForm = React.lazy(() => import('../Invoice/InvoiceForm'));
 const AccType = React.lazy(() => import('./acc-type'));
 const AccCode = React.lazy(() => import('./acc-code'));
 const TrxType = React.lazy(() => import('./acc-group'));
@@ -34,6 +36,10 @@ const Main = () => {
       <Route path="/warehouse" element={<React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
       <Route path="/finance" element={<React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
       <Route path="/order" element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
+      <Route path="/invoice">
+        <Route path='list' element={<React.Suspense fallback={<div>Please wait...</div>}><Invoice /></React.Suspense>} />
+        <Route path=":id" element={<React.Suspense fallback={<div>Please wait...</div>}><InvoiceForm /></React.Suspense>} />
+      </Route>
       <Route path="/acc-type" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>}>
         <Route path=":id/:name" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>} />
       </Route>
