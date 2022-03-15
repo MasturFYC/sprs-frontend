@@ -10,17 +10,9 @@ export interface iInvoice {
     total: number
     accountId: number
     memo?: string
-    finance?: iFinance
-    account?: iAccCode
-    details?: iInvoiceDetail[]
 }
 
 export interface iInvoiceDetail  {
     invoiceId:number
-    id:number
     orderId:number
-    price:number
-    tax:number
-    spk: iOrder
-    invoice?: iInvoice
 }

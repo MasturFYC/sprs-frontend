@@ -1,13 +1,12 @@
 import React, { Fragment, useState } from "react";
-// import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { iFinance } from '../lib/interfaces'
-//import OrderForm, { initOrder } from './Form'
 import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, useAsyncList, View } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "../lib/format";
 import MonthComponent from "../component/Bulan";
-import { iInvoice } from "@src/lib/invoice-interfaces";
 import { useNavigate } from "react-router-dom";
+import { InvoiceInfo } from "./InvoiceForm";
 
 // const OrderForm = React.lazy(() => import('./Form'))
 
@@ -37,7 +36,7 @@ const Invoice = () => {
 		getKey: (item: iFinance) => item.id
 	})
 
-	let invoices = useAsyncList<iInvoice>({
+	let invoices = useAsyncList<InvoiceInfo>({
 		async load({ signal }) {
 			const headers = {
 				'Content-Type': 'application/json'
@@ -53,7 +52,7 @@ const Invoice = () => {
 
 			return { items: res ? res : [] }
 		},
-		getKey: (item: iInvoice) => item.id
+		getKey: (item: InvoiceInfo) => item.id
 	})
 
 	if (invoices.isLoading || finances.isLoading) {
@@ -64,8 +63,7 @@ const Invoice = () => {
 		<Fragment>
 			<View marginBottom={'size-200'}><span className="div-h1">Invoices</span></View>
 
-			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>
-				<Button variant="cta" onPress={() => navigate('/invoice/0')}>Buat invoice baru</Button>
+			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>				
 				<SearchField
 					type="search"
 					aria-label="order-search-item"
@@ -111,9 +109,9 @@ const Invoice = () => {
 						<Text slot='description'>{o.name}</Text>
 					</Item>}
 				</ComboBox>
+				<Button isDisabled={financeId === 0} variant="cta" onPress={() => navigate(`/invoice/${financeId}/0`)}>Buat invoice baru</Button>
 			</Flex>
-			{invoices.items.map((e, i) => <TableInvoice key={e.id} invoice={e}>
-				<View>Text</View></TableInvoice>)}
+			{invoices.items.map((e, i) => <TableInvoice key={e.id} invoice={e} />)}
 		</Fragment>
 	)
 
@@ -207,17 +205,19 @@ const Invoice = () => {
 
 export default Invoice;
 
-type TableProp = { invoice: iInvoice, children: React.ReactNode }
+type TableProp = { invoice: InvoiceInfo }
 function TableInvoice({
-	invoice,
-	children
+	invoice
 }: TableProp) {
-	const [isSelected, setIsSelected] = useState<boolean>(false)
 
 	return (
 		<Flex direction={{ base: "column", M: "row" }} rowGap={"size-100"} columnGap={"size-200"}>
 			<View>
-				<View>No: <Link isQuiet variant="primary" onPress={() => setIsSelected(!isSelected)}>#{invoice.id}</Link></View>
+				<View>No: <Link isQuiet variant="primary">
+					<Link isQuiet variant='primary'>
+						<RouterLink to={`/invoice/${invoice.financeId}/${invoice.id}`}>#{invoice.id}</RouterLink>
+					</Link>
+				</Link></View>
 				<View>Tanggal: {FormatDate(invoice.invoiceAt)}</View>
 				<View>Term: {invoice.paymentTerm === 1 ? "Cash" : "Transfer"} : {invoice.account ? invoice.account.name : ''}</View>
 				<View>Total: {FormatNumber(invoice.total)}</View>
@@ -228,7 +228,6 @@ function TableInvoice({
 				<View>Finance: {invoice.finance ? `${invoice.finance.name} (${invoice.finance.shortName})` : ""}</View>
 				<View>Memo: {invoice.memo || '-'}</View>
 			</View>
-			{isSelected && children}
 		</Flex>
 	)
 }
