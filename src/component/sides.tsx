@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Flex, ProgressCircle, View } from '@adobe/react-spectrum';
+import { Flex, ProgressCircle, useAsyncList, View } from '@adobe/react-spectrum';
 import { Link } from '@adobe/react-spectrum';
 import { Link as RouterLink } from 'react-router-dom';
-import { iAccountInfo } from '@src/lib/interfaces';
+import { iAccountInfo, iFinance } from '@src/lib/interfaces';
 import axios from "../lib/axios-base";
 
 
@@ -53,11 +53,8 @@ const Aside = () => {
           <RouterLink to="/order">Order (SPK)</RouterLink>
         </Link>
       </View>
-      <View>
-        <Link isQuiet variant='primary'>
-          <RouterLink to="/invoice/list"><b>Invoices</b></RouterLink>
-        </Link>
-      </View>
+
+      <FinanceMenu />
 
       <MasterMenu title={'COA (Chart of Accounts)'}>
 
@@ -124,6 +121,50 @@ function MasterMenu(props: MasterMenuProps) {
 
 }
 
+function FinanceMenu() {
+  const [show, setShow] = useState<boolean>(false);
+
+  let finances = useAsyncList<iFinance>({
+    async load({ signal }) {
+      const headers = {
+        'Content-Type': 'application/json'
+      }
+
+      let res = await axios
+        .get("/finances/", { headers: headers })
+        .then(response => response.data)
+        .then(data => {
+          return data
+        })
+        .catch(error => {
+          console.log(error)
+        })
+
+      return { items: res ? res : [] }
+    },
+    getKey: (item: iFinance) => item.id
+  })
+
+  if (finances.isLoading) {
+    return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+  }
+
+  return <MasterMenu title={'Invoice'} onLinkPress={(e) => setShow(!show)}>
+    <View>
+      <Link isQuiet variant='primary'>
+        <RouterLink to="/invoice/list"><b>Daftar Invoices</b></RouterLink>
+      </Link>
+    </View>
+
+    {show && finances.items.map(a => <View key={a.id} marginY={'size-50'}>
+      <Link isQuiet variant='primary'>
+        <RouterLink to={`/invoice/${a.id}/0`}>{a.name}</RouterLink>
+      </Link>
+    </View>
+    )}
+  </MasterMenu>
+
+}
 
 function AutoMenu() {
   const [types, setTypes] = useState<iAccountInfo[]>([]);

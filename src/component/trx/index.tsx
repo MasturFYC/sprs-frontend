@@ -112,7 +112,7 @@ const Trx = () => {
         }}
         onChange={(e) => setTxtSearch(e)}
       />
-      <MonthComponent width="125px" selectedId={bulan}
+      <MonthComponent width="200px" selectedId={bulan}
         onChange={(e) => {
           setBulan(e.id);
           if (e.id > 0) {

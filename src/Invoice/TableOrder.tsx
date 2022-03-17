@@ -16,6 +16,7 @@ type TableOrderProps = {
   onCheck?: (id: number,e: boolean) => void
 }
 export default function TableOrder({ list, onCheck }: TableOrderProps) {
+  
   return (
     <table style={{ width: '100%' }}>
       <thead>

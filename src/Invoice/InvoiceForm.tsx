@@ -4,24 +4,39 @@ import {
 	TextField, Text, View, TextArea, NumberField,
 	useAsyncList, Button
 } from "@adobe/react-spectrum";
-import { dateOnly, dateParam, iAccCode, iAccountSpecific, iFinance } from "../lib/interfaces";
+import { dateOnly, dateParam, iAccCode, iAccountSpecific, iFinance, iTrx, iTrxDetail } from "../lib/interfaces";
 import { useNavigate, useParams } from "react-router-dom";
-import { iInvoice } from "../lib/invoice-interfaces";
 import axios from "../lib/axios-base";
 import TableOrder, { OrderLists } from "./TableOrder";
+import { InvoiceInfo } from "./TableProp";
 
 
 const OrderList = React.lazy(() => import('./OrderList'))
 
-export interface InvoiceInfo extends iInvoice {
-	finance?: iFinance
-	account?: iAccCode
+type TransactionDetailsType = {
+	id: number
+	codeId: number
+	trxId: number
+	debt: number
+	cred: number
+}
+
+type TransactionType = {
+	id: number
+	refId: number
+	division: string
+	trxDate: string
+	descriptions: string
+	memo?: string
+	saldo: number,
+	details?: TransactionDetailsType[]
 }
 
 interface InvoiceById extends InvoiceInfo {
 	finance?: iFinance
 	account?: iAccCode
 	details?: OrderLists[]
+	transaction?: TransactionType
 }
 
 const initInvoice: InvoiceById = {
@@ -37,10 +52,11 @@ const initInvoice: InvoiceById = {
 
 const InvoiceForm = () => {
 	const { financeId, invoiceId } = useParams()
-	const [invoice, setInvoice] = useState<InvoiceById>({ ...initInvoice, financeId: financeId ? +financeId : 0})
+	const [invoice, setInvoice] = useState<InvoiceById>({ ...initInvoice, financeId: financeId ? +financeId : 0 })
 	const [finance, setFinance] = useState<iFinance>({} as iFinance)
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [showOrderList, setShowOrderList] = useState(false)
+	const debtAccount = 4111;
 	const navigate = useNavigate();
 
 	const isCashValid = React.useMemo(
@@ -102,14 +118,14 @@ const InvoiceForm = () => {
 		}
 
 		let res = await axios
-			.get(`/invoice/${id}/`, { headers: headers })
+			.get(`/invoices/${id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => data)
 			.catch(error => {
 				console.log(error)
 			})
 
-			console.log('-------------', res)
+		console.log(res)
 		return res;
 	}
 
@@ -135,6 +151,7 @@ const InvoiceForm = () => {
 		}
 
 		if (!isLoaded) {
+			setShowOrderList(false)
 			getFinance(financeId).then(e => {
 				setFinance(e)
 			})
@@ -142,6 +159,8 @@ const InvoiceForm = () => {
 				loadInvoice(invoiceId).then(data => {
 					setInvoice(data)
 				})
+			} else {
+				setInvoice({ ...initInvoice, financeId: financeId ? +financeId : 0 })
 			}
 
 		}
@@ -292,7 +311,13 @@ const InvoiceForm = () => {
 							<View flex><Button variant="primary">Download</Button></View>
 							<Flex direction={'row'} columnGap={'size-200'}>
 								<Button type={'submit'} variant="cta" isDisabled={!isDirty || !(isListValid && isCashValid && isDueValid && isSalesValid && isTermValid)}>Save</Button>
-								<Button variant="negative" isDisabled={invoiceId ? +invoiceId === 0 : false}>Remove</Button>
+								<Button variant="negative" isDisabled={invoiceId ? +invoiceId === 0 : false}
+									onPress={() => removeInvoice(invoice.id).then(isDeleted => {
+										if (isDeleted) {
+											navigate('/invoice/list')
+										}
+									})}
+								>Remove</Button>
 							</Flex>
 						</Flex>
 					</Flex>
@@ -300,6 +325,23 @@ const InvoiceForm = () => {
 			</form>
 		</View>
 	)
+
+	async function removeInvoice(id: number): Promise<Boolean> {
+		const headers = {
+			Accept: 'application/json',
+			'Content-Type': 'application/json'
+		}
+
+		const res = await axios
+			.delete(`/invoices/${id}/`, { headers: headers })
+			.then(response => response.data)
+			.then(data => data ? true : false)
+			.catch(error => {
+				console.log(error)
+				return false;
+			})
+		return res
+	}
 
 	function getTotalInvoice() {
 		if (invoice.details) {
@@ -337,16 +379,22 @@ const InvoiceForm = () => {
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
-		if(invoice.id === 0) {
+		if (invoice.id === 0) {
 			insertInvoice(invoice).then(data => {
-				if(data) {
+				if (data) {
+					navigate('/invoice/list')
+				}
+			});
+		} else {
+			updateInvoice(invoice.id, invoice).then(data => {
+				if (data) {
 					navigate('/invoice/list')
 				}
 			});
 		}
 	}
 
-	function createTransaction(p: InvoiceById) {
+	function createInvoice(p: InvoiceById) {
 
 		const exInvoice = { ...p, total: getTotalInvoice() };
 		delete exInvoice.details
@@ -355,24 +403,99 @@ const InvoiceForm = () => {
 
 		return {
 			invoice: exInvoice,
-			detailIds: createDetail(p.details),
-			token: createToken(p)
+			detailIds: createInvoiceDetail(p.details),
+			token: createInvoiceToken(exInvoice),
+			transaction: createTransaction(p, exInvoice.total)
 		}
 
 	}
 
-	function createToken(p: InvoiceById) {
+	function createTransaction(p: InvoiceById, total: number) {
+
+		let trx: TransactionType;
+
+		console.log(invoice.transaction)
+		if (invoice.transaction) {
+			//console.log(p.Transaction)
+			trx = { ...invoice.transaction } 
+			if (trx.details) {
+				trx.details[0].cred = total
+				trx.details[1].debt = total
+			}
+
+		} else {
+			trx = {
+				id: 0,
+				refId: p.id,
+				division: 'trx-invoice',
+				descriptions: 'Pendapatan jasa dari ' + finance.name + ' Invoice #' + (p.id === 0 ? '' : p.id),
+				trxDate: dateParam(null),
+				memo: p.memo,
+				saldo: total
+			}
+			trx.details = createTransactionDetails(p, total)
+		}
+
+		return trx;
+	}
+
+	function createInvoiceToken(p: InvoiceById) {
 		const s: string[] = [];
 
 		if (p.memo) {
 			s.push(p.memo);
 		}
 		s.push(p.salesman);
+		s.push('/id-' + p.id)
+
+		if (p.finance) {
+			s.push(p.finance.name)
+			s.push(p.finance.shortName)
+		}
+
+		if (p.account) {
+			s.push(p.account.name)
+		}
+		if (p.details) {
+			for (let c = 0; c < p.details.length; c++) {
+				const d = p.details[c]
+				if (d.unit) {
+					s.push(d.unit.nopol)
+					if (d.unit.type) {
+						s.push(d.unit.type.name)
+					}
+				}
+			}
+		}
 
 		return s.join(" ");
 	}
 
-	function createDetail(details?: OrderLists[]) {
+	function createTransactionDetails(p: InvoiceById, total:number): iTrxDetail[] {
+		const details: iTrxDetail[] = [];
+
+
+		details.push({
+			id: 1,
+			codeId: debtAccount,
+			trxId: 0,
+			debt: 0,
+			cred: total
+		})
+
+		details.push({
+			id: 2,
+			codeId: p.accountId, // Bank BCA
+			trxId: 0,
+			debt: total,
+			cred: 0
+		})
+
+
+		return details;
+	}
+
+	function createInvoiceDetail(details?: OrderLists[]) {
 		if (details) {
 			return details.filter(f => f.isSelected).map(o => o.id)
 		}
@@ -385,18 +508,40 @@ const InvoiceForm = () => {
 			'Content-Type': 'application/json'
 		}
 
-		const data = createTransaction(p)
+		const data = createInvoice(p)
+		//console.log(data)
 
 		const res = await axios
-			.post(`/invoice/`, data, { headers: headers })
+			.post(`/invoices/`, data, { headers: headers })
 			.then(response => response.data)
 			.then(data => data ? true : false)
 			.catch(error => {
 				console.log(error)
 				return false;
 			})
-		return res		 
-	}	
+		return res
+	}
+
+	async function updateInvoice(id: number, p: InvoiceById): Promise<Boolean> {
+		const headers = {
+			Accept: 'application/json',
+			'Content-Type': 'application/json'
+		}
+
+		const data = createInvoice(p)
+
+		console.log(data)
+
+		const res = await axios
+			.put(`/invoices/${id}/`, data, { headers: headers })
+			.then(response => response.data)
+			.then(data => data ? true : false)
+			.catch(error => {
+				console.log(error)
+				return false;
+			})
+		return res
+	}
 }
 
 export default InvoiceForm;

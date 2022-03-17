@@ -1,12 +1,9 @@
-import React, { Fragment, useState } from "react";
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useState } from "react";
 import axios from "../lib/axios-base";
 import { iFinance } from '../lib/interfaces'
-import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, useAsyncList, View } from "@adobe/react-spectrum";
-import { FormatDate, FormatNumber } from "../lib/format";
+import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, useAsyncList, View, Divider } from "@adobe/react-spectrum";
 import MonthComponent from "../component/Bulan";
-import { useNavigate } from "react-router-dom";
-import { InvoiceInfo } from "./InvoiceForm";
+import { InvoiceInfo, TableInvoice } from "./TableProp";
 
 // const OrderForm = React.lazy(() => import('./Form'))
 
@@ -15,7 +12,7 @@ const Invoice = () => {
 	const [financeId, setFinanceId] = useState<number>(0);
 	const [txtSearch, setTxtSearch] = useState<string>('');
 	const [bulan, setBulan] = useState<number>(0);
-	const navigate = useNavigate();
+	
 
 	let finances = useAsyncList<iFinance>({
 		async load({ signal }) {
@@ -43,7 +40,7 @@ const Invoice = () => {
 			}
 
 			let res = await axios
-				.get("/invoice/", { headers: headers })
+				.get("/invoices/", { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
@@ -60,10 +57,10 @@ const Invoice = () => {
 	}
 
 	return (
-		<Fragment>
+		<View>
 			<View marginBottom={'size-200'}><span className="div-h1">Invoices</span></View>
 
-			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>				
+			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>
 				<SearchField
 					type="search"
 					aria-label="order-search-item"
@@ -109,10 +106,10 @@ const Invoice = () => {
 						<Text slot='description'>{o.name}</Text>
 					</Item>}
 				</ComboBox>
-				<Button isDisabled={financeId === 0} variant="cta" onPress={() => navigate(`/invoice/${financeId}/0`)}>Buat invoice baru</Button>
 			</Flex>
+			<Divider size="S" marginY={'size-100'} />
 			{invoices.items.map((e, i) => <TableInvoice key={e.id} invoice={e} />)}
-		</Fragment>
+		</View>
 	)
 
 
@@ -128,7 +125,7 @@ const Invoice = () => {
 		//const txt = e.replace(/ /g, ' | ')
 
 		await axios
-			.post(`/invoice/search/`, { txt: e }, { headers: headers })
+			.post(`/invoices/search/`, { txt: e }, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				invoices.append(...data);
@@ -149,7 +146,7 @@ const Invoice = () => {
 		}
 
 		await axios
-			.get(`/invoice/month/${id}/`, { headers: headers })
+			.get(`/invoices/month/${id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				invoices.append(...data);
@@ -170,7 +167,7 @@ const Invoice = () => {
 		}
 
 		await axios
-			.get(`/invoice/finance/${id}/`, { headers: headers })
+			.get(`/invoices/finance/${id}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				invoices.append(...data);
@@ -191,7 +188,7 @@ const Invoice = () => {
 		}
 
 		await axios
-			.get(`/invoice/`, { headers: headers })
+			.get(`/invoices/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				invoices.append(...data);
@@ -205,29 +202,4 @@ const Invoice = () => {
 
 export default Invoice;
 
-type TableProp = { invoice: InvoiceInfo }
-function TableInvoice({
-	invoice
-}: TableProp) {
 
-	return (
-		<Flex direction={{ base: "column", M: "row" }} rowGap={"size-100"} columnGap={"size-200"}>
-			<View>
-				<View>No: <Link isQuiet variant="primary">
-					<Link isQuiet variant='primary'>
-						<RouterLink to={`/invoice/${invoice.financeId}/${invoice.id}`}>#{invoice.id}</RouterLink>
-					</Link>
-				</Link></View>
-				<View>Tanggal: {FormatDate(invoice.invoiceAt)}</View>
-				<View>Term: {invoice.paymentTerm === 1 ? "Cash" : "Transfer"} : {invoice.account ? invoice.account.name : ''}</View>
-				<View>Total: {FormatNumber(invoice.total)}</View>
-			</View>
-			<View>
-				<View>Jatuh tempo: {FormatDate(invoice.dueAt)}</View>
-				<View>Salesman: {invoice.salesman}</View>
-				<View>Finance: {invoice.finance ? `${invoice.finance.name} (${invoice.finance.shortName})` : ""}</View>
-				<View>Memo: {invoice.memo || '-'}</View>
-			</View>
-		</Flex>
-	)
-}
