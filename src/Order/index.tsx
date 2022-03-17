@@ -111,7 +111,7 @@ const Order = () => {
 					onChange={(e) => {
 						setBulan(e.id);
 						if (e.id > 0) {
-							console.log(e)
+							// console.log(e)
 							getOrdersByMonth(e.id)
 						} else {
 							loadAllOrders();

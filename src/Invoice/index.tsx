@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import axios from "../lib/axios-base";
 import { iFinance } from '../lib/interfaces'
-import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, useAsyncList, View, Divider } from "@adobe/react-spectrum";
+import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, useAsyncList, View, Divider, NumberField } from "@adobe/react-spectrum";
 import MonthComponent from "../component/Bulan";
 import { InvoiceInfo, TableInvoice } from "./TableProp";
 
 // const OrderForm = React.lazy(() => import('./Form'))
-
+const defaultYear = new Date().getFullYear()
 
 const Invoice = () => {
 	const [financeId, setFinanceId] = useState<number>(0);
 	const [txtSearch, setTxtSearch] = useState<string>('');
 	const [bulan, setBulan] = useState<number>(0);
-	
+	const [year, setYear] = useState<number>(defaultYear);
+
 
 	let finances = useAsyncList<iFinance>({
 		async load({ signal }) {
@@ -66,7 +67,7 @@ const Invoice = () => {
 					aria-label="order-search-item"
 					flex
 					width={'auto'}
-					value={txtSearch}
+					defaultValue={txtSearch}
 					placeholder={'e.g. yamaha | 2022 | BAF'}
 					//validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
 					maxLength={50}
@@ -74,31 +75,39 @@ const Invoice = () => {
 						loadAllInvoices();
 					}}
 					onSubmit={(e) => {
-						searchOrders(e)
+						searchInvoices(e)
 					}}
 					onChange={(e) => setTxtSearch(e)}
 				/>
-				<MonthComponent width="125px" selectedId={bulan}
+				<NumberField
+					label='Tahun'
+					labelPosition="side"
+					formatOptions={{ useGrouping: false }}
+					hideStepper={true}
+					width={'110px'}
+					defaultValue={year}
+					onChange={(e) => {
+						setYear(e);
+						getOrdersByMonth(bulan, e)
+					}}
+				/>
+				<MonthComponent width="150px" selectedId={bulan}
 					onChange={(e) => {
 						setBulan(e.id);
-						if (e.id > 0) {
-							getOrdersByMonth(e.id)
-						} else {
-							loadAllInvoices();
-						}
+							getOrdersByMonth(e.id, year)
 					}} />
 				<ComboBox
 					flex={{ base: true, M: false }}
-					width={{ base: 'auto', M: "150px" }}
+					width={{ base: 'auto', M: "200px" }}
 					aria-label="order-search-finance"
 					labelPosition={'side'}
 					menuTrigger='focus'
 					placeholder={"e.g. Adira"}
 					items={[{ id: 0, shortName: 'Semua finance', name: '', descriptions: '' }, ...finances.items]}
-					selectedKey={financeId}
+					defaultSelectedKey={financeId}
 					onSelectionChange={(e) => {
 						setFinanceId(+e);
-						(+e === 0) ? loadAllInvoices() : getInvoicesByFinance(+e)
+						getInvoicesByFinance(+e);
 					}}
 				>
 					{(o) => <Item textValue={o.shortName}>
@@ -113,7 +122,7 @@ const Invoice = () => {
 	)
 
 
-	async function searchOrders(e: string) {
+	async function searchInvoices(e: string) {
 
 		invoices.setSelectedKeys('all')
 		invoices.removeSelectedItems();
@@ -136,7 +145,7 @@ const Invoice = () => {
 
 	}
 
-	async function getOrdersByMonth(id: number) {
+	async function getOrdersByMonth(month: number, year: number) {
 
 		invoices.setSelectedKeys('all')
 		invoices.removeSelectedItems();
@@ -146,7 +155,7 @@ const Invoice = () => {
 		}
 
 		await axios
-			.get(`/invoices/month/${id}/`, { headers: headers })
+			.get(`/invoices/month-year/${month}/${year}/`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				invoices.append(...data);

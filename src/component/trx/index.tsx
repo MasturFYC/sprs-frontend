@@ -71,7 +71,7 @@ const Trx = () => {
         .get("/trx/", { headers: headers })
         .then(response => response.data)
         .then(data => {
-          console.log(data)
+          //console.log(data)
           return data;
         })
         .catch(error => {

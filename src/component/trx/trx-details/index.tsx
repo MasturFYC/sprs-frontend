@@ -105,7 +105,7 @@ const TrxDetails = (props: TrxDetailsParam) => {
       'Content-Type': 'application/json'
     }
 
-    console.log(trxid, id)
+    //console.log(trxid, id)
 
     let res = await axios
       .delete(`/trx-detail/${trxid}/${id}/`, { headers: headers })

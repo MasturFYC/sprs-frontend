@@ -47,6 +47,7 @@ const initInvoice: InvoiceById = {
 	salesman: '',
 	financeId: 0,
 	total: 0,
+	tax: 0,
 	accountId: 0
 }
 
@@ -125,7 +126,7 @@ const InvoiceForm = () => {
 				console.log(error)
 			})
 
-		console.log(res)
+	//	console.log(res)
 		return res;
 	}
 
@@ -177,8 +178,8 @@ const InvoiceForm = () => {
 		<View>
 			<View marginBottom={'size-200'}><span className="div-h1">Invoice #{invoiceId}</span></View>
 			<form onSubmit={handleSubmit}>
-				<Flex direction={{ base: 'column', M: 'row' }} rowGap={'size-400'} columnGap={'size-100'}>
-					<Flex flex direction={'column'} columnGap={'size-200'} alignSelf='self-start'>
+				<Flex direction={{ base: 'column', M: 'row' }} rowGap={'size-200'} columnGap={'size-400'}>
+					<Flex flex direction={'column'} rowGap={'size-50'} alignSelf='self-start'>
 						<View flex>
 							<strong>{finance.name} - ({finance.shortName})</strong>
 						</View>
@@ -195,7 +196,7 @@ const InvoiceForm = () => {
 
 						</View>
 					</Flex>
-					<Flex width={{ base: 'auto', M: '35%' }} direction={'column'} rowGap={'size-75'}>
+					<Flex flex width={'auto'} direction={'column'} rowGap={'size-75'}>
 						<TextField
 							flex
 							type={'date'}
@@ -276,17 +277,43 @@ const InvoiceForm = () => {
 						maxLength={256}
 						onChange={(e) => handleChange("memo", e)}
 					/>
-					<Flex flex direction={{ base: 'column', M: 'row' }} rowGap={'size-75'} columnGap={'size-400'} alignItems={'start'}>
-						<Flex flex direction={'column'} rowGap={'size-75'} width={'auto'}>
+				</Flex>
+
+				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap={'size-200'} columnGap={'size-400'}>
+					<Flex width={"auto"} flex direction={'row'} columnGap={'size-100'}>
+						<Flex flex direction={'row'} columnGap={'size-200'}>
+							<Button type={'submit'} variant="cta" isDisabled={!isDirty || !(isListValid && isCashValid && isDueValid && isSalesValid && isTermValid)}>Save</Button>
+							<Button variant="negative" isDisabled={invoiceId ? +invoiceId === 0 : false}
+								onPress={() => removeInvoice(invoice.id).then(isDeleted => {
+									if (isDeleted) {
+										navigate('/invoice/list')
+									}
+								})}
+							>Remove</Button>
+						</Flex>
+						<View><Button variant="primary">Download</Button></View>
+					</Flex>
+						<Flex width={"auto"} flex direction={'column'} rowGap={'size-75'}>
 							<NumberField
+								flex
+								width={"auto"}
 								hideStepper={true}
-								width={{ base: "auto" }}
 								labelPosition={'side'}
 								label={<div style={{ width: '100px', fontWeight: 700, color: 'green' }}>Total invoice</div>}
 								isReadOnly
 								validationState={isListValid ? 'valid' : 'invalid'}
 								value={getTotalInvoice()}
 								onChange={(e) => handleChange("total", e)}
+							/>
+							<NumberField
+								flex
+								hideStepper={true}
+								width={"auto"}
+								labelPosition={'side'}
+								label={<div style={{ width: '100px' }}>Pajak</div>}
+								isReadOnly
+								value={getTotalTax()}
+								onChange={(e) => handleChange("tax", e)}
 							/>
 							<ComboBox
 								flex
@@ -307,20 +334,6 @@ const InvoiceForm = () => {
 							</ComboBox>
 							{invoice.accountId > 0 && <ShowCash account={accountCashes.getItem(invoice.accountId)} />}
 						</Flex>
-						<Flex flex width={'auto'} direction={'row'} columnGap={'size-200'}>
-							<View flex><Button variant="primary">Download</Button></View>
-							<Flex direction={'row'} columnGap={'size-200'}>
-								<Button type={'submit'} variant="cta" isDisabled={!isDirty || !(isListValid && isCashValid && isDueValid && isSalesValid && isTermValid)}>Save</Button>
-								<Button variant="negative" isDisabled={invoiceId ? +invoiceId === 0 : false}
-									onPress={() => removeInvoice(invoice.id).then(isDeleted => {
-										if (isDeleted) {
-											navigate('/invoice/list')
-										}
-									})}
-								>Remove</Button>
-							</Flex>
-						</Flex>
-					</Flex>
 				</Flex>
 			</form>
 		</View>
@@ -346,6 +359,13 @@ const InvoiceForm = () => {
 	function getTotalInvoice() {
 		if (invoice.details) {
 			return invoice.details.filter(f => f.isSelected).reduce((t, c) => t + c.btFinance, 0)
+		}
+		return 0
+	}
+
+	function getTotalTax() {
+		if (invoice.details) {
+			return invoice.details.filter(f => f.isSelected).reduce((t, c) => t + c.nominal, 0)
 		}
 		return 0
 	}
@@ -396,47 +416,62 @@ const InvoiceForm = () => {
 
 	function createInvoice(p: InvoiceById) {
 
-		const exInvoice = { ...p, total: getTotalInvoice() };
+		const exInvoice = { ...p, total: getTotalInvoice(), tax: getTotalTax() };
+		const transact = p.transaction;
+		const detailIds = createInvoiceDetail(p.details)
+		const token = createInvoiceToken(exInvoice)
+
 		delete exInvoice.details
 		delete exInvoice.finance
 		delete exInvoice.account
 
+		const transaction = createTransaction(exInvoice, transact);
+
 		return {
 			invoice: exInvoice,
-			detailIds: createInvoiceDetail(p.details),
-			token: createInvoiceToken(exInvoice),
-			transaction: createTransaction(p, exInvoice.total)
+			detailIds: detailIds,
+			token: token,
+			transaction: transaction
 		}
 
 	}
 
-	function createTransaction(p: InvoiceById, total: number) {
+	function createTransaction(inv: InvoiceById, transact?: TransactionType) {
 
-		let trx: TransactionType;
-
-		console.log(invoice.transaction)
-		if (invoice.transaction) {
-			//console.log(p.Transaction)
-			trx = { ...invoice.transaction } 
-			if (trx.details) {
-				trx.details[0].cred = total
-				trx.details[1].debt = total
+		if (transact) {
+			if (transact.details) {
+				if (inv.tax > 0) {
+					transact.details[0].cred = inv.total
+					transact.details[1].debt = inv.total - inv.tax
+					if (transact.details.length > 2) {
+						transact.details[2].debt = inv.tax
+					} else {
+						transact.details.push({
+							id: 3,
+							codeId: 6011, // Pajak
+							trxId: transact.id,
+							debt: inv.tax,
+							cred: 0
+						})
+					}
+				} else {
+					transact.details[0].cred = inv.total
+					transact.details[1].debt = inv.total
+				}
 			}
+			return transact;
 
-		} else {
-			trx = {
-				id: 0,
-				refId: p.id,
-				division: 'trx-invoice',
-				descriptions: 'Pendapatan jasa dari ' + finance.name + ' Invoice #' + (p.id === 0 ? '' : p.id),
-				trxDate: dateParam(null),
-				memo: p.memo,
-				saldo: total
-			}
-			trx.details = createTransactionDetails(p, total)
 		}
-
-		return trx;
+		return {
+			id: 0,
+			refId: inv.id,
+			division: 'trx-invoice',
+			descriptions: 'Pendapatan jasa dari ' + finance.name + ' Invoice #' + (inv.id === 0 ? '' : inv.id),
+			trxDate: dateParam(null),
+			memo: inv.memo,
+			saldo: inv.total,
+			details: createTransactionDetails(inv)
+		}
 	}
 
 	function createInvoiceToken(p: InvoiceById) {
@@ -448,9 +483,9 @@ const InvoiceForm = () => {
 		s.push(p.salesman);
 		s.push('/id-' + p.id)
 
-		if (p.finance) {
-			s.push(p.finance.name)
-			s.push(p.finance.shortName)
+		if (finance) {
+			s.push(finance.name)
+			s.push(finance.shortName)
 		}
 
 		if (p.account) {
@@ -471,7 +506,7 @@ const InvoiceForm = () => {
 		return s.join(" ");
 	}
 
-	function createTransactionDetails(p: InvoiceById, total:number): iTrxDetail[] {
+	function createTransactionDetails(inv: InvoiceById): iTrxDetail[] {
 		const details: iTrxDetail[] = [];
 
 
@@ -480,17 +515,26 @@ const InvoiceForm = () => {
 			codeId: debtAccount,
 			trxId: 0,
 			debt: 0,
-			cred: total
+			cred: inv.total
 		})
 
 		details.push({
 			id: 2,
-			codeId: p.accountId, // Bank BCA
+			codeId: inv.accountId, // Bank BCA
 			trxId: 0,
-			debt: total,
+			debt: inv.tax > 0 ? inv.total - inv.tax : inv.total,
 			cred: 0
 		})
 
+		if (inv.tax > 0) {
+			details.push({
+				id: 3,
+				codeId: 6011, // akun pajak
+				trxId: 0,
+				debt: inv.tax,
+				cred: 0
+			})
+		}
 
 		return details;
 	}
@@ -530,7 +574,7 @@ const InvoiceForm = () => {
 
 		const data = createInvoice(p)
 
-		console.log(data)
+		// console.log(data)
 
 		const res = await axios
 			.put(`/invoices/${id}/`, data, { headers: headers })

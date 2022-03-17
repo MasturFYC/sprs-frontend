@@ -8,6 +8,7 @@ export interface iInvoice {
     salesman: string
     financeId: number
     total: number
+    tax: number
     accountId: number
     memo?: string
 }
