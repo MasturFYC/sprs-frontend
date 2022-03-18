@@ -30,7 +30,7 @@ const Branch = () => {
 
     return (
         <Fragment>
-            <h1>Cabang Kantor</h1>
+            <div className="div-h2">Cabang Kantor</div>
             <Divider size={'S'} />
             {branchs.items.map(o => {
                 return o.id === selectedId ?

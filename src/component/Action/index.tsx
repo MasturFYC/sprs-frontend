@@ -6,6 +6,8 @@ import { View } from "@react-spectrum/view";
 import { Divider, Flex, Link, ProgressCircle, useAsyncList } from "@adobe/react-spectrum";
 import { FormatDate } from "../../lib/format";
 
+import SimpleReactFileUpload from "../../lib/SimpleReactFileUpload";
+
 type ActionParam = {
 	orderId: number
 }
@@ -38,17 +40,17 @@ const Action = (prop: ActionParam) => {
 
 	return (
 		<Fragment>
-			<h2>TINDAKAN YANG PERNAH DILAKUKAN</h2>
+			<div className="div-h2">TINDAKAN YANG PERNAH DILAKUKAN</div>
 			{actions.isLoading &&
-		 		<Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
+				<Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
 			}
-			<Divider size={'S'} />
+			<Divider size={'S'} marginY={'size-100'}  />
 			{[{ ...initAction, orderId: orderId }, ...actions.items].map(o => {
 				return o.id === selectedId ?
 					<ActionForm key={o.id} action={o} callback={(e) => formResponse(e)} />
 					:
 					<View key={o.id}>
-						<Flex direction={{ base: 'column', M: 'row' }} gap={'size-100'} marginY='size-100' >
+						
 							<View width={{ base: 'auto', M: 'size-3400' }}>
 								<Link isQuiet variant={'primary'}
 									onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
@@ -56,14 +58,23 @@ const Action = (prop: ActionParam) => {
 								</Link>
 							</View>
 							{o.id > 0 &&
-								<View>
-									Tanggal: {FormatDate(o.actionAt)}<br />
-									Pic: {o.pic}<br />
-									Keterangan: {o.descriptions}
-								</View>
+								<Flex direction={{ base: 'column', M: 'row' }} gap={'size-100'} >
+									<View flex>
+										Tanggal: {FormatDate(o.actionAt)}<br />
+										Pic: {o.pic}<br />
+										Keterangan: {o.descriptions}
+									</View>
+									<View>
+										<SimpleReactFileUpload imageId={o.id}
+											fileName={o.fileName}
+											onSuccess={(e) => {
+												actions.update(o.id, { ...actions.getItem(o.id), fileName: e})}
+											} />
+									</View>
+							</Flex>
 							}
-						</Flex>
-						<Divider size={'S'} />
+						
+						<Divider size={'S'} marginY={'size-100'} />
 					</View>
 			})}
 		</Fragment>

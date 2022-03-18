@@ -47,7 +47,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
-			<h3>DATA KONSUMEN</h3>
+			<div className='div-h2'>DATA KONSUMEN</div>
 			<Flex direction={'column'} columnGap='size-200' rowGap='size-50'>
 				<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap='size-50'>
 					<TextField

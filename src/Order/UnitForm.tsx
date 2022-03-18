@@ -109,7 +109,7 @@ const UnitForm = (props: UnitFormOptions) => {
 
 	return (
 		<form onSubmit={(e) => handleSubmit(e)}>
-			<h3>DATA ASSET / UNIT</h3>
+			<div className='div-h2'>DATA ASSET / UNIT</div>
 			{(houses.isLoading || types.isLoading) &&
 		 		<Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
 			}

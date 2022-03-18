@@ -40,7 +40,7 @@ const AddressForm = (props: AddressFormOptions) => {
 
 	return (
 		<View>
-			<div style={{ fontSize: '14px', fontWeight: 700, paddingBottom: '6px' }}>{title}</div>
+			<div className='div-h2'>{title}</div>
 			{showForm ?
 
 				<form onSubmit={(e) => handleSubmit(e)}>

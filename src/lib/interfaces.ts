@@ -66,6 +66,7 @@ export interface iAction {
     pic: string
     descriptions?: string
     orderId: number
+    fileName?: string
 }
 
 export interface iOrder {

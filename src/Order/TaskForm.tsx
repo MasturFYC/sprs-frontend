@@ -63,7 +63,7 @@ const TaskForm = (props: TaskFormOptions) => {
 
   return (
     <form onSubmit={(e) => handleSubmit(e)}>
-      <h3>PERINTAH PEMBERIAN TUGAS</h3>
+      <div className='div-h2'>PERINTAH PEMBERIAN TUGAS</div>
       <Flex direction={'column'} columnGap='size-200' rowGap='size-50'>
         <TextArea
           label='Keterangan'

@@ -88,3 +88,8 @@
   font-size: calc(100% + 16px);
   color: indigo
 }
+
+.div-h2 {
+  font-size: calc(100% + 2px);
+  color: indigo
+}

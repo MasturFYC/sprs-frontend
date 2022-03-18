@@ -48,7 +48,7 @@ const ReceivableForm = (props: ReceivableFormOptions) => {
 
   return (
     <form onSubmit={(e) => handleSubmit(e)}>
-      <h3>DATA TUNGGAKAN</h3>
+      <div className='div-h2'>DATA TUNGGAKAN</div>
       <Flex gap='size-50' direction={'column'}>
         <Flex flex direction={{ base: 'column', M: 'row' }} rowGap={'size-50'} columnGap={'size-200'}>
           <TextField
