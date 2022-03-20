@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "../lib/axios-base";
 import TableOrder, { OrderLists } from "./TableOrder";
 import { InvoiceInfo } from "./TableProp";
+import { constants } from "crypto";
 
 
 const OrderList = React.lazy(() => import('./OrderList'))
@@ -57,6 +58,7 @@ const InvoiceForm = () => {
 	const [finance, setFinance] = useState<iFinance>({} as iFinance)
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [showOrderList, setShowOrderList] = useState(false)
+	const [isDownloading, setIsDownloading] = useState(false)
 	const debtAccount = 4111;
 	const navigate = useNavigate();
 
@@ -126,7 +128,7 @@ const InvoiceForm = () => {
 				console.log(error)
 			})
 
-	//	console.log(res)
+		//	console.log(res)
 		return res;
 	}
 
@@ -291,53 +293,93 @@ const InvoiceForm = () => {
 								})}
 							>Remove</Button>
 						</Flex>
-						<View><Button variant="primary">Download</Button></View>
+						<View>{isDownloading ?
+							<Flex flex justifyContent={'center'}><ProgressCircle size={'M'} aria-label="Loading…" isIndeterminate /></Flex>
+							:
+							<Button variant="primary" onPress={() => {
+								setIsDownloading(true)
+								downloadInvoice().then(data => {
+									downloadFile(data)
+									setIsDownloading(false)
+								})
+							}}>Download</Button>
+						}</View>
 					</Flex>
-						<Flex width={"auto"} flex direction={'column'} rowGap={'size-75'}>
-							<NumberField
-								flex
-								width={"auto"}
-								hideStepper={true}
-								labelPosition={'side'}
-								label={<div style={{ width: '100px', fontWeight: 700, color: 'green' }}>Total invoice</div>}
-								isReadOnly
-								validationState={isListValid ? 'valid' : 'invalid'}
-								value={getTotalInvoice()}
-								onChange={(e) => handleChange("total", e)}
-							/>
-							<NumberField
-								flex
-								hideStepper={true}
-								width={"auto"}
-								labelPosition={'side'}
-								label={<div style={{ width: '100px' }}>Pajak</div>}
-								isReadOnly
-								value={getTotalTax()}
-								onChange={(e) => handleChange("tax", e)}
-							/>
-							<ComboBox
-								flex
-								menuTrigger='focus'
-								width={'auto'}
-								labelPosition={'side'}
-								label={<div style={{ width: '100px' }}>Akun kas / bank</div>}
-								validationState={isCashValid ? 'valid' : 'invalid'}
-								placeholder={"e.g. Kas / bank"}
-								defaultItems={accountCashes.items}
-								selectedKey={invoice.accountId}
-								onSelectionChange={(e) => handleChange("accountId", +e)}
-							>
-								{(item) => <Item textValue={`${item.id} - ${item.name}`}>
-									<Text><div className='font-bold'>{item.id} - {item.name}</div></Text>
-									<Text slot='description'><span className='font-bold'>{item.name}</span>{item.descriptions && `, ${item.descriptions}`}</Text>
-								</Item>}
-							</ComboBox>
-							{invoice.accountId > 0 && <ShowCash account={accountCashes.getItem(invoice.accountId)} />}
-						</Flex>
+					<Flex width={"auto"} flex direction={'column'} rowGap={'size-75'}>
+						<NumberField
+							flex
+							width={"auto"}
+							hideStepper={true}
+							labelPosition={'side'}
+							label={<div style={{ width: '100px', fontWeight: 700, color: 'green' }}>Total invoice</div>}
+							isReadOnly
+							validationState={isListValid ? 'valid' : 'invalid'}
+							value={getTotalInvoice()}
+							onChange={(e) => handleChange("total", e)}
+						/>
+						<NumberField
+							flex
+							hideStepper={true}
+							width={"auto"}
+							labelPosition={'side'}
+							label={<div style={{ width: '100px' }}>Pajak</div>}
+							isReadOnly
+							value={getTotalTax()}
+							onChange={(e) => handleChange("tax", e)}
+						/>
+						<ComboBox
+							flex
+							menuTrigger='focus'
+							width={'auto'}
+							labelPosition={'side'}
+							label={<div style={{ width: '100px' }}>Akun kas / bank</div>}
+							validationState={isCashValid ? 'valid' : 'invalid'}
+							placeholder={"e.g. Kas / bank"}
+							defaultItems={accountCashes.items}
+							selectedKey={invoice.accountId}
+							onSelectionChange={(e) => handleChange("accountId", +e)}
+						>
+							{(item) => <Item textValue={`${item.id} - ${item.name}`}>
+								<Text><div className='font-bold'>{item.id} - {item.name}</div></Text>
+								<Text slot='description'><span className='font-bold'>{item.name}</span>{item.descriptions && `, ${item.descriptions}`}</Text>
+							</Item>}
+						</ComboBox>
+						{invoice.accountId > 0 && <ShowCash account={accountCashes.getItem(invoice.accountId)} />}
+					</Flex>
 				</Flex>
 			</form>
 		</View>
 	)
+
+	function downloadFile(data: any) {
+		const blob = new Blob([data], {
+			type: "application/pdf",
+		});
+		var url = window.URL.createObjectURL(blob)
+		var a = document.createElement('a')
+		a.href = url
+		a.download = `invoice#${invoice.id}.pdf`
+		a.click()
+		a.remove()
+		setTimeout(() => window.URL.revokeObjectURL(url), 100)
+	}
+
+	async function downloadInvoice() {
+		const url = `/invoices/download/${invoice.id}`;
+		let res = await axios.get(url, {
+			responseType: 'arraybuffer',
+			headers: {
+				Accept: 'application/pdf',
+				'Content-Type': 'application/pdf'
+			}
+		})
+			.then(response => response.data)
+			.then(data => data)
+			.catch(error => {
+				console.log(error)
+			})
+		return res;
+	}
 
 	async function removeInvoice(id: number): Promise<Boolean> {
 		const headers = {

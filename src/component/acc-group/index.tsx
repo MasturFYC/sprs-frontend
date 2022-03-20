@@ -63,7 +63,7 @@ const AccountType = () => {
 					:
 					<View key={o.id}>
 						<Flex direction={{ base: 'column', L: 'row' }} columnGap='size-200' rowGap='size-50'>
-							<View width={{ base: 'auto', M: '15%' }}>
+							<View width={{ base: 'auto', M: '25%' }}>
 								<Link isQuiet variant={'primary'} UNSAFE_style={{ fontWeight: 700 }}
 									onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
 									<span>{o.id} - {o.name}</span>
