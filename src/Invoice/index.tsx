@@ -3,7 +3,7 @@ import axios from "../lib/axios-base";
 import { iFinance } from '../lib/interfaces'
 import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, useAsyncList, View, Divider, NumberField } from "@adobe/react-spectrum";
 import MonthComponent from "../component/Bulan";
-import { InvoiceInfo, TableInvoice } from "./TableProp";
+import { InvoiceInfo, InvoiceList } from "./InvoiceList";
 
 // const OrderForm = React.lazy(() => import('./Form'))
 const defaultYear = new Date().getFullYear()
@@ -117,11 +117,11 @@ const Invoice = () => {
 				</ComboBox>
 			</Flex>
 			<Divider size="S" marginY={'size-100'} />
-			{invoices.items.map((e, i) => <TableInvoice key={e.id} invoice={e} />)}
+			{invoices.items.map((e, i) => <InvoiceList key={e.id} invoice={e} />)}
 		</View>
 	)
 
-
+	
 	async function searchInvoices(e: string) {
 
 		invoices.setSelectedKeys('all')

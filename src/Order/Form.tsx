@@ -102,7 +102,7 @@ type OrderFormOptions = {
 const OrderForm = (props: OrderFormOptions) => {
 	const { order, callback, updateChild, finances, branchs } = props;
 	const [data, setData] = useState<iOrder>(initOrder)
-	let [tabId, setTabId] = useState(1);
+	let [tabId, setTabId] = useState(order.verifiedBy ? 2 : 1);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>('');
 
@@ -378,8 +378,9 @@ const OrderForm = (props: OrderFormOptions) => {
 					<View paddingX={'size-400'}>
 						<Tabs
 							aria-label="Tab-Order"
-							disabledKeys={data.verifiedBy ? ['0', '1'] : ['']}
-							defaultSelectedKey={data.verifiedBy ? '2' : '0'}
+							disabledKeys={order.verifiedBy ? ['0', '1'] : ['']}
+							defaultSelectedKey={order.verifiedBy ? '2' : '1'}
+							//selectedKey={data.verifiedBy ? '2' : '0'}
 							density='compact'
 							onSelectionChange={(e) => setTabId(+e)}>
 							<TabList aria-label="Tab-Order-List">

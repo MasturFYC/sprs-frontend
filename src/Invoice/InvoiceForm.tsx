@@ -4,12 +4,13 @@ import {
 	TextField, Text, View, TextArea, NumberField,
 	useAsyncList, Button
 } from "@adobe/react-spectrum";
-import { dateOnly, dateParam, iAccCode, iAccountSpecific, iFinance, iTrx, iTrxDetail } from "../lib/interfaces";
+import { dateOnly, dateParam, iAccCode, iAccountSpecific, iFinance, iTrxDetail } from "../lib/interfaces";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../lib/axios-base";
 import TableOrder, { OrderLists } from "./TableOrder";
-import { InvoiceInfo } from "./TableProp";
-import { constants } from "crypto";
+import { InvoiceInfo } from "./InvoiceList";
+import { MitraKerja } from "./MitraKerja";
+import { ShowCash } from "./ShowCash";
 
 
 const OrderList = React.lazy(() => import('./OrderList'))
@@ -58,7 +59,6 @@ const InvoiceForm = () => {
 	const [finance, setFinance] = useState<iFinance>({} as iFinance)
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [showOrderList, setShowOrderList] = useState(false)
-	const [isDownloading, setIsDownloading] = useState(false)
 	const debtAccount = 4111;
 	const navigate = useNavigate();
 
@@ -91,6 +91,14 @@ const InvoiceForm = () => {
 			const startDate = new Date(invoice.invoiceAt)
 			const endDate = new Date(invoice.dueAt)
 			return endDate >= startDate
+		},
+		[invoice]
+	)
+	const isDateValid = React.useMemo(
+		() => {
+			const today = new Date()
+			const invDate = new Date(invoice.invoiceAt)
+			return invDate <= today
 		},
 		[invoice]
 	)
@@ -181,32 +189,17 @@ const InvoiceForm = () => {
 			<View marginBottom={'size-200'}><span className="div-h1">Invoice #{invoiceId}</span></View>
 			<form onSubmit={handleSubmit}>
 				<Flex direction={{ base: 'column', M: 'row' }} rowGap={'size-200'} columnGap={'size-400'}>
-					<Flex flex direction={'column'} rowGap={'size-50'} alignSelf='self-start'>
-						<View flex>
-							<strong>{finance.name} - ({finance.shortName})</strong>
-						</View>
-						<View flex>
-							<div>{finance?.street}{finance.city ? `, ${finance.city}` : ''}
-								{finance.zip ? ` - ${finance.zip}` : ''}
-							</div>
-							<div>{finance.phone ? `Telp. ${finance.phone}` : ''}
-								{finance.cell && finance.phone ? ` / ` : ''}
-								{finance.cell && finance.phone === '' ? `Cellular: ` : ''}
-								{finance.cell ?? ''}
-							</div>
-							<div>{finance.email ? `e-mail: ${finance.email}` : ''}</div>
-
-						</View>
-					</Flex>
-					<Flex flex width={'auto'} direction={'column'} rowGap={'size-75'}>
+					<MitraKerja finance={finance} />
+					<Flex flex width={'auto'} direction={'column'} rowGap={'size-75'} alignSelf={{ base: 'stretch', L: 'flex-end' }}>
 						<TextField
 							flex
 							type={'date'}
+							validationState={isDateValid ? 'valid' : 'invalid'}
 							label={<div style={{ width: '100px' }}>Tanggal</div>}
 							labelPosition="side"
 							width={{ base: 'auto' }}
 							value={dateOnly(invoice.invoiceAt)}
-							onChange={(e) => handleChange("orderAt", e)}
+							onChange={(e) => handleChange("invoiceAt", e)}
 						/>
 						<ComboBox
 							flex
@@ -214,7 +207,7 @@ const InvoiceForm = () => {
 							width={'auto'}
 							labelPosition={'side'}
 							validationState={isTermValid ? 'valid' : 'invalid'}
-							label={<div style={{ width: '100px' }}>Payment Term</div>}
+							label={<div style={{ width: '100px' }}>Payment term</div>}
 							placeholder={"e.g. Cash"}
 							defaultItems={[{ id: 1, name: 'Cash' }, { id: 2, name: 'Transfer' }]}
 							selectedKey={invoice.paymentTerm}
@@ -245,30 +238,35 @@ const InvoiceForm = () => {
 						/>
 					</Flex>
 				</Flex>
-				{showOrderList && <View marginY={'size-200'}>{showOrderList && <React.Suspense fallback={<div>Please wait...</div>}>
-					<OrderList financeId={financeId ? +financeId : 0}
-						invoiceId={invoiceId ? +invoiceId : 0}
-						onFinish={(list) => {
-							setInvoice(o => ({ ...o, details: list }))
-							setShowOrderList(false)
-							setIsDirty(true)
-						}}
-						onCancel={() => setShowOrderList(false)}
-					/>
-				</React.Suspense>}
-				</View>
-				}
-
-				{!showOrderList &&
-					<View marginY={'size-200'} >
-						<TableOrder list={invoice.details} onCheck={(id, e) => handleDetails(id, e)} />
-						<View marginY={'size-200'}>
-							<Button variant="cta" onPress={() => setShowOrderList(true)}>Tambahkan Order (SPK)</Button>
-						</View>
+				<View>
+					{showOrderList && <View marginY={'size-200'}>{showOrderList && <React.Suspense fallback={<div>Please wait...</div>}>
+						<OrderList financeId={financeId ? +financeId : 0}
+							invoiceId={invoiceId ? +invoiceId : 0}
+							onFinish={(list) => {
+								setInvoice(o => ({ ...o, details: list }))
+								setShowOrderList(false)
+								setIsDirty(true)
+							}}
+							onCancel={() => setShowOrderList(false)}
+						/>
+					</React.Suspense>}
 					</View>
-				}
+					}
+				</View>
+				<View>
+
+					{!showOrderList &&
+						<View marginY={'size-200'} >
+							<TableOrder list={invoice.details} onCheck={(id, e) => handleDetails(id, e)} />
+							<View marginY={'size-200'}>
+								<Button variant="primary" onPress={() => setShowOrderList(true)}>Tambahkan Order (SPK)</Button>
+							</View>
+						</View>
+					}
+				</View>
 				<Divider size="M" marginY={'size-200'} />
-				<Flex direction={'column'} rowGap={'size-50'}>
+
+				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap={'size-200'} columnGap={'size-400'}>
 					<TextArea
 						label='Memo'
 						marginBottom={'size-200'}
@@ -279,32 +277,6 @@ const InvoiceForm = () => {
 						maxLength={256}
 						onChange={(e) => handleChange("memo", e)}
 					/>
-				</Flex>
-
-				<Flex flex direction={{ base: 'column', M: 'row' }} rowGap={'size-200'} columnGap={'size-400'}>
-					<Flex width={"auto"} flex direction={'row'} columnGap={'size-100'}>
-						<Flex flex direction={'row'} columnGap={'size-200'}>
-							<Button type={'submit'} variant="cta" isDisabled={!isDirty || !(isListValid && isCashValid && isDueValid && isSalesValid && isTermValid)}>Save</Button>
-							<Button variant="negative" isDisabled={invoiceId ? +invoiceId === 0 : false}
-								onPress={() => removeInvoice(invoice.id).then(isDeleted => {
-									if (isDeleted) {
-										navigate('/invoice/list')
-									}
-								})}
-							>Remove</Button>
-						</Flex>
-						<View>{isDownloading ?
-							<Flex flex justifyContent={'center'}><ProgressCircle size={'M'} aria-label="Loading…" isIndeterminate /></Flex>
-							:
-							<Button variant="primary" onPress={() => {
-								setIsDownloading(true)
-								downloadInvoice().then(data => {
-									downloadFile(data)
-									setIsDownloading(false)
-								})
-							}}>Download</Button>
-						}</View>
-					</Flex>
 					<Flex width={"auto"} flex direction={'column'} rowGap={'size-75'}>
 						<NumberField
 							flex
@@ -327,6 +299,16 @@ const InvoiceForm = () => {
 							value={getTotalTax()}
 							onChange={(e) => handleChange("tax", e)}
 						/>
+						<NumberField
+							flex
+							hideStepper={true}
+							width={"auto"}
+							labelPosition={'side'}
+							label={<div style={{ width: '100px' }}>Grand total</div>}
+							isReadOnly
+							value={getTotalTax() + getTotalInvoice()}
+
+						/>
 						<ComboBox
 							flex
 							menuTrigger='focus'
@@ -347,39 +329,27 @@ const InvoiceForm = () => {
 						{invoice.accountId > 0 && <ShowCash account={accountCashes.getItem(invoice.accountId)} />}
 					</Flex>
 				</Flex>
+				<Divider size="S" marginY={'size-200'} />
+				<Flex flex width={"auto"} direction={'row'} columnGap={'size-100'}>
+					<Flex flex direction={'row'} columnGap={'size-200'}>
+						<Button type={'submit'} variant="cta" isDisabled={!isDirty || !(isListValid && isDateValid && isCashValid && isDueValid && isSalesValid && isTermValid)}>Save</Button>
+						<Button onPress={() => navigate('/invoice/list')} variant="primary">{isDirty ? 'Cancel' : 'Close'}</Button>
+					</Flex>
+					<View>
+						<Button
+							variant="negative" isDisabled={invoiceId ? +invoiceId === 0 : false}
+							onPress={() => removeInvoice(invoice.id).then(isDeleted => {
+								if (isDeleted) {
+									navigate('/invoice/list')
+								}
+							})}
+						>Remove</Button>
+					</View>
+				</Flex>
+
 			</form>
 		</View>
 	)
-
-	function downloadFile(data: any) {
-		const blob = new Blob([data], {
-			type: "application/pdf",
-		});
-		var url = window.URL.createObjectURL(blob)
-		var a = document.createElement('a')
-		a.href = url
-		a.download = `invoice#${invoice.id}.pdf`
-		a.click()
-		a.remove()
-		setTimeout(() => window.URL.revokeObjectURL(url), 100)
-	}
-
-	async function downloadInvoice() {
-		const url = `/invoices/download/${invoice.id}`;
-		let res = await axios.get(url, {
-			responseType: 'arraybuffer',
-			headers: {
-				Accept: 'application/pdf',
-				'Content-Type': 'application/pdf'
-			}
-		})
-			.then(response => response.data)
-			.then(data => data)
-			.catch(error => {
-				console.log(error)
-			})
-		return res;
-	}
 
 	async function removeInvoice(id: number): Promise<Boolean> {
 		const headers = {
@@ -632,12 +602,4 @@ const InvoiceForm = () => {
 
 export default InvoiceForm;
 
-type showCashProps = {
-	account: iAccountSpecific
-}
-function ShowCash({ account }: showCashProps) {
-	return <View marginStart={'calc(100px + size-75 + 2px)'}>
-		<View>{account.name}</View>
-		<View>{account.descriptions ?? '-'}</View>
-	</View>
-}
+

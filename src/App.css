@@ -93,3 +93,16 @@
   font-size: calc(100% + 2px);
   color: indigo
 }
+
+.h2-orange {
+  font-size: calc(100% + 2px);
+  color: orangered
+}
+
+.footer-copy {
+  font-size: x-small;
+}
+
+.font-title {
+  font-size: calc(100% + 4px);
+}

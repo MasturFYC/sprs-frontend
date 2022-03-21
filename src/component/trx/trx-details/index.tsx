@@ -100,25 +100,25 @@ const TrxDetails = (props: TrxDetailsParam) => {
   //   //setIsDirty(true)
   // }
 
-  async function deleteDetail(trxid: number, id: number): Promise<Boolean> {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
+  // async function deleteDetail(trxid: number, id: number): Promise<Boolean> {
+  //   const headers = {
+  //     'Content-Type': 'application/json'
+  //   }
 
-    //console.log(trxid, id)
+  //   //console.log(trxid, id)
 
-    let res = await axios
-      .delete(`/trx-detail/${trxid}/${id}/`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        return true
-      })
-      .catch(error => {
-        console.log('-------', error)
-        return false
-      })
-      return res
-  }
+  //   let res = await axios
+  //     .delete(`/trx-detail/${trxid}/${id}/`, { headers: headers })
+  //     .then(response => response.data)
+  //     .then(data => {
+  //       return true
+  //     })
+  //     .catch(error => {
+  //       console.log('-------', error)
+  //       return false
+  //     })
+  //     return res
+  // }
 
   function getCodeName(id: number) {
     const c = accs.filter(o => o.id === id)[0];

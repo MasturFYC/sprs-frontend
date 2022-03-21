@@ -3,7 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Grid } from "@react-spectrum/layout";
 import { View } from "@react-spectrum/view";
 import { Flex } from "@react-spectrum/layout";
-import { Footer } from "@react-spectrum/view";
+//import { Footer } from "@react-spectrum/view";
 
 import logo from '../logo.svg';
 import Aside from "./sides";
@@ -45,15 +45,15 @@ const Layout = () => {
           borderBottomColor={"gray-200"}
           paddingX={{ base: "size-50", M: "size-200" }}
         >
-          <Flex flex direction={"row"} columnGap={{ base: "size-10", M: "size-50" }}>
-            <View width={{ base: 64, M: 90 }} alignSelf={"center"}
-              flex={{ base: 1, M: 1, L: "none" }} marginTop={{ base: "size-10", L: "size-25" }}>
+          <Flex flex direction={{base: 'column', L:"row"}} columnGap={{ base: "size-10", M: "size-50" }}>
+            <View isHidden={{base: true, L:false}} width={{ base: 64, M: 90 }} alignSelf={"center"}
+              marginTop={{ base: "size-10", L: "size-25" }}>
               <img src={logo} alt="logo" style={{ width: "32px" }} />
             </View>
-            <View flex alignSelf={"center"}>
-              <View>
-                <p>Top Menu</p>
-              </View>
+            <View flex alignSelf={"center"} padding={'size-100'}>
+              <View UNSAFE_className="h2-orange font-bold font-title">PT. SARANA PADMA RIDHO SEPUH</View>
+              <View>GENERAL SUPPLIER, CONTRACTOR, COLLECTION</View>
+              <View>Jl. Gator Subroto Villa Gatsu No. 01 - Indramayu</View>
             </View>
           </Flex>
         </View>
@@ -80,7 +80,7 @@ const Layout = () => {
           paddingTop={"size-100"}
           paddingX={{ base: "size-75", M: "size-400" }}
         >
-          &copy; FYC 2021. All rights reserved.
+          <span className="footer-copy">&copy; FYC 2021. All rights reserved.</span>
         </View>
       </Grid>
     </Router>
