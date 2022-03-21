@@ -159,24 +159,6 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   function createTransactionDetails(p: iOrder): iTrxDetail[] {
     const details: iTrxDetail[] = [];
 
-    //    let stnk = 0; //, ppn = 0;
-
-    // if (p.nominal > 0) {
-    //   ppn = p.nominal;
-    // }
-    // if (p.stnkPrice > 0) {
-    //   stnk = p.stnkPrice;
-    // }
-
-    // if (ppn > 0) {
-    //   details.push({
-    //     id: 2,
-    //     accCodeId: 1113, // Utang Pajak
-    //     trxId: 0,
-    //     debt: 0,
-    //     cred: ppn
-    //   })
-    // }
 
     details.push({
       id: 1,
@@ -192,17 +174,6 @@ export default function VerifyOrder(props: VerifyOrderProps) {
       debt: 0,
       cred: p.btMatel
     })
-
-
-    // if (stnk > 0) {
-    //   details.push({
-    //     id: 3,
-    //     codeId: 5211, // Biaya STNK
-    //     trxId: 0,
-    //     debt: stnk,
-    //     cred: 0
-    //   })
-    //}
 
     return details;
   }

@@ -39,7 +39,7 @@ const TrxAutoDebetForm = ({
     [cashId]
   )
 
-  const isNominalValid = React.useMemo(
+  const isSaldoValid = React.useMemo(
     () => data.saldo > 0,
     [data]
   )
@@ -85,7 +85,7 @@ const TrxAutoDebetForm = ({
           <NumberField
             hideStepper={true}
             width={{ base: 'auto', M: 'size-2000' }}
-            validationState={isNominalValid ? 'valid' : 'invalid'}
+            validationState={isSaldoValid ? 'valid' : 'invalid'}
             label={"Jumlah transaksi"}
             onChange={(e) => handleChange("saldo", e)}
             value={data.saldo} />
@@ -123,9 +123,9 @@ const TrxAutoDebetForm = ({
       <Flex direction={'row'} gap='size-100' marginBottom={'size-100'} marginTop={'size-200'}>
         <Flex flex direction={'row'} columnGap={'size-125'}>
           <Button type='submit' variant='cta'
-            isDisabled={!isDirty || !(isDescriptionsValid && isAccValid && isNominalValid)}>Save</Button>
+            isDisabled={!isDirty || !(isDescriptionsValid && isAccValid && isSaldoValid)}>Save</Button>
           <Button variant='negative'
-            isDisabled={!isDirty || !(isDescriptionsValid && isAccValid && isNominalValid)}
+            isDisabled={!isDirty || !(isDescriptionsValid && isAccValid && isSaldoValid)}
             onPress={() => {
               if (onSaveAndCreate) {
                 onSaveAndCreate(cashId, data)
@@ -168,7 +168,7 @@ const TrxAutoDebetForm = ({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (isDescriptionsValid && isAccValid && isNominalValid) {
+    if (isDescriptionsValid && isAccValid && isSaldoValid) {
       onSave(cashId, data)
     }
   }

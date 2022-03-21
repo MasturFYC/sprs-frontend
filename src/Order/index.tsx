@@ -107,7 +107,7 @@ const Order = () => {
 					}}
 					onChange={(e) => setTxtSearch(e)}
 				/>
-				<MonthComponent width="125px" selectedId={bulan}
+				<MonthComponent width="150px" selectedId={bulan}
 					onChange={(e) => {
 						setBulan(e.id);
 						if (e.id > 0) {
@@ -335,12 +335,8 @@ const Order = () => {
 				btFinance: 0,
 				btPercent: 20,
 				btMatel: 0,
-				ppn: 0,
-				nominal: 0,
-				subtotal: 0,
 				userName: 'Opick',
 				verifiedBy: '',
-				validatedBy: '',
 				financeId: 0,
 				branchId: 0,
 				isStnk: true,
@@ -386,10 +382,7 @@ function TableOrder(props: TableOrderProp) {
 				<th>TAHUN</th>
 				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT FINANCE</th>
 				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT MATEL</th>
-				<th align="right">PPN</th>
 				<th align="right" style={{ whiteSpace: 'nowrap' }}>STNK ?</th>
-				<th align="right">PROFIT</th>
-				{/* <th align="left">UNIT</th> */}
 			</tr>
 		</thead>
 		<tbody style={{ color: selectedId < 0 ? 'black' : '#abc' }}>
@@ -408,10 +401,10 @@ function TableOrder(props: TableOrderProp) {
 				:
 				<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
-					<td>
+					<td className={item.verifiedBy ? 'back-color-orange':''}>
 						{selectedId < 0 ? 
 						<Link isQuiet variant="primary"
-							UNSAFE_style={{ fontWeight: 700 }} onPress={(e) => {
+							UNSAFE_className={"font-bold"} onPress={(e) => {
 								setSelectedId(item.id);
 							}}>{item.name}</Link>
 							// <RouterLink className="text-decoration-none" to={`/trx/8`}><span className="font-bold">#{item.name}</span></RouterLink>
@@ -427,13 +420,10 @@ function TableOrder(props: TableOrderProp) {
 					<td align="center">{item.unit?.year}</td>
 					<td align="right">{FormatNumber(item.btFinance)}</td>
 					<td align="right">{FormatNumber(item.btMatel)}</td>
-					<td align="right">{FormatNumber(item.nominal)}</td>
 					<td align="right">
 						{item.isStnk ? '✔' : ''}{' '}
 						{FormatNumber(item.stnkPrice)}
 					</td>
-					<td align="right">{FormatNumber(item.subtotal)}</td>
-					{/* <td></td> */}
 				</tr>
 			)}
 		</tbody>
@@ -442,9 +432,7 @@ function TableOrder(props: TableOrderProp) {
 				<th colSpan={7} align="left">Total</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btFinance, 0))}</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btMatel, 0))}</th>
-				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.nominal, 0))}</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
-				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.subtotal, 0))}</th>
 			</tr>
 		</tfoot>
 	</table>;

@@ -48,8 +48,10 @@ const initInvoice: InvoiceById = {
 	dueAt: dateParam(null),
 	salesman: '',
 	financeId: 0,
-	total: 0,
+	subtotal: 0,
+	ppn: 0,
 	tax: 0,
+	total: 0,
 	accountId: 0
 }
 
@@ -82,10 +84,16 @@ const InvoiceForm = () => {
 		[invoice]
 	)
 
+	const isPpnValid = React.useMemo(
+		() => invoice.ppn >= 0,
+		[invoice]
+	)
+
 	const isSalesValid = React.useMemo(
 		() => invoice.salesman.length > 0,
 		[invoice]
 	)
+
 	const isDueValid = React.useMemo(
 		() => {
 			const startDate = new Date(invoice.invoiceAt)
@@ -94,9 +102,11 @@ const InvoiceForm = () => {
 		},
 		[invoice]
 	)
+
+
 	const isDateValid = React.useMemo(
 		() => {
-			const today = new Date()
+			const today = new Date(dateParam(null).substring(0, 10))
 			const invDate = new Date(invoice.invoiceAt)
 			return invDate <= today
 		},
@@ -186,10 +196,12 @@ const InvoiceForm = () => {
 
 	return (
 		<View>
-			<View marginBottom={'size-200'}><span className="div-h1">Invoice #{invoiceId}</span></View>
 			<form onSubmit={handleSubmit}>
 				<Flex direction={{ base: 'column', M: 'row' }} rowGap={'size-200'} columnGap={'size-400'}>
-					<MitraKerja finance={finance} />
+					<View flex>
+						<View marginBottom={'size-200'}><span className="div-h1">Invoice #{invoiceId}</span></View>
+						<MitraKerja finance={finance} />
+					</View>
 					<Flex flex width={'auto'} direction={'column'} rowGap={'size-75'} alignSelf={{ base: 'stretch', L: 'flex-end' }}>
 						<TextField
 							flex
@@ -243,7 +255,7 @@ const InvoiceForm = () => {
 						<OrderList financeId={financeId ? +financeId : 0}
 							invoiceId={invoiceId ? +invoiceId : 0}
 							onFinish={(list) => {
-								setInvoice(o => ({ ...o, details: list }))
+								setInvoiceDetails(list)
 								setShowOrderList(false)
 								setIsDirty(true)
 							}}
@@ -283,38 +295,36 @@ const InvoiceForm = () => {
 							width={"auto"}
 							hideStepper={true}
 							labelPosition={'side'}
-							label={<div style={{ width: '100px', fontWeight: 700, color: 'green' }}>Total invoice</div>}
+							label={<div className={'width-100px'}>Subtotal</div>}
 							isReadOnly
 							validationState={isListValid ? 'valid' : 'invalid'}
-							value={getTotalInvoice()}
-							onChange={(e) => handleChange("total", e)}
+							value={invoice.subtotal}
 						/>
 						<NumberField
 							flex
 							hideStepper={true}
 							width={"auto"}
 							labelPosition={'side'}
-							label={<div style={{ width: '100px' }}>Pajak</div>}
-							isReadOnly
-							value={getTotalTax()}
-							onChange={(e) => handleChange("tax", e)}
+							validationState={isPpnValid ? "valid" : "invalid"}
+							label={<div className={'width-100px'}>Ppn (%)</div>}
+							value={invoice.ppn}
+							onChange={(e) => setPpn(e)}
 						/>
 						<NumberField
 							flex
 							hideStepper={true}
 							width={"auto"}
 							labelPosition={'side'}
-							label={<div style={{ width: '100px' }}>Grand total</div>}
+							label={<div className={'width-100px color-green font-bold'}>Total invoice</div>}
 							isReadOnly
-							value={getTotalTax() + getTotalInvoice()}
-
+							value={invoice.total}
 						/>
 						<ComboBox
 							flex
 							menuTrigger='focus'
 							width={'auto'}
 							labelPosition={'side'}
-							label={<div style={{ width: '100px' }}>Akun kas / bank</div>}
+							label={<div className={'width-100px'}>Akun kas / bank</div>}
 							validationState={isCashValid ? 'valid' : 'invalid'}
 							placeholder={"e.g. Kas / bank"}
 							defaultItems={accountCashes.items}
@@ -332,7 +342,7 @@ const InvoiceForm = () => {
 				<Divider size="S" marginY={'size-200'} />
 				<Flex flex width={"auto"} direction={'row'} columnGap={'size-100'}>
 					<Flex flex direction={'row'} columnGap={'size-200'}>
-						<Button type={'submit'} variant="cta" isDisabled={!isDirty || !(isListValid && isDateValid && isCashValid && isDueValid && isSalesValid && isTermValid)}>Save</Button>
+						<Button type={'submit'} variant="cta" isDisabled={!isDirty || !(isListValid && isDateValid && isCashValid && isPpnValid && isDueValid && isSalesValid && isTermValid)}>Save</Button>
 						<Button onPress={() => navigate('/invoice/list')} variant="primary">{isDirty ? 'Cancel' : 'Close'}</Button>
 					</Flex>
 					<View>
@@ -351,6 +361,34 @@ const InvoiceForm = () => {
 		</View>
 	)
 
+
+	function setInvoiceDetails(list: OrderLists[]) {
+		const subtotal = list.filter(f => f.isSelected).reduce((c, t) => c + t.btFinance, 0);
+		const tax = subtotal * (invoice.ppn / 100.0)
+		const total = subtotal - tax;
+		setInvoice(o => ({
+			...o,
+			subtotal: subtotal,
+			tax: tax,
+			total: total,
+			details: list
+		}))
+	}
+
+
+	function setPpn(e: number) {
+		const subtotal = invoice.subtotal;
+		const tax = subtotal * (e / 100.0)
+		const total = subtotal - tax;
+		setInvoice(o => ({
+			...o,
+			ppn: e,
+			tax: tax,
+			total: total,
+		}))
+		setIsDirty(true)
+	}
+
 	async function removeInvoice(id: number): Promise<Boolean> {
 		const headers = {
 			Accept: 'application/json',
@@ -368,19 +406,19 @@ const InvoiceForm = () => {
 		return res
 	}
 
-	function getTotalInvoice() {
-		if (invoice.details) {
-			return invoice.details.filter(f => f.isSelected).reduce((t, c) => t + c.btFinance, 0)
-		}
-		return 0
-	}
+	// function getSubtotalInvoice() {
+	// 	if (invoice.details) {
+	// 		return invoice.details.filter(f => f.isSelected).reduce((t, c) => t + c.btFinance, 0)
+	// 	}
+	// 	return 0
+	// }
 
-	function getTotalTax() {
-		if (invoice.details) {
-			return invoice.details.filter(f => f.isSelected).reduce((t, c) => t + c.nominal, 0)
-		}
-		return 0
-	}
+	// function getTotalTax() {
+	// 	if (invoice.details) {
+	// 		return invoice.details.filter(f => f.isSelected).reduce((t, c) => t + c.nominal, 0)
+	// 	}
+	// 	return 0
+	// }
 
 	function handleDetails(id: number, e: boolean) {
 		const details: OrderLists[] = invoice.details ? invoice.details : [];
@@ -396,7 +434,8 @@ const InvoiceForm = () => {
 			if (i >= 0) {
 				const detail = { ...details[i], isSelected: e };
 				details.splice(i, 1, detail)
-				setInvoice(o => ({ ...o, details: details }))
+				setInvoiceDetails(details)
+				//setInvoice(o => ({ ...o, details: details }))
 				setIsDirty(true)
 			}
 		}
@@ -428,7 +467,17 @@ const InvoiceForm = () => {
 
 	function createInvoice(p: InvoiceById) {
 
-		const exInvoice = { ...p, total: getTotalInvoice(), tax: getTotalTax() };
+		//		const subtotal = getSubtotalInvoice();
+		//		const tax = subtotal * (invoice.ppn / 100.0)
+		//		const total = subtotal - tax;
+
+		const exInvoice = { ...p }
+		// 	...p,
+		// 	subtotal: subtotal,
+		// 	tax: tax,
+		// 	total: total			
+		// };
+
 		const transact = p.transaction;
 		const detailIds = createInvoiceDetail(p.details)
 		const token = createInvoiceToken(exInvoice)
@@ -452,24 +501,24 @@ const InvoiceForm = () => {
 
 		if (transact) {
 			if (transact.details) {
-				if (inv.tax > 0) {
-					transact.details[0].cred = inv.total
-					transact.details[1].debt = inv.total - inv.tax
-					if (transact.details.length > 2) {
-						transact.details[2].debt = inv.tax
-					} else {
-						transact.details.push({
-							id: 3,
-							codeId: 6011, // Pajak
-							trxId: transact.id,
-							debt: inv.tax,
-							cred: 0
-						})
-					}
-				} else {
+				// if (inv.tax > 0) {
+				// 	transact.details[0].cred = inv.total
+				// 	transact.details[1].debt = inv.total - inv.tax
+				// 	if (transact.details.length > 2) {
+				// 		transact.details[2].debt = inv.tax
+				// 	} else {
+				// 		transact.details.push({
+				// 			id: 3,
+				// 			codeId: 6011, // Pajak
+				// 			trxId: transact.id,
+				// 			debt: inv.tax,
+				// 			cred: 0
+				// 		})
+				// 	}
+				// } else {
 					transact.details[0].cred = inv.total
 					transact.details[1].debt = inv.total
-				}
+				//}
 			}
 			return transact;
 
@@ -521,7 +570,6 @@ const InvoiceForm = () => {
 	function createTransactionDetails(inv: InvoiceById): iTrxDetail[] {
 		const details: iTrxDetail[] = [];
 
-
 		details.push({
 			id: 1,
 			codeId: debtAccount,
@@ -534,19 +582,20 @@ const InvoiceForm = () => {
 			id: 2,
 			codeId: inv.accountId, // Bank BCA
 			trxId: 0,
-			debt: inv.tax > 0 ? inv.total - inv.tax : inv.total,
+			//debt: inv.tax > 0 ? inv.total - inv.tax : inv.total,
+			debt: inv.total,
 			cred: 0
 		})
 
-		if (inv.tax > 0) {
-			details.push({
-				id: 3,
-				codeId: 6011, // akun pajak
-				trxId: 0,
-				debt: inv.tax,
-				cred: 0
-			})
-		}
+		// if (inv.tax > 0) {
+		// 	details.push({
+		// 		id: 3,
+		// 		codeId: 6011, // akun pajak
+		// 		trxId: 0,
+		// 		debt: inv.tax,
+		// 		cred: 0
+		// 	})
+		// }
 
 		return details;
 	}

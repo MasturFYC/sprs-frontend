@@ -20,42 +20,53 @@ export function InvoiceList({
 	return (
 		<View>
 			<Flex direction={{ base: "column", M: "row" }} rowGap={"size-100"} columnGap={'size-200'}>
-				<Flex flex direction={"column"} rowGap={"size-50"}>
-					<View>
-						<Link isQuiet variant='primary' UNSAFE_className="font-bold"><RouterLink to={`/invoice/${invoice.financeId}/${invoice.id}`}>Invoice #{invoice.id}</RouterLink></Link>
-					</View>
-					<Flex flex direction={"row"} rowGap={"size-100"}>
-						<View width={'size-1200'}>Tanggal:</View>
-						<View flex>{FormatDate(invoice.invoiceAt)}</View>
+				<View flex width={{ base: 'auto', L: '35%' }}>
+					<Flex direction={"column"} rowGap={"size-25"}>
+						<View>
+							<Link isQuiet variant='primary' UNSAFE_className="font-bold"><RouterLink to={`/invoice/${invoice.financeId}/${invoice.id}`}>Invoice #{invoice.id}</RouterLink></Link>
+						</View>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>Tanggal:</View>
+							<View flex>{FormatDate(invoice.invoiceAt)}</View>
+						</Flex>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>Payment term:</View>
+							<View flex>{invoice.paymentTerm === 1 ? "Cash" : "Transfer"} : {invoice.account ? invoice.account.name : ''}</View>
+						</Flex>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>Jatuh tempo:</View>
+							<View flex>{FormatDate(invoice.dueAt)}</View>
+						</Flex>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>Salesman:</View>
+							<View flex>{invoice.salesman}</View>
+						</Flex>
 					</Flex>
-					<Flex flex direction={"row"} rowGap={"size-100"}>
-						<View width={'size-1200'}>Term:</View>
-						<View flex>{invoice.paymentTerm === 1 ? "Cash" : "Transfer"} : {invoice.account ? invoice.account.name : ''}</View>
+				</View>
+				<View flex width={{ base: 'auto', L: '35%' }}>
+					<Flex direction={"column"} rowGap={"size-25"}>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>Finance:</View>
+							<View flex>{invoice.finance ? `${invoice.finance.name} (${invoice.finance.shortName})` : ""}</View>
+						</Flex>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>Subtotal:</View>
+							<View flex>{FormatNumber(invoice.subtotal)}</View>
+						</Flex>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>PPN:</View>
+							<View>({FormatNumber(invoice.ppn)}%)</View>
+							<View flex><i>{FormatNumber(invoice.tax)}</i></View>
+						</Flex>
+						<Flex flex direction={"row"} columnGap={"size-100"}>
+							<View width={'size-1200'}>Total:</View>
+							<View flex><strong>{FormatNumber(invoice.total)}</strong></View>
+						</Flex>
 					</Flex>
-					<Flex flex direction={"row"} rowGap={"size-100"}>
-						<View width={'size-1200'}>Total:</View>
-						<View flex>{FormatNumber(invoice.total)}</View>
-					</Flex>
-				</Flex>
-				<Flex flex direction={"column"} rowGap={"size-50"}>
-					<Flex flex direction={"row"} rowGap={"size-100"}>
-						<View width={'size-1200'}>Jatuh tempo:</View>
-						<View flex>{FormatDate(invoice.dueAt)}</View>
-					</Flex>
-					<Flex flex direction={"row"} rowGap={"size-100"}>
-						<View width={'size-1200'}>Salesman:</View>
-						<View flex>{invoice.salesman}</View>
-					</Flex>
-					<Flex flex direction={"row"} rowGap={"size-100"}>
-						<View width={'size-1200'}>Finance:</View>
-						<View flex>{invoice.finance ? `${invoice.finance.name} (${invoice.finance.shortName})` : ""}</View>
-					</Flex>
-					<Flex flex direction={"row"} rowGap={"size-100"}>
-						<View width={'size-1200'}>Memo:</View>
-						<View flex>{invoice.memo || '-'}</View>
-					</Flex>
-				</Flex>
-				<View width={'size-1600'}>
+				</View>
+				<View width={{base: 'auto', L:'size-2400'}}>
+					<View>Memo:</View>
+					<View marginBottom={'size-200'}>{invoice.memo || '-'}</View>
 					{isDownloading ? <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
 						:
 						<Link

@@ -7,8 +7,10 @@ export interface iInvoice {
     dueAt: string
     salesman: string
     financeId: number
-    total: number
+    subtotal: number
+    ppn: number
     tax: number
+    total: number
     accountId: number
     memo?: string
 }

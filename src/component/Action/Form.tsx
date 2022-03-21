@@ -6,7 +6,6 @@ import axios from '../../lib/axios-base';
 export const initAction: iAction = {
   id: 0,
   actionAt: dateParam(null),
-  code: '',
   pic: '',
   descriptions: '',
   orderId: 2
@@ -36,11 +35,11 @@ const ActionForm = (props: ActionFormOptions) => {
     () => data.pic.length >= 3,
     [data]
   )
-  const isCodeValid = React.useMemo(
-    () => data.code.length >= 3,
-    [data]
-  )
 
+  // const isCodeValid = React.useMemo(
+  //   () => data.code.length >= 3,
+  //   [data]
+  // )
 
   useEffect(() => {
     let isLoaded = true;
@@ -67,21 +66,10 @@ const ActionForm = (props: ActionFormOptions) => {
           onChange={(e) => changeData("actionAt", e)}
         />
         <TextField
-          flex
-          autoFocus
-          label='Kode'
-          width={'auto'}
-          validationState={isCodeValid ? 'valid' : 'invalid'}
-          placeholder={'e.g. CODE-2'}
-          value={data.code}
-          maxLength={50}
-          onChange={(e) => changeData("code", e)}
-        />
-        <TextField
           validationState={isPicValid ? 'valid' : 'invalid'}
           flex
-          placeholder={'e.g. CO-1'}
-          label='Pic'
+          placeholder={'e.g. Junaedi'}
+          label='Nama orang'
           width={'auto'}
           value={data.pic}
           maxLength={50}
@@ -102,7 +90,7 @@ const ActionForm = (props: ActionFormOptions) => {
       <Flex direction={'row'} gap='size-100' marginY={'size-200'}>
         <Flex flex direction={'row'} columnGap={'size-100'}>
           <Button type='submit' variant='cta'
-            isDisabled={!isDirty || !(isDescriptionsValid && isPicValid && isCodeValid)}
+            isDisabled={!isDirty || !(isDescriptionsValid && isPicValid)}
           >
             Save
           </Button>

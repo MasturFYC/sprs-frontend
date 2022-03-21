@@ -16,7 +16,7 @@ export function MitraKerja({ finance }: ShowFinanceProps) {
 			</View>
 		</Flex> */}
 		{/* <View marginTop={'size-100'} marginBottom={'size-100'}>Mitra kerja:</View> */}
-		<Flex flex direction={'column'} rowGap={'size-50'} alignSelf='self-start'>
+		<Flex flex direction={'column'} rowGap={'size-50'} alignSelf='self-start'>			
 			<View flex>
 				<strong>{finance.name} - ({finance.shortName})</strong>
 			</View>

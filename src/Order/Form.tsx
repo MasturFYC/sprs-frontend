@@ -1,12 +1,16 @@
 import React, { FormEvent, useState } from 'react';
-import { dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit, iReceivable, iTask, iAddress } from '../lib/interfaces'
+import {
+	dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit,
+	// iReceivable, 
+	iTask, iAddress
+} from '../lib/interfaces'
 import { Button, ComboBox, Flex, TextField, View, Text, NumberField, Checkbox, Tabs, TabList, Divider } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
 import VerifyOrder from './VerifyOrder'
 
 const CustomerForm = React.lazy(() => import('./CustomerForm'));
-const ReceivableForm = React.lazy(() => import('./Receivable'));
+// const ReceivableForm = React.lazy(() => import('./Receivable'));
 const AddressForm = React.lazy(() => import('./AddressForm'));
 const Action = React.lazy(() => import('../component/Action'));
 const UnitForm = React.lazy(() => import('./UnitForm'));
@@ -33,22 +37,22 @@ const initAddress: iAddress = {
 	email: '',
 }
 
-const initReceivable: iReceivable = {
-	orderId: 0,
-	covenantAt: dateParam(null),
-	dueAt: dateParam(null),
-	mortgageByMonth: 0,
-	mortgageReceivable: 0,
-	runningFine: 0,
-	restFine: 0,
-	billService: 0,
-	payDeposit: 0,
-	restReceivable: 0,
-	restBase: 0,
-	dayPeriod: 0,
-	mortgageTo: 0,
-	dayCount: 0
-}
+// const initReceivable: iReceivable = {
+// 	orderId: 0,
+// 	covenantAt: dateParam(null),
+// 	dueAt: dateParam(null),
+// 	mortgageByMonth: 0,
+// 	mortgageReceivable: 0,
+// 	runningFine: 0,
+// 	restFine: 0,
+// 	billService: 0,
+// 	payDeposit: 0,
+// 	restReceivable: 0,
+// 	restBase: 0,
+// 	dayPeriod: 0,
+// 	mortgageTo: 0,
+// 	dayCount: 0
+// }
 
 const initCustomer: iCustomer = {
 	orderId: 0,
@@ -63,9 +67,7 @@ const initUnit: iUnit = {
 	year: new Date().getFullYear(),
 	frameNumber: '',
 	machineNumber: '',
-	bpkbName: '',
 	color: '',
-	dealer: '',
 	typeId: 0,
 	warehouseId: 0
 }
@@ -78,12 +80,8 @@ export const initOrder: iOrder = {
 	btFinance: 0,
 	btPercent: 20,
 	btMatel: 0,
-	ppn: 0,
-	nominal: 0,
-	subtotal: 0,
 	userName: 'Opick',
 	verifiedBy: '',
-	validatedBy: '',
 	financeId: 0,
 	branchId: 0,
 	isStnk: true,
@@ -105,7 +103,6 @@ const OrderForm = (props: OrderFormOptions) => {
 	let [tabId, setTabId] = useState(order.verifiedBy ? 2 : 1);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>('');
-
 
 	const isFinanceValid = React.useMemo(
 		() => data.financeId > 0,
@@ -132,10 +129,6 @@ const OrderForm = (props: OrderFormOptions) => {
 		() => data.btMatel > 0,
 		[data]
 	)
-	const isPpnValid = React.useMemo(
-		() => data.subtotal >= 0,
-		[data]
-	)
 	const isStnkValid = React.useMemo(
 		() => {
 			if (data) {
@@ -152,8 +145,31 @@ const OrderForm = (props: OrderFormOptions) => {
 	React.useEffect(() => {
 		let isLoaded = true;
 
+		async function getOrderName() {
+
+			const headers = {
+				'Content-Type': 'application/json'
+			}
+
+			let res = await axios
+				.get(`/orders/name-seq`, { headers: headers })
+				.then(response => response.data)
+				.then(data => data)
+				.catch(error => {
+					console.log('-------', error)
+				})
+
+			return await res;
+		}
+
 		if (isLoaded) {
-			setData(order)
+			setData(order);
+			if (order.id === 0) {
+				getOrderName().then(data => {
+					const nm = ('' + data.id).padStart(9, "0")
+					setData({...order, name: nm});
+				})
+			}
 		}
 
 		return () => { isLoaded = false }
@@ -175,8 +191,7 @@ const OrderForm = (props: OrderFormOptions) => {
 						<Flex direction={'row'} gap='size-50' marginBottom={'size-200'} marginTop={'size-50'}>
 							<Flex flex direction={'row'} columnGap={'size-100'}>
 								<Button type='submit'
-									isDisabled={!isDirty || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
-										&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid && isFinanceValid)
+									isDisabled={!isDirty || !(isNameValid && isBranchValid && isMatrixValid && isBtFinanceValid && isBtPercentValid && isStnkValid && isFinanceValid)
 										|| (data.verifiedBy ? true : false)}
 									variant='cta'>Save</Button>
 								<Button type='button' variant='primary'
@@ -185,13 +200,9 @@ const OrderForm = (props: OrderFormOptions) => {
 								</Button>
 							</Flex>
 							<View flex><span style={{ fontWeight: 700, fontSize: '16px' }}>DATA ORDER</span></View>
-							{/* <View>
-								{data.verifiedBy} - {data.id > 0 ? 'true' : 'false'} - {(isNameValid && isBranchValid && isMatrixValid && isPpnValid
-								&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid && isFinanceValid) ? 'true' : 'false'} 
-							</View> */}
 							<View><VerifyOrder
-								isDisable={isDirty || !(data.verifiedBy ? false : true) || !(data.id > 0) || !(isNameValid && isBranchValid && isMatrixValid && isPpnValid
-									&& isBtFinanceValid && isBtPercentValid && isPpnValid && isStnkValid && isFinanceValid)}
+								isDisable={isDirty || !(data.verifiedBy ? false : true) || !(data.id > 0) || !(isNameValid && isBranchValid && isMatrixValid
+									&& isBtFinanceValid && isBtPercentValid && isStnkValid && isFinanceValid)}
 								order={data}
 								onChange={(e) => {
 									changeData("verifiedBy", e);
@@ -239,79 +250,62 @@ const OrderForm = (props: OrderFormOptions) => {
 								onChange={(e) => changeData("printedAt", e)}
 							/>
 						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
-							<NumberField
-								flex
-								hideStepper={true}
-								validationState={isMatrixValid ? 'valid' : 'invalid'}
-								width={"auto"}
-								label={"Matrix"}
-								onChange={(e) => setMatrix(e)}
-								value={data.matrix} />
-							<Checkbox isSelected={data.isStnk}
-								marginTop={'size-300'}
-								width={{ base: 'auto', L: '140px' }}
-								onChange={(e) => {
-									setStnk(e ? 0 : 200000)
-									changeData("isStnk", e)
-								}}>
-								{data.isStnk ? 'Ada STNK' : 'Tidak ada STNK'}
-							</Checkbox>
-							<NumberField
-								isDisabled={data.isStnk}
-								hideStepper={true}
-								validationState={isStnkValid ? 'valid' : 'invalid'}
-								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
-								label={"Potongan STNK"}
-								onChange={(e) => setStnk(e)}
-								value={data.stnkPrice} />
-							<NumberField
-								hideStepper={true}
-								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
-								isReadOnly
-								label={"BT Finance"}
-								onChange={(e) => changeData("btFinance", e)}
-								value={data.btFinance} />
-						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
-							<NumberField
-								hideStepper={true}
-								validationState={isBtPercentValid ? 'valid' : 'invalid'}
-								width={{ base: "auto", M: "90px" }}
-								label={"Prosentase (%)"}
-								onChange={(e) => setPercent(e)}
-								value={data.btPercent} />
-							<NumberField
-								flex
-								hideStepper={true}
-								isReadOnly
-								onChange={(e) => changeData("btMatel", e)}
-								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
-								label={"BT Matel"}
-								value={data.btMatel} />
-							<NumberField
-								hideStepper={true}
-								validationState={isPpnValid ? 'valid' : 'invalid'}
-								width={{ base: "auto", M: "90px" }}
-								label={"PPN (%)"}
-								onChange={(e) => setPpn(e)}
-								value={data.ppn} />
-							<NumberField
-								hideStepper={true}
-								isReadOnly
-								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
-								onChange={(e) => changeData("nominal", e)}
-								label={"Nominal"}
-								value={data.nominal} />
-							<NumberField
-								hideStepper={true}
-								isReadOnly
-								width={{ base: 'auto', L: 'calc((50% - size-300)/2)' }}
-								onChange={(e) => changeData("subtotal", e)}
-								label={"Profit"}
-								value={data.subtotal} />
-						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
+						<View flex>
+							<Flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
+								<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
+									<NumberField
+										flex
+										hideStepper={true}
+										validationState={isMatrixValid ? 'valid' : 'invalid'}
+										width={{ base: 'auto', L: 'size-1700' }}
+										label={"Matrix"}
+										onChange={(e) => setMatrix(e)}
+										value={data.matrix} />
+									<Checkbox isSelected={data.isStnk}
+										marginTop={'size-300'}
+										width={{ base: 'auto', L: '140px' }}
+										onChange={(e) => {
+											setStnk(e ? 0 : 200000)
+											changeData("isStnk", e)
+										}}>
+										{data.isStnk ? 'Ada STNK' : 'Tidak ada STNK'}
+									</Checkbox>
+									<NumberField
+										isDisabled={data.isStnk}
+										hideStepper={true}
+										validationState={isStnkValid ? 'valid' : 'invalid'}
+										width={{ base: 'auto', L: 'size-1250' }}
+										label={"Potongan STNK"}
+										onChange={(e) => setStnk(e)}
+										value={data.stnkPrice} />
+								</Flex>
+								<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
+									<NumberField
+										hideStepper={true}
+										width={{ base: 'auto', L: 'size-1700' }}
+										isReadOnly
+										label={"BT Finance"}
+										onChange={(e) => changeData("btFinance", e)}
+										value={data.btFinance} />
+									<NumberField
+										hideStepper={true}
+										validationState={isBtPercentValid ? 'valid' : 'invalid'}
+										width={{ base: "auto", M: "90px" }}
+										label={"Prosentase (%)"}
+										onChange={(e) => setPercent(e)}
+										value={data.btPercent} />
+									<NumberField
+										flex
+										hideStepper={true}
+										isReadOnly
+										onChange={(e) => changeData("btMatel", e)}
+										width={{ base: 'auto', L: 'size-1700' }}
+										label={"BT Matel"}
+										value={data.btMatel} />
+								</Flex>
+							</Flex>
+						</View>
+						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'} marginBottom={'size-200'}>
 							<ComboBox
 								menuTrigger="focus"
 								flex
@@ -367,9 +361,10 @@ const OrderForm = (props: OrderFormOptions) => {
 							</ComboBox>
 						</Flex>
 					</Flex>
-				</form>
-			</View>
-			{data.id > 0 &&
+				</form >
+			</View >
+			{
+				data.id > 0 &&
 				<View backgroundColor={'gray-50'}
 					borderRadius={'medium'}
 					paddingBottom={'size-100'}
@@ -386,10 +381,10 @@ const OrderForm = (props: OrderFormOptions) => {
 							<TabList aria-label="Tab-Order-List">
 								<Item key={'0'}><span style={{ fontWeight: 700, color: data.verifiedBy ? '#cecece' : 'green' }}>Data Konsumen</span></Item>
 								<Item key={'1'}><span style={{ fontWeight: 700, color: data.verifiedBy ? '#cecece' : 'orangered' }}>Data Asset</span></Item>
-								<Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>Data Tunggakan</span></Item>
-								<Item key={'3'}><span style={{ fontWeight: 700, color: 'green' }}>History</span></Item>
-								<Item key={'4'}><span style={{ fontWeight: 700, color: 'green' }}>Data Alamat</span></Item>
-								<Item key={'5'}><span style={{ fontWeight: 700, color: 'green' }}>Perintah dan Tugas</span></Item>
+								{/* <Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>Data Tunggakan</span></Item> */}
+								<Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>History</span></Item>
+								<Item key={'3'}><span style={{ fontWeight: 700, color: 'green' }}>Data Alamat</span></Item>
+								<Item key={'4'}><span style={{ fontWeight: 700, color: 'green' }}>Perintah dan Tugas</span></Item>
 							</TabList>
 						</Tabs>
 						<View marginY={'size-100'}>
@@ -406,16 +401,16 @@ const OrderForm = (props: OrderFormOptions) => {
 								isNew={data.unit ? data.unit.orderId === 0 : true}
 								callback={(e) => responseUnitChange(e)} />
 							</React.Suspense>}
-							{tabId === 2 &&
+							{/* tabId === 2 &&
 								<React.Suspense fallback={<div>Please wait...</div>}>
 									<ReceivableForm
 										receive={data.receivable ? { ...data.receivable, orderId: data.id } : { ...initReceivable, orderId: data.id }}
 										isNew={data.receivable ? data.receivable.orderId === 0 : true}
 										callback={(e) => responseReceivableChange(e)} />
 								</React.Suspense>
-							}
-							{tabId === 3 && <Action orderId={data.id} />}
-							{tabId === 4 &&
+						*/}
+							{tabId === 2 && <Action orderId={data.id} />}
+							{tabId === 3 &&
 								<Flex flex direction={'column'} gap={'size-100'}>
 									<View flex>
 										<Flex flex direction={'row'} gap={'size-200'}>
@@ -483,7 +478,7 @@ const OrderForm = (props: OrderFormOptions) => {
 									</View>
 								</Flex>
 							}
-							{tabId === 5 &&
+							{tabId === 4 &&
 								<React.Suspense fallback={<div>Please wait...</div>}>
 									<TaskForm
 										task={data.task ? { ...data.task, orderId: data.id } : { ...initTask, orderId: data.id }}
@@ -496,23 +491,19 @@ const OrderForm = (props: OrderFormOptions) => {
 				</View>
 			}
 
-		</View>
+		</View >
 
 	);
 
 	function setMatrix(v: number) {
 		const fin = v - data.stnkPrice
 		const matel = fin - (fin * (data.btPercent / 100.0))
-		const nominal = fin * (data.ppn / 100.0)
-		const profit = fin - matel - nominal
 
 		setData(o => ({
 			...o,
 			matrix: v,
 			btFinance: fin,
-			btMatel: matel,
-			nominal: nominal,
-			subtotal: profit
+			btMatel: matel
 		}))
 
 		setIsDirty(true)
@@ -520,43 +511,25 @@ const OrderForm = (props: OrderFormOptions) => {
 
 	function setPercent(v: number) {
 		const matel = data.btFinance - (data.btFinance * (v / 100.0))
-		const profit = data.btFinance - matel - data.nominal
 
 		setData(o => ({
 			...o,
 			btPercent: v,
-			btMatel: matel,
-			subtotal: profit
+			btMatel: matel
 		}))
 
 		setIsDirty(true)
 	}
 
-	function setPpn(v: number) {
-		const nominal = data.btFinance * (v / 100.0)
-		const profit = data.btFinance - data.btMatel - nominal
-		setData(o => ({
-			...o,
-			ppn: v,
-			nominal: nominal,
-			subtotal: profit
-		}))
-
-		setIsDirty(true)
-	}
 
 	function setStnk(v: number) {
 		const fin = data.matrix - v
 		const matel = fin - (fin * (data.btPercent / 100.0))
-		const nominal = fin * (data.ppn / 100.0)
-		const profit = fin - matel - nominal
 		setData(o => ({
 			...o,
 			btFinance: fin,
 			stnkPrice: v,
-			btMatel: matel,
-			nominal: nominal,
-			subtotal: profit
+			btMatel: matel
 		}))
 
 		setIsDirty(true)
@@ -656,14 +629,14 @@ const OrderForm = (props: OrderFormOptions) => {
 		updateChild({ ...order, unit: u })
 	}
 
-	function responseReceivableChange(params: { method: string, receivable?: iReceivable }) {
-		const { method, receivable } = params
+	// function responseReceivableChange(params: { method: string, receivable?: iReceivable }) {
+	// 	const { method, receivable } = params
 
-		const u = method === 'remove' ? initReceivable : receivable;
+	// 	const u = method === 'remove' ? initReceivable : receivable;
 
-		setData(o => ({ ...o, receivable: u }))
-		updateChild({ ...order, receivable: u })
-	}
+	// 	setData(o => ({ ...o, receivable: u }))
+	// 	updateChild({ ...order, receivable: u })
+	// }
 
 	function responseCustomerChange(params: { method: string, customer?: iCustomer }) {
 		const { method, customer } = params

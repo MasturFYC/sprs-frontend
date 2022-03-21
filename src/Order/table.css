@@ -24,3 +24,7 @@ table thead tr {
 }table tfoot tr {
   background-color: #cecece;
 }
+
+.back-color-orange {
+  background-color: rgb(255, 225, 214)
+}

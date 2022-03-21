@@ -62,7 +62,7 @@ export interface iFinance {
 export interface iAction {
     id: number
     actionAt: string
-    code: string
+    //code: string
     pic: string
     descriptions?: string
     orderId: number
@@ -77,12 +77,8 @@ export interface iOrder {
     btFinance: number
     btPercent: number
     btMatel: number
-    ppn: number
-    nominal: number
-    subtotal: number
     userName: string
     verifiedBy?: string
-    validatedBy?: string
     financeId: number
     branchId: number
     isStnk: boolean
@@ -94,7 +90,7 @@ export interface iOrder {
 
     customer?: iCustomer
     unit?: iUnit
-    receivable?: iReceivable
+//    receivable?: iReceivable
     homeAddress?: iAddress,
     ktpAddress?: iAddress,
     officeAddress?: iAddress,
@@ -115,58 +111,58 @@ export interface iUnit {
     year: number
     frameNumber?: string
     machineNumber?: string
-    bpkbName?: string
+//    bpkbName?: string
     color?: string
-    dealer?: string
-    surveyor?: string
+//    dealer?: string
+//    surveyor?: string
     typeId: number
     warehouseId: number
     warehouse?: iWarehouse
     type?: iType
 }
 
-export interface iReceivable {
-    orderId: number
+// export interface iReceivable {
+//     orderId: number
 
-    // tanggal perjanjian 
-    covenantAt: string
+//     // tanggal perjanjian 
+//     covenantAt: string
 
-    // tanggal jatuh tempo
-    dueAt: string
+//     // tanggal jatuh tempo
+//     dueAt: string
 
-    // angsuran per bulan
-    mortgageByMonth: number
+//     // angsuran per bulan
+//     mortgageByMonth: number
     
-    // angsuran tunggakan
-    mortgageReceivable: number
+//     // angsuran tunggakan
+//     mortgageReceivable: number
 
-    // denda berjalan
-    runningFine: number
+//     // denda berjalan
+//     runningFine: number
 
-    // sisa denda
-    restFine: number
+//     // sisa denda
+//     restFine: number
 
-    // jasa penagihan
-    billService: number
+//     // jasa penagihan
+//     billService: number
 
-    // bayar titipan
-    payDeposit: number
+//     // bayar titipan
+//     payDeposit: number
 
-    // sisa piutang
-    restReceivable: number
+//     // sisa piutang
+//     restReceivable: number
 
-    // sisa pokok
-    restBase: number
+//     // sisa pokok
+//     restBase: number
 
-    // jangka waktu
-    dayPeriod: number
+//     // jangka waktu
+//     dayPeriod: number
 
-    // angsuran yg ke
-    mortgageTo: number
+//     // angsuran yg ke
+//     mortgageTo: number
 
-    // jumlah hari angsuran
-    dayCount: number
-}
+//     // jumlah hari angsuran
+//     dayCount: number
+// }
 
 export interface iAddress {
     orderId: number

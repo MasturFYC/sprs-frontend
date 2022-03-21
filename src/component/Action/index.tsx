@@ -54,14 +54,13 @@ const Action = (prop: ActionParam) => {
 							<View width={{ base: 'auto', M: 'size-3400' }}>
 								<Link isQuiet variant={'primary'}
 									onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
-									{o.id === 0 ? 'Tindakan baru' : `${o.code}`}
+									{o.id === 0 ? 'Tindakan baru' : `${o.pic}`}
 								</Link>
 							</View>
 							{o.id > 0 &&
 								<Flex direction={{ base: 'column', M: 'row' }} gap={'size-100'} >
 									<View flex>
 										Tanggal: {FormatDate(o.actionAt)}<br />
-										Pic: {o.pic}<br />
 										Keterangan: {o.descriptions}
 									</View>
 									<View>

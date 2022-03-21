@@ -1,6 +1,5 @@
 import React from "react";
 
-import { Checkbox } from "@adobe/react-spectrum";
 import { iBranch, iUnit, iOrder } from "../lib/interfaces"
 import { FormatDate, FormatNumber } from "../lib/format";
 import '../Order/table.css'
@@ -30,7 +29,6 @@ export default function TableOrder({ list, onCheck }: TableOrderProps) {
           <th>TAHUN</th>
           <th align="right" style={{ whiteSpace: 'nowrap' }}>BT FINANCE</th>
           {/* <th align="right" style={{ whiteSpace: 'nowrap' }}>BT MATEL</th> */}
-          <th align="right">PPN</th>
         </tr>
       </thead>
       <tbody>
@@ -45,8 +43,6 @@ export default function TableOrder({ list, onCheck }: TableOrderProps) {
           <td>{item.unit?.nopol}</td>
           <td align="center">{item.unit?.year}</td>
           <td align="right">{FormatNumber(item.btFinance)}</td>
-          {/* <td align="right">{FormatNumber(item.btMatel)}</td> */}
-          <td align="right">{FormatNumber(item.nominal)}</td>
         </tr>
         )}
       </tbody>
