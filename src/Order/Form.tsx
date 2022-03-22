@@ -167,7 +167,7 @@ const OrderForm = (props: OrderFormOptions) => {
 			if (order.id === 0) {
 				getOrderName().then(data => {
 					const nm = ('' + data.id).padStart(9, "0")
-					setData({...order, name: nm});
+					setData({ ...order, name: nm });
 				})
 			}
 		}
@@ -215,6 +215,7 @@ const OrderForm = (props: OrderFormOptions) => {
 									onPress={() => deleteData(data.id)}>Remove</Button>
 							</View>
 						</Flex>
+
 						{
 							message.length > 0 &&
 							<View UNSAFE_style={{ color: 'red' }}>
@@ -252,114 +253,122 @@ const OrderForm = (props: OrderFormOptions) => {
 						</Flex>
 						<View flex>
 							<Flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
-								<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
-									<NumberField
-										flex
-										hideStepper={true}
-										validationState={isMatrixValid ? 'valid' : 'invalid'}
-										width={{ base: 'auto', L: 'size-1700' }}
-										label={"Matrix"}
-										onChange={(e) => setMatrix(e)}
-										value={data.matrix} />
-									<Checkbox isSelected={data.isStnk}
-										marginTop={'size-300'}
-										width={{ base: 'auto', L: '140px' }}
-										onChange={(e) => {
-											setStnk(e ? 0 : 200000)
-											changeData("isStnk", e)
-										}}>
-										{data.isStnk ? 'Ada STNK' : 'Tidak ada STNK'}
-									</Checkbox>
-									<NumberField
-										isDisabled={data.isStnk}
-										hideStepper={true}
-										validationState={isStnkValid ? 'valid' : 'invalid'}
-										width={{ base: 'auto', L: 'size-1250' }}
-										label={"Potongan STNK"}
-										onChange={(e) => setStnk(e)}
-										value={data.stnkPrice} />
-								</Flex>
-								<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
-									<NumberField
-										hideStepper={true}
-										width={{ base: 'auto', L: 'size-1700' }}
-										isReadOnly
-										label={"BT Finance"}
-										onChange={(e) => changeData("btFinance", e)}
-										value={data.btFinance} />
-									<NumberField
-										hideStepper={true}
-										validationState={isBtPercentValid ? 'valid' : 'invalid'}
-										width={{ base: "auto", M: "90px" }}
-										label={"Prosentase (%)"}
-										onChange={(e) => setPercent(e)}
-										value={data.btPercent} />
-									<NumberField
-										flex
-										hideStepper={true}
-										isReadOnly
-										onChange={(e) => changeData("btMatel", e)}
-										width={{ base: 'auto', L: 'size-1700' }}
-										label={"BT Matel"}
-										value={data.btMatel} />
-								</Flex>
+								<View flex>
+
+									<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-100' rowGap={'size-50'}>
+										<NumberField
+											flex
+											hideStepper={true}
+											validationState={isMatrixValid ? 'valid' : 'invalid'}
+											width={{ base: 'auto', L: 'size-1700' }}
+											label={"Matrix"}
+											onChange={(e) => setMatrix(e)}
+											value={data.matrix} />
+										<Checkbox isSelected={data.isStnk}
+											marginTop={'size-300'}
+											width={{ base: 'auto', L: '140px' }}
+											onChange={(e) => {
+												setStnk(e ? 0 : 200000)
+												changeData("isStnk", e)
+											}}>
+											{data.isStnk ? 'Ada STNK' : 'Tidak ada STNK'}
+										</Checkbox>
+										<NumberField
+											isDisabled={data.isStnk}
+											hideStepper={true}
+											validationState={isStnkValid ? 'valid' : 'invalid'}
+											width={{ base: 'auto', L: 'size-1250' }}
+											label={"Potongan STNK"}
+											onChange={(e) => setStnk(e)}
+											value={data.stnkPrice} />
+									</Flex>
+								</View>
+								<View flex>
+
+									<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
+										<NumberField
+											hideStepper={true}
+											width={{ base: 'auto', L: 'size-1700' }}
+											isReadOnly
+											label={"BT Finance"}
+											onChange={(e) => changeData("btFinance", e)}
+											value={data.btFinance} />
+										<NumberField
+											hideStepper={true}
+											validationState={isBtPercentValid ? 'valid' : 'invalid'}
+											width={{ base: "auto", M: "90px" }}
+											label={"Prosentase (%)"}
+											onChange={(e) => setPercent(e)}
+											value={data.btPercent} />
+										<NumberField
+											flex
+											hideStepper={true}
+											isReadOnly
+											onChange={(e) => changeData("btMatel", e)}
+											width={{ base: 'auto', L: 'size-1700' }}
+											label={"BT Matel"}
+											value={data.btMatel} />
+									</Flex>
+								</View>
 							</Flex>
 						</View>
-						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'} marginBottom={'size-200'}>
-							<ComboBox
-								menuTrigger="focus"
-								flex
-								validationState={isFinanceValid ? "valid" : "invalid"}
-								width={'auto'}
-								label={"Finance"}
-								placeholder={"e.g. Adira"}
-								defaultItems={finances}
-								selectedKey={data.financeId}
-								onSelectionChange={(e) => {
-									setIsDirty(true);
-									setData((o) => ({
-										...o,
-										financeId: +e,
-										finance: finances.filter(o => o.id === +e)[0]
-									}))
-								}}
-							>
-								{(item) => <Item textValue={item.shortName}>
-									<Text>{item.shortName}</Text>
-									<Text slot='description'>{item.name}</Text>
-								</Item>}
-							</ComboBox>
-							<ComboBox
-								flex
-								menuTrigger="focus"
-								validationState={isBranchValid ? "valid" : "invalid"}
-								label={"Cabang penerima order"}
-								placeholder={"e.g. Pusat"}
-								defaultItems={branchs}
-								selectedKey={data.branchId}
-								onSelectionChange={(e) => {
-									setIsDirty(true);
-									setData((o) =>
-									({
-										...o,
-										branchId: +e,
-										branch: branchs.filter(o => o.id === +e)[0]
-									}))
-								}}
-							>
-								{(item) => <Item textValue={item.name}>
-									<Text>{item.name}</Text>
-									<Text slot='description'>
-										Kepala Cabang: <span style={{ fontWeight: 700 }}>{item.headBranch}</span><br />
-										{item?.street}{item.city ? `, ${item.city}` : ''}
-										{item.zip ? ` - ${item.zip}` : ''}<br />
-										{item.phone ? `Telp. ${item.phone}` : ''}
-										{item.cell && item.phone ? ` / ` : ''}
-										{item.cell && item.phone === '' ? `Cellular: ` : ''}
-										{item.cell ?? ''}<br />{item.email ? `e-mail: ${item.email}` : ''}</Text>
-								</Item>}
-							</ComboBox>
-						</Flex>
+						<View flex>
+							<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'} marginBottom={'size-200'}>
+								<ComboBox
+									menuTrigger="focus"
+									flex
+									validationState={isFinanceValid ? "valid" : "invalid"}
+									width={'auto'}
+									label={"Finance"}
+									placeholder={"e.g. Adira"}
+									defaultItems={finances}
+									selectedKey={data.financeId}
+									onSelectionChange={(e) => {
+										setIsDirty(true);
+										setData((o) => ({
+											...o,
+											financeId: +e,
+											finance: finances.filter(o => o.id === +e)[0]
+										}))
+									}}
+								>
+									{(item) => <Item textValue={item.shortName}>
+										<Text>{item.shortName}</Text>
+										<Text slot='description'>{item.name}</Text>
+									</Item>}
+								</ComboBox>
+								<ComboBox
+									flex
+									menuTrigger="focus"
+									validationState={isBranchValid ? "valid" : "invalid"}
+									label={"Cabang penerima order"}
+									placeholder={"e.g. Pusat"}
+									defaultItems={branchs}
+									selectedKey={data.branchId}
+									onSelectionChange={(e) => {
+										setIsDirty(true);
+										setData((o) =>
+										({
+											...o,
+											branchId: +e,
+											branch: branchs.filter(o => o.id === +e)[0]
+										}))
+									}}
+								>
+									{(item) => <Item textValue={item.name}>
+										<Text>{item.name}</Text>
+										<Text slot='description'>
+											Kepala Cabang: <span style={{ fontWeight: 700 }}>{item.headBranch}</span><br />
+											{item?.street}{item.city ? `, ${item.city}` : ''}
+											{item.zip ? ` - ${item.zip}` : ''}<br />
+											{item.phone ? `Telp. ${item.phone}` : ''}
+											{item.cell && item.phone ? ` / ` : ''}
+											{item.cell && item.phone === '' ? `Cellular: ` : ''}
+											{item.cell ?? ''}<br />{item.email ? `e-mail: ${item.email}` : ''}</Text>
+									</Item>}
+								</ComboBox>
+							</Flex>
+						</View>
 					</Flex>
 				</form >
 			</View >

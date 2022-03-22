@@ -202,6 +202,7 @@ const Order = () => {
 			.then(response => response.data)
 			.then(data => {
 				orders.append(...data);
+				setSelectedId(-1)
 			})
 			.catch(error => {
 				console.log('-------', error)
@@ -223,6 +224,7 @@ const Order = () => {
 			.then(response => response.data)
 			.then(data => {
 				orders.append(...data);
+				setSelectedId(-1)
 			})
 			.catch(error => {
 				console.log(error)
@@ -244,6 +246,7 @@ const Order = () => {
 			.then(response => response.data)
 			.then(data => {
 				orders.append(...data);
+				setSelectedId(-1)
 			})
 			.catch(error => {
 				console.log(error)
@@ -266,6 +269,7 @@ const Order = () => {
 			.then(response => response.data)
 			.then(data => {
 				orders.append(...data);
+				setSelectedId(-1)
 			})
 			.catch(error => {
 				console.log(error)
@@ -287,6 +291,7 @@ const Order = () => {
 			.then(response => response.data)
 			.then(data => {
 				orders.append(...data);
+				setSelectedId(-1)
 			})
 			.catch(error => {
 				console.log('-------', error)

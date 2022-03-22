@@ -62,7 +62,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
                 <ComboBox
                   flex
                   menuTrigger='focus'
-                  width={'auto'}
+                  width={'100%'}
                   labelPosition={'side'}
                   label={"Akun kas yg terlibat transaksi"}
                   placeholder={"e.g. Kas / bank"}

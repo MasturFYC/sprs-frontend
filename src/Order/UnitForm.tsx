@@ -169,6 +169,7 @@ const UnitForm = (props: UnitFormOptions) => {
 							}
 							}><AddIcon size="S" /></ActionButton>
 						</Flex>
+						<Flex direction={'row'} columnGap={'size-100'}>
 						<NumberField
 							flex
 							labelPosition={'side'}
@@ -185,6 +186,20 @@ const UnitForm = (props: UnitFormOptions) => {
 						/>
 						<TextField
 							labelPosition={'side'}
+							label={'Warna'}
+							flex
+							width={{ base: 'auto' }}
+							value={data.color ?? ''}
+							maxLength={50}
+							onChange={(e) => {
+								setIsDirty(true);
+								setData(prev => ({ ...prev, color: e }))
+							}}
+						/>
+						</Flex>
+						
+						<TextField
+							labelPosition={'side'}
 							label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Nomor Polisi</View>}
 							flex
 							validationState={isNopolValid ? 'valid' : 'invalid'}
@@ -194,18 +209,6 @@ const UnitForm = (props: UnitFormOptions) => {
 							onChange={(e) => {
 								setIsDirty(true);
 								setData(prev => ({ ...prev, nopol: e.toUpperCase() }))
-							}}
-						/>
-						<TextField
-							labelPosition={'side'}
-							label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Warna</View>}
-							flex
-							width={{ base: 'auto' }}
-							value={data.color ?? ''}
-							maxLength={50}
-							onChange={(e) => {
-								setIsDirty(true);
-								setData(prev => ({ ...prev, color: e }))
 							}}
 						/>
 					</Flex>
@@ -266,7 +269,7 @@ const UnitForm = (props: UnitFormOptions) => {
 					</View>
 				</Flex>
 
-				<Flex direction={'row'} gap='size-100' marginTop={'size-200'}>
+				<Flex direction={'row'} gap='size-100' marginTop={'size-400'}>
 					<Flex flex direction={'row'} columnGap={'size-100'}>
 						<Button type='submit' variant='secondary'
 							isDisabled={!isDirty || !(isNopolValid && isTypeValid && isWarehouseValid && isYearValid)}>Update</Button>
