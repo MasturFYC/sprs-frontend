@@ -47,6 +47,10 @@ export interface iWarehouse {
     descriptions?: string
 }
 
+export interface iFinanceGroup {
+    id: number
+    name: string
+}
 export interface iFinance {
     id: number
     name: string
@@ -57,6 +61,7 @@ export interface iFinance {
     cell?: string
     zip?: string
     email?: string
+    groupId: number
 }
 
 export interface iAction {

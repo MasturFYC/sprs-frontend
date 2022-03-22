@@ -151,7 +151,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
     }
 
     s.push('/ref-' + p.id)
-    s.push('TRX-Order')
+    s.push('trx-order')
 
     return s.join(" ");
   }
@@ -182,7 +182,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
     const initTrx: iTrx = {
       id: 0,
       refId: p.id,
-      division: 'TRX-Order',
+      division: 'trx-order',
       trxDate: dateOnly(dateParam(null)),
       descriptions: createDescription(p),
       memo: createMemo(p),

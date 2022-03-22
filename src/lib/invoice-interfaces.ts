@@ -1,4 +1,3 @@
-import { iAccCode, iFinance, iOrder } from "./interfaces"
 
 export interface iInvoice {
     id: number

@@ -132,7 +132,7 @@ const TrxAutoDebetForm = ({
                 setData({
                   id: 0,
                   refId: 0,
-                  division: 'TRX-Auto',
+                  division: 'trx-auto',
                   trxDate: dateParam(null),
                   descriptions: '',
                   memo: '',

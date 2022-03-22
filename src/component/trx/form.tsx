@@ -12,7 +12,7 @@ import { createToken } from '../../lib/format';
 export const initTrx: iTrx = {
   id: 0,
   refId: 0,
-  division: 'TRX-Umum',
+  division: 'trx-umum',
   trxDate: dateParam(null),
   descriptions: '',
   memo: '',

@@ -1,10 +1,22 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Flex, ProgressCircle, useAsyncList, View } from '@adobe/react-spectrum';
+import { ActionButton, Flex, ProgressCircle, useAsyncList, View } from '@adobe/react-spectrum';
 import { Link } from '@adobe/react-spectrum';
 import { Link as RouterLink } from 'react-router-dom';
-import { iAccountInfo, iFinance } from '@src/lib/interfaces';
+import { iAccountInfo } from '@src/lib/interfaces';
 import axios from "../lib/axios-base";
+import RefreshIcon from '@spectrum-icons/workflow/DocumentRefresh'
 
+type financeList = {
+  id: number
+  name: string
+  shortName: string
+}
+
+type financeGroupMenu = {
+  id: number
+  name: string
+  finances?: financeList[]
+}
 
 const Aside = () => {
 
@@ -97,7 +109,7 @@ const Aside = () => {
   )
 }
 type MasterMenuProps = {
-  title: String
+  title: String | React.ReactNode
   children: React.ReactNode
   onLinkPress?: (show: boolean) => void
 }
@@ -107,7 +119,7 @@ function MasterMenu(props: MasterMenuProps) {
 
 
   return (
-    <div>
+    <View flex>
       <View UNSAFE_className='font-bold' marginTop={'size-100'}>
         <Link variant='secondary' onPress={() => {
           onLinkPress && onLinkPress(!show);
@@ -116,54 +128,61 @@ function MasterMenu(props: MasterMenuProps) {
       </View>
 
       {show && <View marginTop={'size-100'} marginX={'size-200'}>{children}</View>}
-    </div>
+    </View>
   )
 
 }
 
 function FinanceMenu() {
-  const [show, setShow] = useState<boolean>(false);
 
-  let finances = useAsyncList<iFinance>({
+  let groups = useAsyncList<financeGroupMenu>({
     async load({ signal }) {
       const headers = {
         'Content-Type': 'application/json'
       }
 
       let res = await axios
-        .get("/finances/", { headers: headers })
+        .get("/finance-group/finances", { headers: headers })
         .then(response => response.data)
-        .then(data => {
-          return data
-        })
+        .then(data => data)
         .catch(error => {
           console.log(error)
         })
 
-      return { items: res ? res : [] }
+      return { items: res }
     },
-    getKey: (item: iFinance) => item.id
+    getKey: (item: financeGroupMenu) => item.id
   })
 
-  if (finances.isLoading) {
-    return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+  if (groups.isLoading) {
+    return <Flex flex justifyContent={'center'}><ProgressCircle size='S' aria-label="Loading…" isIndeterminate /></Flex>
   }
 
-  return <MasterMenu title={'Invoice'} onLinkPress={(e) => setShow(!show)}>
-    <View>
-      <Link isQuiet variant='primary'>
-        <RouterLink to="/invoice/list"><b>Daftar Invoices</b></RouterLink>
-      </Link>
-    </View>
+  return <Flex direction={'row'} gap={'size-50'}>
+    <ActionButton isQuiet onPress={() => {
+      groups.reload()
+    }}><RefreshIcon size="S" /></ActionButton>
+    <MasterMenu title={'Invoice'}>
+      <View>
+        <Link isQuiet variant='primary'>
+          <RouterLink to="/invoice/list"><b>Daftar Invoices</b></RouterLink>
+        </Link>
+      </View>
 
-    {show && finances.items.map(a => <View key={a.id} marginY={'size-50'}>
-      <Link isQuiet variant='primary'>
-        <RouterLink to={`/invoice/${a.id}/0`}>{a.name}</RouterLink>
-      </Link>
-    </View>
-    )}
-  </MasterMenu>
+      {groups.items.map(g => <View key={g.id} marginY={'size-50'}>
+        <MasterMenu title={g.name}>
+          {g.finances && g.finances.map(f => <View key={f.id} marginY={'size-50'}>
+            <Link isQuiet variant='primary'>
+              <RouterLink to={`/invoice/${f.id}/0`}>{f.name} ({f.shortName})</RouterLink>
+            </Link>
+          </View>
+          )}
+        </MasterMenu>
+      </View>
+      )}
+    </MasterMenu>
 
+  </Flex>
 }
 
 function AutoMenu() {

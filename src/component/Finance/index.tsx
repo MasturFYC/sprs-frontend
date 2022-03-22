@@ -3,11 +3,12 @@ import axios from "../../lib/axios-base";
 import { iFinance } from '../../lib/interfaces'
 import FinanceForm, { initFinance } from './Form'
 import { View } from "@react-spectrum/view";
-import { Divider, Flex, Link, useAsyncList } from "@adobe/react-spectrum";
+import { Divider, Flex, Link, ProgressCircle, useAsyncList } from "@adobe/react-spectrum";
 
 const Finance = () => {
     const [selectedId, setSelectedId] = React.useState<number>(-1);
-    let Finances = useAsyncList<iFinance>({
+
+    let finances = useAsyncList<iFinance>({
         async load({ signal }) {
             const headers = {
                 'Content-Type': 'application/json'
@@ -17,22 +18,27 @@ const Finance = () => {
                 .get("/finances/", { headers: headers })
                 .then(response => response.data)
                 .then(data => {
-                    return data ? data : []
+                    return data
                 })
                 .catch(error => {
                     console.log(error)
                 })
 
-            return { items: [initFinance, ...res] }
+            return { items: res ? [initFinance, ...res] : [initFinance] }
         },
         getKey: (item: iFinance) => item.id
     })
+
+
+    if (finances.isLoading) {
+        return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+    }    
 
     return (
         <Fragment>
             <h1>Pengelola Keuangan (Finance)</h1>
             <Divider size={'S'} />
-            {Finances.items.map(o => {
+            {finances.items.map(o => {
                 return o.id === selectedId ?
                     <FinanceForm key={o.id} finance={o} callback={(e) => formResponse(e)} />
                     :
@@ -67,12 +73,12 @@ const Finance = () => {
 
         if (method === 'save' && data) {
             if (selectedId === 0) {
-                Finances.insert(1, data)
+                finances.insert(1, data)
             } else {
-                Finances.update(data.id, data)
+                finances.update(data.id, data)
             }
         } else if (method === 'remove' && data) {
-            Finances.remove(data.id)
+            finances.remove(data.id)
         }
 
         setSelectedId(-1)
