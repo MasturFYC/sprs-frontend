@@ -65,7 +65,7 @@ function TrxDetailForm(props: TrxDetailFormOptions) {
       </ComboBox>
       <NumberField
         hideStepper={true}
-        width={{ base: "auto", L: 'size-2000' }}
+        width={{ base: "auto", L: 'size-1600' }}
         aria-label={"debet-akun"}
         onChange={(e) => {
           handleChange("debt", e)
@@ -74,14 +74,14 @@ function TrxDetailForm(props: TrxDetailFormOptions) {
         value={item.debt} />
       <NumberField
         hideStepper={true}
-        width={{ base: "auto", L: 'size-2000' }}
+        width={{ base: "auto", L: 'size-1600' }}
         aria-label={"cred-akun"}
         onChange={(e) => {
           handleChange("cred", e)
           //changeData("cred", e)
         }}
         value={item.cred} />
-      <Flex direction={'row'} width={'size-1600'} columnGap={'size-50'}>
+      <Flex direction={'row'} width={'size-1250'} columnGap={'size-50'}>
         <ActionButton isQuiet height={'size-200'} marginTop={'size-50'}
           onPress={() => updateData('save', item)}>
           <SaveIcon size='M' />

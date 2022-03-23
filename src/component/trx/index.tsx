@@ -14,7 +14,7 @@ const TrxForm = React.lazy(() => import('./form'));
 const Trx = () => {
   //let { trxId } = useParams();
   const [selectedId, setSelectedId] = React.useState<number>(-1);
-  const [txtSearch, setTxtSearch] = useState<string>('');
+  //const [txtSearch, setTxtSearch] = useState<string>('');
   const [bulan, setBulan] = useState<number>(0);
   //const navigate = useNavigate();
 
@@ -84,7 +84,7 @@ const Trx = () => {
   })
 
   if (accs.isLoading || groups.isLoading || trxs.isLoading) {
-    return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
+    return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
 
   return (<View>
@@ -100,7 +100,7 @@ const Trx = () => {
         aria-label="trx-search-transaction"
         flex
         width={'auto'}
-        value={txtSearch}
+        //defaultValue={txtSearch}
         placeholder={'e.g. invoic | rokok | kopi | kris'}
         //validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
         maxLength={50}
@@ -110,7 +110,7 @@ const Trx = () => {
         onSubmit={(e) => {
           searchTransact(e)
         }}
-        onChange={(e) => setTxtSearch(e)}
+        //onChange={(e) => setTxtSearch(e)}
       />
       <MonthComponent width="200px" selectedId={bulan}
         onChange={(e) => {

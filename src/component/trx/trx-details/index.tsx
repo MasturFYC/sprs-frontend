@@ -169,9 +169,9 @@ function ShowHeader() {
   return <View>
     <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-100'} rowGap={'size-150'}>
       <View flex>KETERANGAN</View>
-      <View width={'size-2000'}>DEBET</View>
-      <View width={'size-2000'}>CREDIT</View>
-      <View width={'size-1600'}>COMMAND</View>
+      <View width={'size-1600'}>DEBET</View>
+      <View width={'size-1600'}>CREDIT</View>
+      <View width={'size-1250'}>COMMAND</View>
     </Flex>
     <Divider size="S" marginY={'size-50'} />
   </View>;
@@ -196,9 +196,9 @@ function ShowDetail(props: ShowDetailParam): JSX.Element {
           <div>{getCodeName(o.codeId)}</div>
         </Link>
       </View>
-      <View width={'size-2000'}>{FormatNumber(o.debt)}</View>
-      <View width={'size-2000'}>{FormatNumber(o.cred)}</View>
-      <View width={'size-1600'}>{children}</View>
+      <View width={'size-1600'}>{FormatNumber(o.debt)}</View>
+      <View width={'size-1600'}>{FormatNumber(o.cred)}</View>
+      <View width={'size-1250'}>{children}</View>
     </Flex>
     <Divider size="S" marginTop="size-100" />
   </View>

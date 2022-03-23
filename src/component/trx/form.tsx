@@ -158,9 +158,11 @@ const TrxForm = (props: TrxFormOptions) => {
     const token = createToken(p, accs, ids);
     const xData = JSON.stringify({
       trx: p,
-      details: details,
+      details: details.length > 0 ? details : [],
       token: token
     });
+
+    //console.log( details.length > 0 ? details : p.details)
 
     await axios
       .put(`/trx/${trx.id}/`, xData, { headers: headers })
@@ -192,7 +194,7 @@ const TrxForm = (props: TrxFormOptions) => {
     const token = createToken(p, accs, ids);
     const xData = JSON.stringify({
       trx: p,
-      details: details,
+      details: details.length > 0 ? details : [],
       token: token
     });
 

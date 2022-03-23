@@ -23,7 +23,7 @@ const SimpleReactFileUpload: React.FC<SimpleReactFileUploadProps> = ({ imageId, 
     e.preventDefault() // Stop form submit
     if (file) {
       fileUpload(file).then(res => {
-        onSuccess(file.name)
+        onSuccess(res.message)
         setFile(null)
       })
     }
@@ -49,26 +49,26 @@ const SimpleReactFileUpload: React.FC<SimpleReactFileUploadProps> = ({ imageId, 
   React.useEffect(() => {
     let isLoaded = false;
 
-    if(!isLoaded) {
+    if (!isLoaded) {
       if (fileName) {
         setImgFile(fileName)
       }
     }
 
-    return () => {isLoaded = true}
+    return () => { isLoaded = true }
   }, [fileName])
 
   return (
     <View>
       <View>
-        {imgFile && 
+        {imgFile &&
           <a href={`/api/actions/file/${imgFile}`}>
             <img width={96} alt="Document" src={`/api/actions/file/${imgFile}`} />
           </a>
         }
       </View>
       <form onSubmit={onFormSubmit}>
-        <div>
+        <View marginTop={'size-100'}>
           <input type="file" style={{ display: 'none' }} multiple={false} onChange={(e) => {
             if (e.target.files) {
               const file = e.target.files[0];
@@ -78,9 +78,9 @@ const SimpleReactFileUpload: React.FC<SimpleReactFileUploadProps> = ({ imageId, 
             ref={fileRef} />
 
           <button type="button" onClick={() => selectFile()}>Pilih file</button>{' '}
-          <button type="submit" style={{ display: file ? 'inline' : 'none' }}>Upload</button>
-        </div>
-    </form >
+          <button type="submit" style={{ display: file ? 'inline' : 'none', marginLeft: '6px' }}>Upload</button>
+        </View>
+      </form >
     </View>
   )
 
