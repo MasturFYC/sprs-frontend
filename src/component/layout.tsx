@@ -34,7 +34,7 @@ const Layout = () => {
           M: ["header  sidebar", "content content", "footer  footer"],
           L: ["header  header", "sidebar content", "footer  footer"],
         }}
-        columns={["1fr", "3fr"]}
+        columns={{base:["3fr"], L:["1fr", "4fr"]}}
         rows={["size-1250", "auto", "size-1000"]}
         minHeight={"100vh"}
       >
@@ -45,7 +45,7 @@ const Layout = () => {
           borderBottomColor={"gray-200"}
           paddingX={{ base: "size-50", M: "size-200" }}
         >
-          <Flex flex direction={{base: 'column', L:"row"}} columnGap={{ base: "size-10", M: "size-50" }}>
+          <Flex direction={{base: 'column', L:"row"}} columnGap={"size-100"}>
             <View isHidden={{base: true, L:false}} width={{ base: 64, M: 90 }} alignSelf={"center"}
               marginTop={{ base: "size-10", L: "size-25" }}>
               <img src={logo} alt="logo" style={{ width: "32px" }} />
@@ -61,7 +61,7 @@ const Layout = () => {
           isHidden={{ base: true, L: false }}
           gridArea="sidebar"
           backgroundColor={"gray-100"}
-          padding={"size-100"}
+          paddingY={"size-50"}
           borderEndWidth={{ base: "thin", L: undefined }}
           borderEndColor={"gray-200"}
         >
@@ -69,7 +69,7 @@ const Layout = () => {
         </View>
 
         <View gridArea="content" backgroundColor="gray-75" height={"100%"}>
-          <View paddingX={{ base: "size-75", M: "size-400", L: "size-1200" }} marginTop={"size-200"} marginBottom={"size-200"}>
+          <View paddingX={{ base: "size-75", M: "size-400", L: "size-600" }} marginTop={"size-200"} marginBottom={"size-200"}>
             <Main />
           </View>
         </View>

@@ -20,6 +20,7 @@ const Trx = React.lazy(() => import('./trx'));
 const TrxAutoDebet = React.lazy(() => import('./trx-auto-debet'));
 
 const ReportTrxtByMonth = React.lazy(() => import('../Report/ReportTrxByMonth'));
+const ReportOrder = React.lazy(() => import('../Report/ReportOrder'));
 
 const Main = () => {
   return (
@@ -61,6 +62,8 @@ const Main = () => {
             <React.Suspense fallback={<div>Please wait...</div>}>
               <ReportTrxtByMonth />
             </React.Suspense>} />
+        </Route>
+        <Route path="order-status" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>}>
         </Route>
       </Route>
     </Routes>

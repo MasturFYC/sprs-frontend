@@ -21,7 +21,7 @@ type financeGroupMenu = {
 const Aside = () => {
 
   return (
-    <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginX={'size-200'}>
+    <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginX={'size-100'}>
       <View><Link isQuiet variant='primary' UNSAFE_className='font-bold'><RouterLink to="/">Home</RouterLink></Link></View>
 
       <MasterMenu title={'Master'}>
@@ -96,6 +96,11 @@ const Aside = () => {
           <View>
             <Link isQuiet variant='primary'>
               <RouterLink to={`/report/trx/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}>Laporan Saldo (Group Akun)</RouterLink>
+            </Link>
+          </View>
+          <View>
+            <Link isQuiet variant='primary'>
+              <RouterLink to="/report/order-status">Status Order</RouterLink>
             </Link>
           </View>
           <View>

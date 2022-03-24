@@ -44,7 +44,7 @@
 }
 
 td {
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .tr-bg-green{
@@ -68,12 +68,51 @@ td {
 }
 
 .padding-y-6 {
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
 
-.padding-y-6 {
-  padding-top: 3px;
-  padding-bottom: 3px;
+.table-caption {
+  font-size: calc(100% + 4px);
+  color: indigo
+}
+
+.text-no-wrap {
+  white-space: nowrap;
+}
+
+.table-small {
+  font-size: 9pt;
+  border: 1px solid #ececec;
+}
+.table-small td {
+  border-left: 1px solid #ececec;
+}
+
+.tr-hover:hover {
+  background-color: rgb(102, 167, 5);
+  color: #fff
+}
+
+
+.padding-x-6 {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.back-orange-700 {
+  background-color: orangered;
+}
+
+.back-purple-700 {
+  background-color: rebeccapurple;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }

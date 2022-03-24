@@ -102,7 +102,7 @@ const ReportTrxtByMonth = () => {
 				<MonthComponent removeId={0} labelPosition='side' label={'Dari bulan'} selectedId={monthId} onChange={(e) => setMonthId(e.id)} />
 				{/* <MonthComponent removeId={0} labelPosition='side' label={'Sampai bulan'} selectedId={monthTo} onChange={(e) => setMonthTo(e.id)} /> */}
 				<NumberField
-					minValue={2022}
+					minValue={2021}
 					label='Tahun'
 					labelPosition='side'
 					formatOptions={{ useGrouping: false }}
