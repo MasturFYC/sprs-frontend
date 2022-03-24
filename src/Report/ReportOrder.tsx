@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ActionButton, ComboBox, Flex, Item, NumberField, ProgressCircle, Text, useAsyncList, View } from '@adobe/react-spectrum';
 import axios from "../lib/axios-base";
 import { FormatDate, FormatNumber } from '../lib/format';
@@ -43,11 +43,14 @@ type tOrderInvoiced = {
 }
 
 const ReportOrder = () => {
-  ///let {m, y, f} = useParams();
-  //const navigate = useNavigate();
-  let [monthId, setMonthId] = useState<number>(new Date().getMonth() + 1);
-  let [yearId, setYearId] = useState<number>(new Date().getFullYear());
+  const navigate = useNavigate();
+  let { m, y, f } = useParams();
+  let [monthId, setMonthId] = useState<number>(0);
+  let [yearId, setYearId] = useState<number>(0);
   const [financeId, setFinanceId] = useState<number>(0);
+  const [orders, setOrders] = useState<tOrderInvoiced[]>([])
+  const [isOrderLoading, setIsOrderLoading] = useState<boolean>(false)
+  const [isDirty, setIsDirty] = useState<boolean>(false)
 
   const status: string[] = ['Not verified', 'Invoiced', 'Waiting']
 
@@ -69,13 +72,17 @@ const ReportOrder = () => {
     },
     getKey: (item: iFinance) => item.id
   })
-  let orders = useAsyncList<tOrderInvoiced>({
-    async load({ signal }) {
+
+
+  useEffect(() => {
+    let isLoaded = false
+
+    const load = async (month: number, year: number, finance: number) => {
       const headers = {
         'Content-Type': 'application/json'
-      }      
+      }
 
-      const url = `/orders/invoiced/${monthId}/${yearId}/${financeId}`
+      const url = `/orders/invoiced/${month}/${year}/${finance}`
 
       let res = await axios
         .get(url, { headers: headers })
@@ -85,12 +92,30 @@ const ReportOrder = () => {
           console.log(error)
         })
 
-      return { items: res ? res : [] }
-    },
-    getKey: (item: tOrderInvoiced) => item.id
-  })
+      return res ? res : []
+    }
 
-  if (orders.isLoading || finances.isLoading) {
+    if (!isLoaded) {
+      const month = m ? +m : new Date().getMonth() + 1
+      const year = y ? +y : new Date().getFullYear()
+      setIsOrderLoading(true)
+      setMonthId(month)
+      setYearId(year)
+      setFinanceId(f?+f:0)
+
+      //console.log({m: month, y: year, f: f?+f:0})
+      load(month, year, f?+f:0).then(data => {
+        setOrders(data)
+        setIsOrderLoading(false)
+        setIsDirty(false)
+      })
+    }
+
+    return () => { isLoaded = true }
+
+  }, [m, y, f])
+
+  if (isOrderLoading || finances.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
 
@@ -98,7 +123,10 @@ const ReportOrder = () => {
     <View>
       <View marginBottom={'size-200'}><span className='div-h1'>Satus Order</span></View>
       <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} marginBottom={'size-100'}>
-        <MonthComponent labelPosition='side' label={'Dari bulan'} selectedId={monthId} onChange={(e) => setMonthId(e.id)} />
+        <MonthComponent labelPosition='side' label={'Dari bulan'} selectedId={monthId} onChange={(e) => {
+          setMonthId(e.id);
+          setIsDirty(true);
+        }} />
         <NumberField
           minValue={2021}
           label='Tahun'
@@ -109,6 +137,7 @@ const ReportOrder = () => {
           value={yearId}
           onChange={(e) => {
             setYearId(e)
+            setIsDirty(true)
           }}
         />
         <ComboBox
@@ -122,6 +151,7 @@ const ReportOrder = () => {
           selectedKey={financeId}
           onSelectionChange={(e) => {
             setFinanceId(+e);
+            setIsDirty(true);
           }}
         >
           {(o) => <Item textValue={o.shortName}>
@@ -130,11 +160,10 @@ const ReportOrder = () => {
           </Item>}
         </ComboBox>
         <ActionButton width={'size-1200'} onPress={() => {
-          // navigate(`/report/order-status/${monthId}/${yearId}/${financeId}`, {replace: true, state: monthId+yearId+financeId}) 
-          orders.reload()
-          }}
-         >
-           <img src={Find} alt="logo" style={{ width: "32px", marginLeft: '12px' }} />
+          isDirty && navigate(`/report/order-status/${monthId}/${yearId}/${financeId}`)
+        }}
+        >
+          <img src={Find} alt="logo" style={{ width: "32px", marginLeft: '12px' }} />
           <Text>Load</Text>
         </ActionButton>
       </Flex>
@@ -147,10 +176,10 @@ const ReportOrder = () => {
         <table className={'table-100 table-small collapse-none'} cellPadding={4}>
           <TableHead isInvoice={s === 1} status={s} />
           <tbody>
-            {orders.items.filter(f => f.status === s).map((o, i) => <tr key={o.id} className={`tr-hover border-b-gray-50 ${i % 2 === 1 ? 'tr-bg-green' : 'bg-white'}`}>
+            {orders.filter(f => f.status === s).map((o, i) => <tr key={o.id} className={`tr-hover border-b-gray-50 ${i % 2 === 1 ? 'tr-bg-green' : 'bg-white'}`}>
               {/* <td className=' text-right '>{i+1}.</td> */}
               <td>{o.branch.name}</td>
-              <td className='text-no-wrap'>{s === 1 ?<Link to={`/invoice/${o.financeId}/${o.name}`}>Invoice #{o.name}</Link> : o.name}</td>
+              <td className='text-no-wrap'>{s === 1 ? <Link to={`/invoice/${o.financeId}/${o.name}`}>Invoice #{o.name}</Link> : o.name}</td>
               <td className='text-center'>{FormatDate(o.orderAt, '2-digit')}</td>
               <td>{o.unit.type.merk.name}</td>
               <td>{o.unit.type.name}</td>
@@ -163,10 +192,10 @@ const ReportOrder = () => {
             </tr>
             )}
           </tbody>
-          <TableFooter count={orders.items.filter(f => f.status === s).length}
+          <TableFooter count={orders.filter(f => f.status === s).length}
             isInvoice={s === 1}
-            finance={orders.items.filter(f => f.status === s).reduce((t, c) => t + c.btFinance, 0)}
-            matel={orders.items.filter(f => f.status === s).reduce((t, c) => t + c.btMatel, 0)} />
+            finance={orders.filter(f => f.status === s).reduce((t, c) => t + c.btFinance, 0)}
+            matel={orders.filter(f => f.status === s).reduce((t, c) => t + c.btMatel, 0)} />
         </table>
       </View>
       )}

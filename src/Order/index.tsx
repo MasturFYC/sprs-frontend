@@ -1,22 +1,40 @@
-import React, { Fragment, useState } from "react";
-// import { Link as RouterLink } from 'react-router-dom';
+import React, { Fragment, useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
 //import OrderForm, { initOrder } from './Form'
-import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, useAsyncList, View } from "@adobe/react-spectrum";
+import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, View } from "@adobe/react-spectrum";
+import { useAsyncList } from '@react-stately/data'
+
 import { FormatDate, FormatNumber } from "../lib/format";
+
 import './table.css'
 import MonthComponent from "../component/Bulan";
+import { AxiosRequestConfig } from "axios";
 
 const OrderForm = React.lazy(() => import('./Form'))
 
 
 const Order = () => {
+	const navigate = useNavigate();
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 	const [financeId, setFinanceId] = useState<number>(0);
 	const [branchId, setBranchId] = useState<number>(0);
 	const [txtSearch, setTxtSearch] = useState<string>('');
 	const [bulan, setBulan] = useState<number>(0);
+	const [isSearch, setIsSearch] = useState(false)
+	const [test, setTest] = useState(false)
+	const [url, setUrl] = useState("/orders")
+	const [list, setList] = useState<iOrder[]>([])
+
+
+	const getUrlParameter = (name: string) => {
+		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+		let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+		let results = regex.exec(window.location.search);
+		return results === null ? '/orders' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	};
+
 
 	let finances = useAsyncList<iFinance>({
 		async load({ signal }) {
@@ -34,7 +52,7 @@ const Order = () => {
 					console.log(error)
 				})
 
-			return { items:  res ? res : [] }
+			return { items: res ? res : [] }
 		},
 		getKey: (item: iFinance) => item.id
 	})
@@ -60,25 +78,49 @@ const Order = () => {
 	})
 
 	let orders = useAsyncList<iOrder>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
+		load: async ({ signal }) => {
 
-			let res = await axios
-				.get("/orders/", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
+				const headers = {
+					'Content-Type': 'application/json'
+				}
 
-			return { items: res ? res : [] }
+				const config: AxiosRequestConfig = isSearch ? {
+					method: "post",
+					data: { txt: txtSearch },
+				} : {
+					method: "get",
+				}
+
+				let res = await axios({
+					...config,
+					url: url,
+					headers: headers,
+					signal: signal
+				})
+					.then(response => response.data)
+					.then(data => data)
+					.catch(error => console.log(error))
+
+				return { items: res ? res : [] }
 		},
 		getKey: (item: iOrder) => item.id
 	})
+
+	useEffect(() => {
+		let isLoaded = false
+		const doSomething = () => {
+			const u = getUrlParameter('q')
+			const ok = getUrlParameter('o') === 'true'
+			const p = getUrlParameter('d')
+			setUrl(u)
+			setIsSearch(ok)
+			setTxtSearch(p)
+		}
+		if (!isLoaded) {
+			doSomething();
+		}
+		return () => { isLoaded = true }
+	}, [test])
 
 	if (orders.isLoading || finances.isLoading || branchs.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -100,22 +142,23 @@ const Order = () => {
 					//validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
 					maxLength={50}
 					onClear={() => {
-						loadAllOrders();
+						setIsSearch(false)
 					}}
 					onSubmit={(e) => {
-						searchOrders(e)
+						navigate(`?q=/orders/search&o=true&d=${e}`)
+						orders.reload()
+						//setTest(!test)
+						
 					}}
-					onChange={(e) => setTxtSearch(e)}
+					onChange={(e) => {
+						setTxtSearch(e)
+					}}
 				/>
 				<MonthComponent width="150px" selectedId={bulan}
 					onChange={(e) => {
-						setBulan(e.id);
-						if (e.id > 0) {
-							// console.log(e)
-							getOrdersByMonth(e.id)
-						} else {
-							loadAllOrders();
-						}
+						setIsSearch(false)
+						setBulan(e.id)
+						setUrl(`/orders/month/${e.id}`)
 					}} />
 				<ComboBox
 					flex={{ base: true, M: false }}
@@ -128,7 +171,8 @@ const Order = () => {
 					selectedKey={financeId}
 					onSelectionChange={(e) => {
 						setFinanceId(+e);
-						(+e === 0) ? loadAllOrders() : getOrdersByFinance(+e)
+						setIsSearch(false)
+						setUrl(`/orders/finance/${e}`)
 					}}
 				>
 					{(o) => <Item textValue={o.shortName}>
@@ -151,7 +195,9 @@ const Order = () => {
 					selectedKey={branchId}
 					onSelectionChange={(e) => {
 						setBranchId(+e);
-						(+e === 0) ? loadAllOrders() : getOrdersByBranch(+e)
+						setFinanceId(+e);
+						setIsSearch(false)
+						setUrl(`/orders/branch/${e}`)
 					}}
 				>
 					{(item) => <Item textValue={item.name}>
@@ -184,120 +230,6 @@ const Order = () => {
 				setSelectedId={setSelectedId} />
 		</Fragment>
 	)
-
-
-	async function searchOrders(e: string) {
-
-		orders.setSelectedKeys('all')
-		orders.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		//const txt = e.replace(/ /g, ' | ')
-
-		await axios
-			.post(`/orders/search/`, {txt: e}, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				orders.append(...data);
-				setSelectedId(-1)
-			})
-			.catch(error => {
-				console.log('-------', error)
-			})
-
-	}
-
-	async function getOrdersByMonth(id: number) {
-
-		orders.setSelectedKeys('all')
-		orders.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.get(`/orders/month/${id}/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				orders.append(...data);
-				setSelectedId(-1)
-			})
-			.catch(error => {
-				console.log(error)
-			})
-
-	}
-
-	async function getOrdersByFinance(id: number) {
-
-		orders.setSelectedKeys('all')
-		orders.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.get(`/orders/finance/${id}/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				orders.append(...data);
-				setSelectedId(-1)
-			})
-			.catch(error => {
-				console.log(error)
-			})
-
-	}
-
-
-	async function getOrdersByBranch(id: number) {
-
-		orders.setSelectedKeys('all')
-		orders.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.get(`/orders/branch/${id}/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				orders.append(...data);
-				setSelectedId(-1)
-			})
-			.catch(error => {
-				console.log(error)
-			})
-
-	}
-
-	async function loadAllOrders() {
-
-		orders.setSelectedKeys('all')
-		orders.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.get(`/orders/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				orders.append(...data);
-				setSelectedId(-1)
-			})
-			.catch(error => {
-				console.log('-------', error)
-			})
-
-	}
 
 	function formResponse(params: { method: string, data?: iOrder }) {
 		const { method, data } = params
@@ -406,16 +338,16 @@ function TableOrder(props: TableOrderProp) {
 				:
 				<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
-					<td className={item.verifiedBy ? 'back-color-orange':''}>
-						{selectedId < 0 ? 
-						<Link isQuiet variant="primary"
-							UNSAFE_className={"font-bold"} onPress={(e) => {
-								setSelectedId(item.id);
-							}}>{item.name}</Link>
+					<td className={item.verifiedBy ? 'back-color-orange' : ''}>
+						{selectedId < 0 ?
+							<Link isQuiet variant="primary"
+								UNSAFE_className={"font-bold"} onPress={(e) => {
+									setSelectedId(item.id);
+								}}>{item.name}</Link>
 							// <RouterLink className="text-decoration-none" to={`/trx/8`}><span className="font-bold">#{item.name}</span></RouterLink>
 							:
 							item.name
-							}
+						}
 					</td>
 					<td align="center" style={{ whiteSpace: 'nowrap' }}>{FormatDate(item.orderAt)}</td>
 					<td>{item.unit?.type?.merk?.name}</td>
@@ -442,3 +374,5 @@ function TableOrder(props: TableOrderProp) {
 		</tfoot>
 	</table>;
 }
+
+

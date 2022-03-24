@@ -64,6 +64,7 @@ const Main = () => {
             </React.Suspense>} />
         </Route>
         <Route path="order-status" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>}>
+          <Route path=":m/:y/:f" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>}/>
         </Route>
       </Route>
     </Routes>

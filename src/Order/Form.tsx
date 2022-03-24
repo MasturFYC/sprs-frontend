@@ -568,7 +568,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.put(`/orders/${p.id}/`, xData, { headers: headers })
+			.put(`/orders/${p.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: p })
@@ -589,7 +589,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.post(`/orders/`, xData, { headers: headers })
+			.post(`/orders`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setData(data)
@@ -610,7 +610,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		}
 
 		await axios
-			.delete(`/orders/${p}/`, { headers: headers })
+			.delete(`/orders/${p}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove' })
