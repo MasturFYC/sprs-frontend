@@ -1,6 +1,6 @@
 import React, { FormEvent } from 'react';
 import { iType, iUnit, iWarehouse } from '../lib/interfaces'
-import { Button, ComboBox, Flex, Item, NumberField, TextField, useAsyncList, View, Text, ProgressCircle, DialogContainer, ActionButton, Heading, Divider } from '@adobe/react-spectrum';
+import { Button, ComboBox, Flex, Item, NumberField, TextField, useAsyncList, View, Text, ProgressCircle, DialogContainer, ActionButton, Heading, Divider, Form } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 import TypeForm, { initVehicle } from '../component/Vehicle/Form';
 import AddIcon from '@spectrum-icons/workflow/Add'
@@ -19,11 +19,12 @@ const initUnit: iUnit = {
 type UnitFormOptions = {
 	dataUnit: iUnit,
 	isNew: boolean,
-	callback: (params: { method: string, dataUnit?: iUnit }) => void
+	callback: (params: { method: string, dataUnit?: iUnit }) => void,
+	isReadOnly?: boolean,
 }
 
 const UnitForm = (props: UnitFormOptions) => {
-	const { dataUnit, callback, isNew } = props;
+	const { dataUnit, callback, isNew, isReadOnly } = props;
 	const [data, setData] = React.useState<iUnit>(initUnit)
 	const [isDirty, setIsDirty] = React.useState<boolean>(false)
 	const [open, setOpen] = React.useState(false)
@@ -127,145 +128,146 @@ const UnitForm = (props: UnitFormOptions) => {
 					</View>}
 			</DialogContainer>
 
-			<form onSubmit={(e) => handleSubmit(e)}>
+			<Form onSubmit={(e) => handleSubmit(e)} isReadOnly={isReadOnly}>
 				<div className='div-h2'>DATA ASSET / UNIT</div>
-				{(houses.isLoading || types.isLoading) &&
-					<Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
-				}
-
+				<View>
+					{(houses.isLoading || types.isLoading) &&
+						<Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+					}
+				</View>
 				<Flex direction={{ base: 'column', L: 'row' }} marginTop={'size-200'} rowGap='size-50' columnGap={'size-200'}>
 					<View flex>
-					<Flex flex direction={'column'} rowGap={'size-50'}>
-						<Flex flex direction={'row'} columnGap={'size-50'}>
-							<ComboBox
-								menuTrigger="focus"
+						<Flex flex direction={'column'} rowGap={'size-50'}>
+							<Flex flex direction={'row'} columnGap={'size-50'}>
+								<ComboBox
+									menuTrigger={isReadOnly ? "manual" : "focus"}
+									flex
+									validationState={isTypeValid ? "valid" : "invalid"}
+									width={'auto'}
+									labelPosition={'side'}
+									label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Tipe</View>}
+									placeholder={"e.g. Vario 125"}
+									defaultItems={types.items}
+									selectedKey={data.typeId}
+									onSelectionChange={(e) => {
+										setIsDirty(true);
+										setData((o) => ({
+											...o,
+											typeId: +e,
+											type: types.getItem(+e)
+										}))
+									}}
+								>
+									{(item) => <Item textValue={item.name}>
+										<Text>{item.name}</Text>
+										<Text slot='description'>
+											{item.merk ? item.merk.name : ''}{' - '}
+											{item.wheel ? item.wheel.name : ''}
+										</Text>
+									</Item>}
+								</ComboBox>
+								<ActionButton isDisabled={isReadOnly} onPress={(e) => {
+									setOpen(true)
+								}
+								}><AddIcon size="S" /></ActionButton>
+							</Flex>
+							<Flex direction={'row'} columnGap={'size-100'}>
+								<NumberField
+									flex
+									labelPosition={'side'}
+									label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Tahun</View>}
+									formatOptions={{ useGrouping: false }}
+									hideStepper={true}
+									validationState={isYearValid ? 'valid' : 'invalid'}
+									width={'auto'}
+									value={data.year}
+									onChange={(e) => {
+										setIsDirty(true);
+										setData((prev) => ({ ...prev, year: e }))
+									}}
+								/>
+								<TextField
+									labelPosition={'side'}
+									label={'Warna'}
+									flex
+									width={{ base: 'auto' }}
+									value={data.color ?? ''}
+									maxLength={50}
+									onChange={(e) => {
+										setIsDirty(true);
+										setData(prev => ({ ...prev, color: e }))
+									}}
+								/>
+							</Flex>
+
+							<TextField
+								labelPosition={'side'}
+								label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Nomor Polisi</View>}
 								flex
-								validationState={isTypeValid ? "valid" : "invalid"}
+								validationState={isNopolValid ? 'valid' : 'invalid'}
+								width={{ base: 'auto' }}
+								value={data.nopol}
+								maxLength={15}
+								onChange={(e) => {
+									setIsDirty(true);
+									setData(prev => ({ ...prev, nopol: e.toUpperCase() }))
+								}}
+							/>
+						</Flex>
+					</View>
+					<View flex>
+						<Flex flex direction={'column'} rowGap={'size-50'}>
+							<ComboBox
+								menuTrigger={isReadOnly ? "manual" : "focus"}
+								flex
+								validationState={isWarehouseValid ? "valid" : "invalid"}
 								width={'auto'}
 								labelPosition={'side'}
-								label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Tipe</View>}
-								placeholder={"e.g. Vario 125"}
-								defaultItems={types.items}
-								selectedKey={data.typeId}
+								label={<View width={'size-1600'}>Disimpan di gudang</View>}
+								placeholder={"e.g. Gudang Pusat"}
+								defaultItems={houses.items}
+								selectedKey={data.warehouseId}
 								onSelectionChange={(e) => {
 									setIsDirty(true);
 									setData((o) => ({
 										...o,
-										typeId: +e,
-										type: types.getItem(+e)
+										warehouseId: +e,
+										warehouse: houses.getItem(+e)
 									}))
 								}}
 							>
 								{(item) => <Item textValue={item.name}>
 									<Text>{item.name}</Text>
 									<Text slot='description'>
-										{item.merk ? item.merk.name : ''}{' - '}
-										{item.wheel ? item.wheel.name : ''}
+										{item.descriptions ?? '-'}
 									</Text>
 								</Item>}
 							</ComboBox>
-							<ActionButton onPress={(e) => {
-								setOpen(true)
-							}
-							}><AddIcon size="S" /></ActionButton>
+							<TextField
+								labelPosition={'side'}
+								label={<View width={'size-1600'}>Nomor rangka</View>}
+								flex
+								width={{ base: 'auto' }}
+								value={data.frameNumber ?? ''}
+								maxLength={25}
+								onChange={(e) => {
+									setIsDirty(true);
+									setData(prev => ({ ...prev, frameNumber: e }))
+								}}
+							/>
+							<TextField
+								labelPosition={'side'}
+								label={<View width={'size-1600'}>Nomor mesin</View>}
+								flex
+								width={{ base: 'auto' }}
+								value={data.machineNumber ?? ''}
+								maxLength={25}
+								onChange={(e) => {
+									setIsDirty(true);
+									setData(prev => ({ ...prev, machineNumber: e }))
+								}}
+							/>
 						</Flex>
-						<Flex direction={'row'} columnGap={'size-100'}>
-						<NumberField
-							flex
-							labelPosition={'side'}
-							label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Tahun</View>}
-							formatOptions={{ useGrouping: false }}
-							hideStepper={true}
-							validationState={isYearValid ? 'valid' : 'invalid'}
-							width={'auto'}
-							value={data.year}
-							onChange={(e) => {
-								setIsDirty(true);
-								setData((prev) => ({ ...prev, year: e }))
-							}}
-						/>
-						<TextField
-							labelPosition={'side'}
-							label={'Warna'}
-							flex
-							width={{ base: 'auto' }}
-							value={data.color ?? ''}
-							maxLength={50}
-							onChange={(e) => {
-								setIsDirty(true);
-								setData(prev => ({ ...prev, color: e }))
-							}}
-						/>
-						</Flex>
-						
-						<TextField
-							labelPosition={'side'}
-							label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Nomor Polisi</View>}
-							flex
-							validationState={isNopolValid ? 'valid' : 'invalid'}
-							width={{ base: 'auto' }}
-							value={data.nopol}
-							maxLength={15}
-							onChange={(e) => {
-								setIsDirty(true);
-								setData(prev => ({ ...prev, nopol: e.toUpperCase() }))
-							}}
-						/>
-					</Flex>
-					</View>
-					<View flex>
-					<Flex flex direction={'column'} rowGap={'size-50'}>
-						<ComboBox
-							menuTrigger="focus"
-							flex
-							validationState={isWarehouseValid ? "valid" : "invalid"}
-							width={'auto'}
-							labelPosition={'side'}
-							label={<View width={'size-1600'}>Disimpan di gudang</View>}
-							placeholder={"e.g. Gudang Pusat"}
-							defaultItems={houses.items}
-							selectedKey={data.warehouseId}
-							onSelectionChange={(e) => {
-								setIsDirty(true);
-								setData((o) => ({
-									...o,
-									warehouseId: +e,
-									warehouse: houses.getItem(+e)
-								}))
-							}}
-						>
-							{(item) => <Item textValue={item.name}>
-								<Text>{item.name}</Text>
-								<Text slot='description'>
-									{item.descriptions ?? '-'}
-								</Text>
-							</Item>}
-						</ComboBox>
-						<TextField
-							labelPosition={'side'}
-							label={<View width={'size-1600'}>Nomor rangka</View>}
-							flex
-							width={{ base: 'auto' }}
-							value={data.frameNumber ?? ''}
-							maxLength={25}
-							onChange={(e) => {
-								setIsDirty(true);
-								setData(prev => ({ ...prev, frameNumber: e }))
-							}}
-						/>
-						<TextField
-							labelPosition={'side'}
-							label={<View width={'size-1600'}>Nomor mesin</View>}
-							flex
-							width={{ base: 'auto' }}
-							value={data.machineNumber ?? ''}
-							maxLength={25}
-							onChange={(e) => {
-								setIsDirty(true);
-								setData(prev => ({ ...prev, machineNumber: e }))
-							}}
-						/>
-					</Flex>
 					</View>
 				</Flex>
 
@@ -283,13 +285,13 @@ const UnitForm = (props: UnitFormOptions) => {
 					{data.orderId > 0 &&
 						<View>
 							<Button
-								isDisabled={isNew}
+								isDisabled={isNew || isReadOnly}
 								type='button' alignSelf={'flex-end'} variant='negative'
 								onPress={() => deleteData(data)}>Clear</Button>
 						</View>
 					}
 				</Flex>
-			</form >
+			</Form >
 		</View >
 	);
 

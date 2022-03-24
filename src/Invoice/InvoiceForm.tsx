@@ -246,7 +246,7 @@ const InvoiceForm = () => {
 							labelPosition="side"
 							width={{ base: 'auto' }}
 							validationState={isSalesValid ? 'valid' : 'invalid'}
-							placeholder={'e.g. Beli kopi dan rokok untuk om Mastur.'}
+							placeholder={'e.g. Junaedi'}
 							value={invoice.salesman}
 							maxLength={128}
 							onChange={(e) => handleChange("salesman", e)}
@@ -258,7 +258,7 @@ const InvoiceForm = () => {
 						<OrderList financeId={financeId ? +financeId : 0}
 							invoiceId={invoiceId ? +invoiceId : 0}
 							onFinish={(list) => {
-								setInvoiceDetails(list)
+								onFinishSelected(list)
 								setShowOrderList(false)
 								setIsDirty(true)
 							}}
@@ -363,6 +363,22 @@ const InvoiceForm = () => {
 			</form>
 		</View>
 	)
+
+
+	function onFinishSelected(list: OrderLists[]) {
+
+		const details = [...list]
+
+		const arr = details.filter(f => f.isSelected).map(o => o.id)
+
+		if(invoice.details) {
+			const selecteds = invoice.details.filter(f=>f.isSelected).filter(f=>!arr.includes(f.id))
+			//for (let c = 0; c < invoice.details.length; c++) {
+				details.push(...selecteds)
+			//}
+		}
+		setInvoiceDetails(details)
+	}
 
 
 	function setInvoiceDetails(list: OrderLists[]) {

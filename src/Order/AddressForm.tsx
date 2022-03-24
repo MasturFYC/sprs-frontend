@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { iAddress } from '../lib/interfaces'
-import { Button, Flex, TextField, View, Link } from '@adobe/react-spectrum';
+import { Button, Flex, TextField, View, Link, Form } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 
 const initAddress: iAddress = {
@@ -18,7 +18,7 @@ type AddressFormOptions = {
 	isNew: boolean,
 	apiAddress: string,
 	title: string,
-	callback: (params: { method: string, address?: iAddress }) => void
+	callback: (params: { method: string, address?: iAddress }) => void,
 }
 
 const AddressForm = (props: AddressFormOptions) => {
@@ -43,7 +43,7 @@ const AddressForm = (props: AddressFormOptions) => {
 			<div className='div-h2'>{title}</div>
 			{showForm ?
 
-				<form onSubmit={(e) => handleSubmit(e)}>
+				<Form onSubmit={(e) => handleSubmit(e)}>
 					<Flex gap='size-50' direction={'column'}>
 						<TextField
 							flex
@@ -118,7 +118,7 @@ const AddressForm = (props: AddressFormOptions) => {
 							}
 						</Flex>
 					</Flex>
-				</form>
+				</Form>
 				:
 				<View>
 					<Link isQuiet variant='primary' onPress={() => setShowForm(!showForm)}>

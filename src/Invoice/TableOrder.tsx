@@ -33,7 +33,7 @@ export default function TableOrder({ list, onCheck }: TableOrderProps) {
       </thead>
       <tbody>
         {list && list.map((item, index) => <tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}>
-          <td><input type='checkbox'  aria-label="order-was-selected" checked={item.isSelected}
+          <td><input type='checkbox' aria-label="order-was-selected" checked={item.isSelected}
             onChange={(e) => onCheck && onCheck(item.id,e.target.checked)} />
           </td>
           <td>{item.name}</td>

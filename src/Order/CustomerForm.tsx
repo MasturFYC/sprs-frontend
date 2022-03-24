@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { iCustomer } from '../lib/interfaces'
-import { Button, Flex, TextField, View } from '@adobe/react-spectrum';
+import { Button, Flex, Form, TextField, View } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 
 export const initCustomer: iCustomer = {
@@ -13,11 +13,12 @@ export const initCustomer: iCustomer = {
 type CustomerFormOptions = {
 	customer: iCustomer,
 	isNew: boolean,
-	callback: (params: { method: string, customer?: iCustomer }) => void
+	callback: (params: { method: string, customer?: iCustomer }) => void,
+	isReadOnly?:boolean
 }
 
 const CustomerForm = (props: CustomerFormOptions) => {
-	const { customer, callback, isNew } = props;
+	const { customer, callback, isNew, isReadOnly } = props;
 	const [data, setData] = React.useState<iCustomer>(initCustomer)
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 
@@ -46,7 +47,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 	}, [customer])
 
 	return (
-		<form onSubmit={(e) => handleSubmit(e)}>
+		<Form isReadOnly={isReadOnly} onSubmit={(e) => handleSubmit(e)}>
 			<div className='div-h2'>DATA KONSUMEN</div>
 			<Flex direction={'column'} columnGap='size-200' rowGap='size-50'>
 				<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap='size-50'>
@@ -96,14 +97,14 @@ const CustomerForm = (props: CustomerFormOptions) => {
 					{data.orderId > 0 &&
 						<View>
 							<Button
-								isDisabled={isNew}
+								isDisabled={isNew || isReadOnly}
 								type='button' alignSelf={'flex-end'} variant='negative'
 								onPress={() => deleteData(data)}>Clear</Button>
 						</View>
 					}
 				</Flex>
 			</Flex>
-		</form>
+		</Form>
 	);
 
 	function changeData(fieldName: string, value: string | number | undefined | null) {

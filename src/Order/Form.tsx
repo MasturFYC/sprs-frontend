@@ -4,7 +4,7 @@ import {
 	// iReceivable, 
 	iTask, iAddress
 } from '../lib/interfaces'
-import { Button, ComboBox, Flex, TextField, View, Text, NumberField, Checkbox, Tabs, TabList, Divider } from '@adobe/react-spectrum';
+import { Button, ComboBox, Flex, TextField, View, Text, NumberField, Checkbox, Tabs, TabList, Divider, Form } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
 import VerifyOrder from './VerifyOrder'
@@ -100,7 +100,7 @@ type OrderFormOptions = {
 const OrderForm = (props: OrderFormOptions) => {
 	const { order, callback, updateChild, finances, branchs } = props;
 	const [data, setData] = useState<iOrder>(initOrder)
-	let [tabId, setTabId] = useState(order.verifiedBy ? 2 : 1);
+	let [tabId, setTabId] = useState(order.verifiedBy ? 1 : 0);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>('');
 
@@ -186,7 +186,7 @@ const OrderForm = (props: OrderFormOptions) => {
 				paddingX={{ base: 'size-100', M: 'size-400' }}
 				paddingY={{ base: 'size-50', M: 'size-50' }}
 			>
-				<form onSubmit={(e) => handleSubmit(e)}>
+				<Form onSubmit={(e) => handleSubmit(e)} isReadOnly={data.verifiedBy ? true : false}>
 					<Flex direction={'column'} columnGap='size-200' rowGap={'size-50'}>
 						<Flex direction={'row'} gap='size-50' marginBottom={'size-200'} marginTop={'size-50'}>
 							<Flex flex direction={'row'} columnGap={'size-100'}>
@@ -315,7 +315,7 @@ const OrderForm = (props: OrderFormOptions) => {
 						<View flex>
 							<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'} marginBottom={'size-200'}>
 								<ComboBox
-									menuTrigger="focus"
+									menuTrigger={data.verifiedBy ? "manual" : "focus"}
 									flex
 									validationState={isFinanceValid ? "valid" : "invalid"}
 									width={'auto'}
@@ -339,7 +339,7 @@ const OrderForm = (props: OrderFormOptions) => {
 								</ComboBox>
 								<ComboBox
 									flex
-									menuTrigger="focus"
+									menuTrigger={data.verifiedBy ? "manual" : "focus"}
 									validationState={isBranchValid ? "valid" : "invalid"}
 									label={"Cabang penerima order"}
 									placeholder={"e.g. Pusat"}
@@ -370,7 +370,7 @@ const OrderForm = (props: OrderFormOptions) => {
 							</Flex>
 						</View>
 					</Flex>
-				</form >
+				</Form >
 			</View >
 			{
 				data.id > 0 &&
@@ -382,14 +382,14 @@ const OrderForm = (props: OrderFormOptions) => {
 					<View paddingX={'size-400'}>
 						<Tabs
 							aria-label="Tab-Order"
-							disabledKeys={order.verifiedBy ? ['0', '1'] : ['']}
-							defaultSelectedKey={order.verifiedBy ? '2' : '1'}
+							//	disabledKeys={order.verifiedBy ? ['0', '1'] : ['']}
+							defaultSelectedKey={order.verifiedBy ? '1' : '0'}
 							//selectedKey={data.verifiedBy ? '2' : '0'}
 							density='compact'
 							onSelectionChange={(e) => setTabId(+e)}>
 							<TabList aria-label="Tab-Order-List">
-								<Item key={'0'}><span style={{ fontWeight: 700, color: data.verifiedBy ? '#cecece' : 'green' }}>Data Konsumen</span></Item>
-								<Item key={'1'}><span style={{ fontWeight: 700, color: data.verifiedBy ? '#cecece' : 'orangered' }}>Data Asset</span></Item>
+								<Item key={'0'}><span style={{ fontWeight: 700, color: 'green' }}>Data Konsumen</span></Item>
+								<Item key={'1'}><span style={{ fontWeight: 700, color: 'orangered' }}>Data Asset</span></Item>
 								{/* <Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>Data Tunggakan</span></Item> */}
 								<Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>History</span></Item>
 								<Item key={'3'}><span style={{ fontWeight: 700, color: 'green' }}>Data Alamat</span></Item>
@@ -400,12 +400,14 @@ const OrderForm = (props: OrderFormOptions) => {
 							{tabId === 0 &&
 								<React.Suspense fallback={<div>Please wait...</div>}>
 									<CustomerForm
+											isReadOnly={data.verifiedBy ? true : false}
 										customer={data.customer ? { ...data.customer, orderId: data.id } : { ...initCustomer, orderId: data.id }}
 										isNew={data.customer ? data.customer.orderId === 0 : true}
 										callback={(e) => responseCustomerChange(e)} />
 								</React.Suspense>
 							}
 							{tabId === 1 && <React.Suspense fallback={<div>Please wait...</div>}><UnitForm
+								isReadOnly={data.verifiedBy ? true : false}
 								dataUnit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
 								isNew={data.unit ? data.unit.orderId === 0 : true}
 								callback={(e) => responseUnitChange(e)} />
@@ -426,7 +428,7 @@ const OrderForm = (props: OrderFormOptions) => {
 											<View flex>
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
-														title='Alamat Sesuai KTP'
+														title='Alamat Sesuai KTP'														
 														apiAddress='ktp-address'
 														address={data.ktpAddress ? { ...data.ktpAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
 														isNew={data.ktpAddress ? data.ktpAddress.orderId === 0 : true}
@@ -440,7 +442,7 @@ const OrderForm = (props: OrderFormOptions) => {
 											<View flex>
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
-														title='Alamat Rumah'
+														title='Alamat Rumah'														
 														apiAddress='home-address'
 														address={data.homeAddress ? { ...data.homeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
 														isNew={data.homeAddress ? data.homeAddress.orderId === 0 : true}
@@ -458,7 +460,7 @@ const OrderForm = (props: OrderFormOptions) => {
 											<View flex>
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
-														title='Alamat Kantor'
+														title='Alamat Kantor'														
 														apiAddress='office-address'
 														address={data.officeAddress ? { ...data.officeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
 														isNew={data.officeAddress ? data.officeAddress.orderId === 0 : true}
@@ -473,7 +475,7 @@ const OrderForm = (props: OrderFormOptions) => {
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
 														title='Alamat Surat / Tagih'
-														apiAddress='post-address'
+														apiAddress='post-address'														
 														address={data.postAddress ? { ...data.postAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
 														isNew={data.postAddress ? data.postAddress.orderId === 0 : true}
 														callback={(e) => {

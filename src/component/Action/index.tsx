@@ -44,35 +44,39 @@ const Action = (prop: ActionParam) => {
 			{actions.isLoading &&
 				<Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
 			}
-			<Divider size={'S'} marginY={'size-100'}  />
+			<Divider size={'S'} marginY={'size-100'} />
 			{[{ ...initAction, orderId: orderId }, ...actions.items].map(o => {
 				return o.id === selectedId ?
 					<ActionForm key={o.id} action={o} callback={(e) => formResponse(e)} />
 					:
 					<View key={o.id}>
-						
-							<View width={{ base: 'auto', M: 'size-3400' }}>
+						<Flex direction={{ base: 'column', M: 'row' }} gap={'size-100'} >
+							<View flex width={{ base: 'auto', M: 'size-3400' }}>
+								<View>
 								<Link isQuiet variant={'primary'}
 									onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
 									{o.id === 0 ? 'Tindakan baru' : `${o.pic}`}
 								</Link>
-							</View>
-							{o.id > 0 &&
-								<Flex direction={{ base: 'column', M: 'row' }} gap={'size-100'} >
-									<View flex>
+								</View>
+								{o.id > 0 &&
+									<View>
 										Tanggal: {FormatDate(o.actionAt)}<br />
 										Keterangan: {o.descriptions}
 									</View>
-									<View>
-										<SimpleReactFileUpload imageId={o.id}
-											fileName={o.fileName}
-											onSuccess={(e) => {
-												actions.update(o.id, { ...actions.getItem(o.id), fileName: e})}
-											} />
-									</View>
-							</Flex>
-							}
-						
+								}
+							</View>
+							<View>
+								{o.id > 0 &&
+								<SimpleReactFileUpload imageId={o.id}
+									fileName={o.fileName}
+									onSuccess={(e) => {
+										actions.update(o.id, { ...actions.getItem(o.id), fileName: e })
+									}
+									} />
+								}
+							</View>
+
+						</Flex>
 						<Divider size={'S'} marginY={'size-100'} />
 					</View>
 			})}
