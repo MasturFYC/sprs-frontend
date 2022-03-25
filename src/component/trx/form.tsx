@@ -162,8 +162,6 @@ const TrxForm = (props: TrxFormOptions) => {
       token: token
     });
 
-    //console.log( details.length > 0 ? details : p.details)
-
     await axios
       .put(`/trx/${trx.id}/`, xData, { headers: headers })
       .then(response => response.data)

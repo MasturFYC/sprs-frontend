@@ -31,7 +31,7 @@ const Trx = () => {
           return data
         })
         .catch(error => {
-          console.log('-------', error)
+          console.log(error)
         })
 
       return { items: res ? res : [] }
@@ -52,7 +52,7 @@ const Trx = () => {
           return data
         })
         .catch(error => {
-          console.log('-------', error)
+          console.log(error)
         })
 
       return { items: res ? res : [] }
@@ -70,12 +70,9 @@ const Trx = () => {
       let res = await axios
         .get("/trx/", { headers: headers })
         .then(response => response.data)
-        .then(data => {
-          //console.log(data)
-          return data;
-        })
+        .then(data => data)
         .catch(error => {
-          console.log('-------', error)
+          console.log(error)
         })
 
       return { items: res ? res : [] }
@@ -252,7 +249,7 @@ const Trx = () => {
         return data
       })
       .catch(error => {
-        console.log('-------', error)
+        console.log(error)
         return []
       })
 
@@ -274,7 +271,7 @@ const Trx = () => {
         return data
       })
       .catch(error => {
-        console.log('-------', error)
+        console.log(error)
         return []
       })
 
@@ -282,28 +279,6 @@ const Trx = () => {
     trxs.removeSelectedItems();
     res && trxs.append(...res);
   }
-
-  // async function searchTransactByType(id: number) {
-
-  //   const headers = {
-  //     'Content-Type': 'application/json'
-  //   }
-
-  //   let res = await axios
-  //     .get(`/trx/group-type/${id}/`, { headers: headers })
-  //     .then(response => response.data)
-  //     .then(data => {
-  //       return data ? data : []
-  //     })
-  //     .catch(error => {
-  //       console.log('-------', error)
-  //       return []
-  //     })
-
-  //   trxs.setSelectedKeys('all')
-  //   trxs.removeSelectedItems();
-  //   trxs.append(...res);
-  // }
 
   async function loadAllCodes() {
 
@@ -318,7 +293,7 @@ const Trx = () => {
         return data
       })
       .catch(error => {
-        console.log('-------', error)
+        console.log(error)
         return []
       })
 

@@ -67,7 +67,6 @@ const ReportTrxtByMonth = () => {
 
 
 			setTrxs(res ? res : []);
-			//console.log(data);
 			setLoaded(true);
 			setMonthId(month)
 			setYearId(year)

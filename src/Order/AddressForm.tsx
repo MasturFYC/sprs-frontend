@@ -14,29 +14,43 @@ const initAddress: iAddress = {
 }
 
 type AddressFormOptions = {
-	address: iAddress,
-	isNew: boolean,
 	apiAddress: string,
 	title: string,
-	callback: (params: { method: string, address?: iAddress }) => void,
+	orderId: number
 }
 
 const AddressForm = (props: AddressFormOptions) => {
-	const { address, callback, isNew, title, apiAddress } = props;
+	const { orderId, title, apiAddress } = props;
 	const [data, setData] = useState<iAddress>(initAddress);
 	const [showForm, setShowForm] = useState<boolean>(false);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 
 	React.useEffect(() => {
-		let isLoaded = true;
+		let isLoaded = false;
+		async function load(id: number) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
 
-		if (isLoaded) {
-			setData(isNew ? { ...initAddress, orderId: address.orderId } : address)
+			let res = await axios
+				.get(`/${apiAddress}/${id}`, { headers: headers })
+				.then(response => response.data)
+				.then(data => data)
+				.catch(error => {
+					console.log({ 'Error': error })
+				})
+
+			return res ? res : initAddress
+		}
+		if (!isLoaded) {
+			load(orderId).then(res => {
+				setData(res)
+			})
 		}
 
-		return () => { isLoaded = false }
+		return () => { isLoaded = true }
 
-	}, [address, isNew])
+	}, [orderId, apiAddress])
 
 	return (
 		<View>
@@ -103,7 +117,6 @@ const AddressForm = (props: AddressFormOptions) => {
 								<Button type='button' variant='primary'									
 									onPress={() => {
 										setShowForm(!showForm)
-										setData(address)
 									}}>
 									{isDirty ? 'Cancel' : 'Close'}
 								</Button>
@@ -111,7 +124,7 @@ const AddressForm = (props: AddressFormOptions) => {
 							{data.orderId > 0 &&
 								<View>
 									<Button
-										isDisabled={isNew}
+										isDisabled={data.orderId === 0}
 										type='button' alignSelf={'flex-end'} variant='negative'
 										onPress={() => deleteData(data)}>Clear</Button>
 								</View>
@@ -122,7 +135,7 @@ const AddressForm = (props: AddressFormOptions) => {
 				:
 				<View>
 					<Link isQuiet variant='primary' onPress={() => setShowForm(!showForm)}>
-						{isNew ? 'Buat Alamat' :
+						{data.orderId === 0 ? 'Buat Alamat' :
 							<div>
 								<div>{data?.street ? data?.street : '---------'}{data.city ? `, ${data.city}` : ''}
 									{data.zip ? ` - ${data.zip}` : ''}
@@ -139,15 +152,15 @@ const AddressForm = (props: AddressFormOptions) => {
 		</View>
 	);
 
-	function changeData(fieldName: string, value: string) {
+	function changeData(fieldName: string, value: string | number) {
 		setData(o => ({ ...o, [fieldName]: value }))
 		setIsDirty(true)
 	}
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
 
-		if (isNew) {
-			await inserData(data);
+		if (data.orderId === 0) {
+			await inserData({...data, orderId: orderId});
 		} else {
 			await updateData(data);
 		}
@@ -164,10 +177,10 @@ const AddressForm = (props: AddressFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.put(`/${apiAddress}/${p.orderId}/`, xData, { headers: headers })
+			.put(`/${apiAddress}/${orderId}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				callback({ method: 'save', address: p })
+				//callback({ method: 'save', address: p })
 				setIsDirty(false)
 			})
 			.catch(error => {
@@ -184,10 +197,11 @@ const AddressForm = (props: AddressFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.post(`/${apiAddress}/`, xData, { headers: headers })
+			.post(`/${apiAddress}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				callback({ method: 'save', address: p })
+				changeData("orderId", orderId)
+				//callback({ method: 'save', address: p })
 				setIsDirty(false)
 			})
 			.catch(error => {
@@ -203,10 +217,10 @@ const AddressForm = (props: AddressFormOptions) => {
 		}
 
 		await axios
-			.delete(`/${apiAddress}/${p.orderId}/`, { headers: headers })
+			.delete(`/${apiAddress}/${orderId}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				callback({ method: 'remove' })
+				//callback({ method: 'remove' })
 				setShowForm(!showForm)				
 			})
 			.catch(error => {

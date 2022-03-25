@@ -22,7 +22,7 @@ const AccType = () => {
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
-					console.log('-------', error)
+					console.log(error)
 					return []
 				})
 
@@ -42,7 +42,7 @@ const AccType = () => {
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
-					console.log('-------', error)
+					console.log(error)
 				})
 
 			return { items: res ? res : [] }

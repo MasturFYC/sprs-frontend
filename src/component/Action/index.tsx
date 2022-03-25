@@ -28,7 +28,7 @@ const Action = (prop: ActionParam) => {
 					return data ? data : []
 				})
 				.catch(error => {
-					console.log({ 'Error': error })
+					console.log(error)
 					return []
 				})
 

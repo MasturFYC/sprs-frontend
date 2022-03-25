@@ -24,7 +24,7 @@ const AccCode = () => {
         .then(response => response.data)
         .then(data => data)
         .catch(error => {
-          console.log('-------', error)
+          console.log(error)
           return []
         })
 
@@ -46,7 +46,7 @@ const AccCode = () => {
           return data
         })
         .catch(error => {
-          console.log('-------', error)
+          console.log(error)
           return []
         })
 
@@ -191,7 +191,7 @@ const AccCode = () => {
         accs.append(...data);
       })
       .catch(error => {
-        console.log('-------', error)
+        console.log(error)
       })
 
   }
@@ -233,7 +233,7 @@ const AccCode = () => {
         accs.append(...data);
       })
       .catch(error => {
-        console.log('-------', error)
+        console.log(error)
       })
 
   }

@@ -15,30 +15,29 @@ const initTask: iTask = {
 }
 
 type TaskFormOptions = {
-  task: iTask,
-  isNew: boolean,
-  callback: (params: { method: string, task?: iTask }) => void
+  orderId: number
 }
 
 const TaskForm = (props: TaskFormOptions) => {
-  const { task, callback, isNew } = props;
+  const { orderId } = props;
   const [data, setData] = React.useState<iTask>(initTask)
+  const [oldData, setOldData] = React.useState<iTask>(initTask)
   const [isDirty, setIsDirty] = useState<boolean>(false);
 
   const isRecipientNameValid = React.useMemo(
-    () => data && data.recipientName.length > 0,
+    () => data.recipientName.length > 0,
     [data]
   )
   const isGiverNameValid = React.useMemo(
-    () => data && data.giverName.length > 0,
+    () => data.giverName.length > 0,
     [data]
   )
   const isRecipientPositionValid = React.useMemo(
-    () => data && data.recipientPosition.length > 0,
+    () => data.recipientPosition.length > 0,
     [data]
   )
   const isGiverPositionValid = React.useMemo(
-    () => data && data.giverPosition.length > 0,
+    () => data.giverPosition.length > 0,
     [data]
   )
   const isDateValid = React.useMemo(
@@ -51,15 +50,32 @@ const TaskForm = (props: TaskFormOptions) => {
   )
 
   React.useEffect(() => {
-    let isLoaded = true;
+    let isLoaded = false;
+    async function load(id: number) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
 
-    if (isLoaded) {
-      setData(isNew ? {...initTask, orderId: task.orderId} : task)
+			let res = await axios
+				.get(`/tasks/${id}`, { headers: headers })
+				.then(response => response.data)
+				.then(data => data)
+				.catch(error => {
+					console.log({ 'Error': error })
+				})
+
+			return res ? res : initTask
+		}
+    if (!isLoaded) {
+      load(orderId).then(res => {
+				setData(res)
+        setOldData(res)
+			})
     }
 
-    return () => { isLoaded = false }
+    return () => { isLoaded = true }
 
-  }, [task, isNew])
+  }, [orderId])
 
   return (
     <form onSubmit={(e) => handleSubmit(e)}>
@@ -148,14 +164,14 @@ const TaskForm = (props: TaskFormOptions) => {
             <Button type='button' variant='primary'
               isDisabled={!isDirty}
               onPress={() => {
-                setData(task);
+                setData(oldData);
                 setIsDirty(false)
               }}>Cancel</Button>
           </Flex>
           {data.orderId > 0 &&
             <View>
               <Button
-                isDisabled={isNew}
+                isDisabled={data.orderId === 0}
                 type='button' alignSelf={'flex-end'} variant='negative'
                 onPress={() => deleteData(data)}>Clear</Button>
             </View>
@@ -174,8 +190,8 @@ const TaskForm = (props: TaskFormOptions) => {
     e.preventDefault()
     if (isGiverNameValid && isGiverPositionValid && isDateValid && isRecipientNameValid && isRecipientPositionValid) {
 
-      if (isNew) {
-        await inserData(data);
+      if (data.orderId === 0) {
+        await inserData({...data, orderId: orderId});
       } else {
         await updateData(data);
       }
@@ -191,10 +207,11 @@ const TaskForm = (props: TaskFormOptions) => {
     const xData = JSON.stringify(p)
 
     await axios
-      .put(`/tasks/${p.orderId}/`, xData, { headers: headers })
+      .put(`/tasks/${p.orderId}`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        callback({ method: 'save', task: p })
+        //callback({ method: 'save', task: p })
+        setOldData(p)
         setIsDirty(false)
       })
       .catch(error => {
@@ -211,10 +228,12 @@ const TaskForm = (props: TaskFormOptions) => {
     const xData = JSON.stringify(p)
 
     await axios
-      .post(`/tasks/`, xData, { headers: headers })
+      .post(`/tasks`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        callback({ method: 'save', task: p })
+        //callback({ method: 'save', task: p })
+        changeData("orderId", orderId)
+        setOldData({...p, orderId: orderId})
         setIsDirty(false)
       })
       .catch(error => {
@@ -230,10 +249,12 @@ const TaskForm = (props: TaskFormOptions) => {
     }
 
     await axios
-      .delete(`/tasks/${p.orderId}/`, { headers: headers })
+      .delete(`/tasks/${p.orderId}`, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        callback({ method: 'remove' })
+        //callback({ method: 'remove' })
+        setData(initTask)
+        setOldData(initTask)
         setIsDirty(false)
       })
       .catch(error => {

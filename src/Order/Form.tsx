@@ -1,8 +1,7 @@
 import React, { FormEvent, useState } from 'react';
 import {
-	dateParam, dateOnly, iBranch, iFinance, iOrder, iCustomer, iUnit,
+	dateParam, dateOnly, iBranch, iFinance, iOrder, iUnit,
 	// iReceivable, 
-	iTask, iAddress
 } from '../lib/interfaces'
 import { Button, ComboBox, Flex, TextField, View, Text, NumberField, Checkbox, Tabs, TabList, Divider, Form } from '@adobe/react-spectrum';
 import axios from '../lib/axios-base';
@@ -15,51 +14,6 @@ const AddressForm = React.lazy(() => import('./AddressForm'));
 const Action = React.lazy(() => import('../component/Action'));
 const UnitForm = React.lazy(() => import('./UnitForm'));
 const TaskForm = React.lazy(() => import('./TaskForm'));
-
-const initTask: iTask = {
-	orderId: 0,
-	descriptions: '',
-	periodFrom: dateParam(null),
-	periodTo: dateParam(null),
-	recipientName: '',
-	recipientPosition: '',
-	giverPosition: '',
-	giverName: '',
-}
-
-const initAddress: iAddress = {
-	orderId: 0,
-	street: '',
-	city: '',
-	phone: '',
-	cell: '',
-	zip: '',
-	email: '',
-}
-
-// const initReceivable: iReceivable = {
-// 	orderId: 0,
-// 	covenantAt: dateParam(null),
-// 	dueAt: dateParam(null),
-// 	mortgageByMonth: 0,
-// 	mortgageReceivable: 0,
-// 	runningFine: 0,
-// 	restFine: 0,
-// 	billService: 0,
-// 	payDeposit: 0,
-// 	restReceivable: 0,
-// 	restBase: 0,
-// 	dayPeriod: 0,
-// 	mortgageTo: 0,
-// 	dayCount: 0
-// }
-
-const initCustomer: iCustomer = {
-	orderId: 0,
-	name: '',
-	agreementNumber: '',
-	paymentType: ''
-}
 
 const initUnit: iUnit = {
 	orderId: 0,
@@ -152,11 +106,11 @@ const OrderForm = (props: OrderFormOptions) => {
 			}
 
 			let res = await axios
-				.get(`/orders/name-seq`, { headers: headers })
+				.get(`/orders/name/seq`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
-					console.log('-------', error)
+					console.log(error)
 				})
 
 			return await res;
@@ -399,11 +353,7 @@ const OrderForm = (props: OrderFormOptions) => {
 						<View marginY={'size-100'}>
 							{tabId === 0 &&
 								<React.Suspense fallback={<div>Please wait...</div>}>
-									<CustomerForm
-											isReadOnly={data.verifiedBy ? true : false}
-										customer={data.customer ? { ...data.customer, orderId: data.id } : { ...initCustomer, orderId: data.id }}
-										isNew={data.customer ? data.customer.orderId === 0 : true}
-										callback={(e) => responseCustomerChange(e)} />
+									<CustomerForm isReadOnly={data.verifiedBy ? true : false} orderId={data.id} />
 								</React.Suspense>
 							}
 							{tabId === 1 && <React.Suspense fallback={<div>Please wait...</div>}><UnitForm
@@ -430,12 +380,7 @@ const OrderForm = (props: OrderFormOptions) => {
 													<AddressForm
 														title='Alamat Sesuai KTP'														
 														apiAddress='ktp-address'
-														address={data.ktpAddress ? { ...data.ktpAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-														isNew={data.ktpAddress ? data.ktpAddress.orderId === 0 : true}
-														callback={(e) => {
-															setData(o => ({ ...o, ktpAddress: e.address }))
-															updateChild({ ...order, ktpAddress: e.address })
-														}}
+														orderId={data.id}
 													/>
 												</React.Suspense>
 											</View>
@@ -444,12 +389,7 @@ const OrderForm = (props: OrderFormOptions) => {
 													<AddressForm
 														title='Alamat Rumah'														
 														apiAddress='home-address'
-														address={data.homeAddress ? { ...data.homeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-														isNew={data.homeAddress ? data.homeAddress.orderId === 0 : true}
-														callback={(e) => {
-															setData(o => ({ ...o, homeAddress: e.address }))
-															updateChild({ ...order, homeAddress: e.address })
-														}}
+														orderId={data.id}
 													/>
 												</React.Suspense>
 											</View>
@@ -462,12 +402,7 @@ const OrderForm = (props: OrderFormOptions) => {
 													<AddressForm
 														title='Alamat Kantor'														
 														apiAddress='office-address'
-														address={data.officeAddress ? { ...data.officeAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-														isNew={data.officeAddress ? data.officeAddress.orderId === 0 : true}
-														callback={(e) => {
-															setData(o => ({ ...o, officeAddress: e.address }))
-															updateChild({ ...order, officeAddress: e.address })
-														}}
+														orderId={data.id}
 													/>
 												</React.Suspense>
 											</View>
@@ -475,14 +410,8 @@ const OrderForm = (props: OrderFormOptions) => {
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
 														title='Alamat Surat / Tagih'
-														apiAddress='post-address'														
-														address={data.postAddress ? { ...data.postAddress, orderId: data.id } : { ...initAddress, orderId: data.id }}
-														isNew={data.postAddress ? data.postAddress.orderId === 0 : true}
-														callback={(e) => {
-															setData(o => ({ ...o, postAddress: e.address }))
-															updateChild({ ...order, postAddress: e.address })
-														}}
-													/>
+														apiAddress='post-address'
+														orderId={data.id}													/>
 												</React.Suspense>
 											</View>
 										</Flex>
@@ -492,9 +421,7 @@ const OrderForm = (props: OrderFormOptions) => {
 							{tabId === 4 &&
 								<React.Suspense fallback={<div>Please wait...</div>}>
 									<TaskForm
-										task={data.task ? { ...data.task, orderId: data.id } : { ...initTask, orderId: data.id }}
-										isNew={data.task ? data.task.orderId === 0 : true}
-										callback={(e) => responseTaskChange(e)} />
+										orderId={data.id} />
 								</React.Suspense>
 							}
 						</View>
@@ -566,6 +493,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		}
 
 		const xData = JSON.stringify(p)
+		//console.log(p)
 
 		await axios
 			.put(`/orders/${p.id}`, xData, { headers: headers })
@@ -587,6 +515,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		}
 
 		const xData = JSON.stringify(p)
+		//console.log(p)
 
 		await axios
 			.post(`/orders`, xData, { headers: headers })
@@ -621,15 +550,6 @@ const OrderForm = (props: OrderFormOptions) => {
 			})
 	}
 
-	function responseTaskChange(params: { method: string, task?: iTask }) {
-		const { method, task } = params
-
-		const u = method === 'remove' ? initTask : task;
-
-		setData(o => ({ ...o, task: u }))
-		updateChild({ ...order, task: u })
-	}
-
 
 	function responseUnitChange(params: { method: string, dataUnit?: iUnit }) {
 		const { method, dataUnit } = params
@@ -638,24 +558,6 @@ const OrderForm = (props: OrderFormOptions) => {
 
 		setData(o => ({ ...o, unit: u }))
 		updateChild({ ...order, unit: u })
-	}
-
-	// function responseReceivableChange(params: { method: string, receivable?: iReceivable }) {
-	// 	const { method, receivable } = params
-
-	// 	const u = method === 'remove' ? initReceivable : receivable;
-
-	// 	setData(o => ({ ...o, receivable: u }))
-	// 	updateChild({ ...order, receivable: u })
-	// }
-
-	function responseCustomerChange(params: { method: string, customer?: iCustomer }) {
-		const { method, customer } = params
-
-		const cust = method === 'remove' ? initCustomer : customer;
-
-		setData(o => ({ ...o, customer: cust }))
-		updateChild({ ...order, customer: cust })
 	}
 
 	function changeData(fieldName: string, value: string | number | boolean | undefined | null) {

@@ -68,26 +68,6 @@ type SaldoDetailProp = {
 function SaldoDetail(props: SaldoDetailProp) {
 	const { saldos } = props
 	
-//	let groups = useAsyncList<iAccGroup>({
-	// 	async load({ signal }) {
-	// 		const headers = {
-	// 			'Content-Type': 'application/json'
-	// 		}
-
-	// 		let res = await axios
-	// 			.get("/acc-group/", { headers: headers })
-	// 			.then(response => response.data)
-	// 			.then(data => {
-	// 				return data ? data : []
-	// 			})
-	// 			.catch(error => {
-	// 				console.log('-------', error)
-	// 			})
-
-	// 		return { items: res }
-	// 	},
-	// 	getKey: (item: iAccGroup) => item.id
-	// })	
 
 	return (
 		<View>

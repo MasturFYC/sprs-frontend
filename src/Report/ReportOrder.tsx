@@ -25,7 +25,7 @@ type tOrderInvoiced = {
     name: string
   }
 
-  unit: {
+  unit?: {
     nopol: string
     year: number
 
@@ -103,7 +103,6 @@ const ReportOrder = () => {
       setYearId(year)
       setFinanceId(f?+f:0)
 
-      //console.log({m: month, y: year, f: f?+f:0})
       load(month, year, f?+f:0).then(data => {
         setOrders(data)
         setIsOrderLoading(false)
@@ -181,11 +180,11 @@ const ReportOrder = () => {
               <td>{o.branch.name}</td>
               <td className='text-no-wrap'>{s === 1 ? <Link to={`/invoice/${o.financeId}/${o.name}`}>Invoice #{o.name}</Link> : o.name}</td>
               <td className='text-center'>{FormatDate(o.orderAt, '2-digit')}</td>
-              <td>{o.unit.type.merk.name}</td>
-              <td>{o.unit.type.name}</td>
+              <td>{o.unit && o.unit.type.merk.name}</td>
+              <td>{o.unit && o.unit.type.name}</td>
               <td>{o.finance.name} ({o.finance.shortName})</td>
-              <td className='text-no-wrap'>{o.unit.nopol}</td>
-              <td className='text-center'>{o.unit.year}</td>
+              <td className='text-no-wrap'>{o.unit && o.unit.nopol}</td>
+              <td className='text-center'>{o.unit && o.unit.year}</td>
               <td className={`${s === 1 ? "text-right" : "text-center"}`}>{s === 1 ? FormatNumber(o.btFinance) : o.isStnk ? '✔' : ''}</td>
               <td className='text-right'>{s === 1 ? `${FormatNumber(o.btPercent)}%` : FormatNumber(o.btFinance)}</td>
               <td className='text-right'>{FormatNumber(o.btMatel)}</td>

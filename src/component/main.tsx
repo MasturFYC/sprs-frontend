@@ -36,7 +36,7 @@ const Main = () => {
       <Route path="/branch" element={<React.Suspense fallback={<div>Please wait...</div>}><Branch /></React.Suspense>} />
       <Route path="/warehouse" element={<React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
       <Route path="/finance" element={<React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
-      <Route path="/order" element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
+      <Route path="/order/:s/:p" element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
       <Route path="/invoice">
         <Route path='list' element={<React.Suspense fallback={<div>Please wait...</div>}><Invoice /></React.Suspense>} />
         <Route path=":financeId/:invoiceId" element={<React.Suspense fallback={<div>Please wait...</div>}><InvoiceForm /></React.Suspense>} />

@@ -11,15 +11,14 @@ export const initCustomer: iCustomer = {
 }
 
 type CustomerFormOptions = {
-	customer: iCustomer,
-	isNew: boolean,
-	callback: (params: { method: string, customer?: iCustomer }) => void,
+	orderId: number
 	isReadOnly?:boolean
 }
 
 const CustomerForm = (props: CustomerFormOptions) => {
-	const { customer, callback, isNew, isReadOnly } = props;
+	const { orderId, isReadOnly } = props;
 	const [data, setData] = React.useState<iCustomer>(initCustomer)
+	const [oldData, setOldData] = React.useState<iCustomer>(initCustomer)
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 
 	const isNameValid = React.useMemo(
@@ -36,15 +35,33 @@ const CustomerForm = (props: CustomerFormOptions) => {
 	)
 
 	React.useEffect(() => {
-		let isLoaded = true;
+		let isLoaded = false;
 
-		if (isLoaded) {
-			setData(customer)
+		async function load(id: number) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
+
+			let res = await axios
+				.get(`/customers/${id}`, { headers: headers })
+				.then(response => response.data)
+				.then(data => data)
+				.catch(error => {
+					console.log(error)
+				})
+
+			return res ? res : initCustomer
 		}
 
-		return () => { isLoaded = false }
+		if (!isLoaded && orderId > 0) {
+			load(orderId).then(res => {
+				setData(res)
+			})
+		}
 
-	}, [customer])
+		return () => { isLoaded = true }
+
+	}, [orderId])
 
 	return (
 		<Form isReadOnly={isReadOnly} onSubmit={(e) => handleSubmit(e)}>
@@ -90,14 +107,14 @@ const CustomerForm = (props: CustomerFormOptions) => {
 						<Button type='button' variant='primary'
 							isDisabled={!isDirty}
 							onPress={() => {
-								setData(customer);
+								setData(oldData);
 								setIsDirty(false)
 							}}>Cancel</Button>
 					</Flex>
 					{data.orderId > 0 &&
 						<View>
 							<Button
-								isDisabled={isNew || isReadOnly}
+								isDisabled={data.orderId === 0 || isReadOnly}
 								type='button' alignSelf={'flex-end'} variant='negative'
 								onPress={() => deleteData(data)}>Clear</Button>
 						</View>
@@ -116,8 +133,8 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		e.preventDefault()
 		if (isNameValid && isPaymentValid) {
 
-			if (isNew) {
-				await inserData(data);
+			if (data.orderId === 0) {
+				await inserData({...data, orderId: orderId});
 			} else {
 				await updateData(data);
 			}
@@ -133,11 +150,11 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.put(`/customers/${p.orderId}/`, xData, { headers: headers })
+			.put(`/customers/${p.orderId}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				callback({ method: 'save', customer: p })
 				setIsDirty(false)
+				setOldData(p)
 			})
 			.catch(error => {
 				console.log(error)
@@ -153,10 +170,11 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.post(`/customers/`, xData, { headers: headers })
+			.post(`/customers`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				callback({ method: 'save', customer: p })
+				changeData("orderId", orderId)
+				setOldData({...p, orderId: orderId})
 				setIsDirty(false)
 			})
 			.catch(error => {
@@ -172,11 +190,12 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		}
 
 		await axios
-			.delete(`/customers/${p.orderId}/`, { headers: headers })
+			.delete(`/customers/${p.orderId}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				callback({ method: 'remove' })
 				setIsDirty(false)
+				setData(initCustomer)
+				setOldData(initCustomer)
 			})
 			.catch(error => {
 				console.log(error)

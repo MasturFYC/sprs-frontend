@@ -62,7 +62,7 @@ const Aside = () => {
 
       <View>
         <Link isQuiet variant='primary' UNSAFE_className='font-bold'>
-          <RouterLink to="/order">Order (SPK)</RouterLink>
+          <RouterLink to={`/order/month/${new Date().getMonth()+1}`}>Order (SPK)</RouterLink>
         </Link>
       </View>
 
@@ -212,7 +212,7 @@ function AutoMenu() {
           SetMenuLoaded(true)
         })
         .catch(error => {
-          console.log({ 'Error': error })
+          console.log(error)
         })
 
     }

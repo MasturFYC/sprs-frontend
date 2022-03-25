@@ -315,6 +315,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		}
 
 		const xData = JSON.stringify(p)
+		console.log(p)
 
 		await axios
 			.put(`/units/${p.orderId}/`, xData, { headers: headers })

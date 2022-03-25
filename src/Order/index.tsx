@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
 //import OrderForm, { initOrder } from './Form'
@@ -16,24 +16,25 @@ const OrderForm = React.lazy(() => import('./Form'))
 
 
 const Order = () => {
-	const navigate = useNavigate();
+	let { s, p } = useParams();
+	 const navigate = useNavigate();
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 	const [financeId, setFinanceId] = useState<number>(0);
 	const [branchId, setBranchId] = useState<number>(0);
 	const [txtSearch, setTxtSearch] = useState<string>('');
 	const [bulan, setBulan] = useState<number>(0);
-	const [isSearch, setIsSearch] = useState(false)
-	const [test, setTest] = useState(false)
-	const [url, setUrl] = useState("/orders")
-	const [list, setList] = useState<iOrder[]>([])
+	//const [isSearch, setIsSearch] = useState(false)
+	//const [test, setTest] = useState(false)
+	//const [url, setUrl] = useState("/orders")
+	const [orders, setOrders] = useState<iOrder[]>([])
 
 
-	const getUrlParameter = (name: string) => {
-		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-		let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-		let results = regex.exec(window.location.search);
-		return results === null ? '/orders' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-	};
+	// const getUrlParameter = (name: string) => {
+	// 	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+	// 	let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+	// 	let results = regex.exec(window.location.search);
+	// 	return results === null ? '/orders' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	// };
 
 
 	let finances = useAsyncList<iFinance>({
@@ -77,52 +78,48 @@ const Order = () => {
 		getKey: (item: iBranch) => item.id
 	})
 
-	let orders = useAsyncList<iOrder>({
-		load: async ({ signal }) => {
-
-				const headers = {
-					'Content-Type': 'application/json'
-				}
-
-				const config: AxiosRequestConfig = isSearch ? {
-					method: "post",
-					data: { txt: txtSearch },
-				} : {
-					method: "get",
-				}
-
-				let res = await axios({
-					...config,
-					url: url,
-					headers: headers,
-					signal: signal
-				})
-					.then(response => response.data)
-					.then(data => data)
-					.catch(error => console.log(error))
-
-				return { items: res ? res : [] }
-		},
-		getKey: (item: iOrder) => item.id
-	})
-
+	
 	useEffect(() => {
 		let isLoaded = false
-		const doSomething = () => {
-			const u = getUrlParameter('q')
-			const ok = getUrlParameter('o') === 'true'
-			const p = getUrlParameter('d')
-			setUrl(u)
-			setIsSearch(ok)
-			setTxtSearch(p)
-		}
-		if (!isLoaded) {
-			doSomething();
-		}
-		return () => { isLoaded = true }
-	}, [test])
+		async function load (search: string, p: string) {
 
-	if (orders.isLoading || finances.isLoading || branchs.isLoading) {
+			const headers = {
+				'Content-Type': 'application/json'
+			}
+	
+			const config: AxiosRequestConfig = search === 'search' ? {
+				method: "post",
+				data: { txt: p },
+			} : {
+				method: "get",
+			}
+	
+			let res = await axios({
+				...config,
+				url: `/orders/${search}/${p}`,
+				headers: headers,
+			}).then(
+				response => response.data
+			).then(
+				data => data
+			).catch(error => console.log(error)
+			)
+			
+			return res ? res : []
+		}
+
+		if (!isLoaded && s && p) {
+			load(s, p).then(res => {
+				setOrders(res)
+			})
+
+			setTxtSearch(s === 'search' ? p : '')
+		}
+
+		return () => { isLoaded = true }
+	}, [s,p])
+
+	if (finances.isLoading || branchs.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
 	}
 
@@ -131,7 +128,7 @@ const Order = () => {
 			<View marginBottom={'size-200'}><span className="div-h1">Order (SPK)</span></View>
 
 			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>
-				<Button variant="cta" onPress={() => addNewOrder()}>Order Baru</Button>
+				<Button variant="cta" onPress={() => orderInsertNew()}>Order Baru</Button>
 				<SearchField
 					type="search"
 					aria-label="order-search-item"
@@ -139,16 +136,9 @@ const Order = () => {
 					width={'auto'}
 					value={txtSearch}
 					placeholder={'e.g. yamaha | 2022 | BAF'}
-					//validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
 					maxLength={50}
-					onClear={() => {
-						setIsSearch(false)
-					}}
 					onSubmit={(e) => {
-						navigate(`?q=/orders/search&o=true&d=${e}`)
-						orders.reload()
-						//setTest(!test)
-						
+						navigate(`/order/search/${e}`)
 					}}
 					onChange={(e) => {
 						setTxtSearch(e)
@@ -156,9 +146,8 @@ const Order = () => {
 				/>
 				<MonthComponent width="150px" selectedId={bulan}
 					onChange={(e) => {
-						setIsSearch(false)
 						setBulan(e.id)
-						setUrl(`/orders/month/${e.id}`)
+						navigate(`/order/month/${e.id}`)
 					}} />
 				<ComboBox
 					flex={{ base: true, M: false }}
@@ -167,12 +156,11 @@ const Order = () => {
 					labelPosition={'side'}
 					menuTrigger='focus'
 					placeholder={"e.g. Adira"}
-					items={[{ id: 0, shortName: 'Semua finance', name: '', descriptions: '' }, ...finances.items]}
+					defaultItems={[{ id: 0, shortName: 'Semua finance', name: '', descriptions: '' }, ...finances.items]}
 					selectedKey={financeId}
 					onSelectionChange={(e) => {
 						setFinanceId(+e);
-						setIsSearch(false)
-						setUrl(`/orders/finance/${e}`)
+						navigate(`/order/finance/${+e}`)
 					}}
 				>
 					{(o) => <Item textValue={o.shortName}>
@@ -187,7 +175,7 @@ const Order = () => {
 					labelPosition={'side'}
 					menuTrigger='focus'
 					placeholder={"e.g. Jatibarang"}
-					items={[{
+					defaultItems={[{
 						id: 0,
 						name: 'Semua Cabang',
 						headBranch: ''
@@ -195,9 +183,7 @@ const Order = () => {
 					selectedKey={branchId}
 					onSelectionChange={(e) => {
 						setBranchId(+e);
-						setFinanceId(+e);
-						setIsSearch(false)
-						setUrl(`/orders/branch/${e}`)
+						navigate(`/order/branch/${+e}`)
 					}}
 				>
 					{(item) => <Item textValue={item.name}>
@@ -222,7 +208,7 @@ const Order = () => {
 			</Flex>
 			<TableOrder
 				selectedId={selectedId}
-				orders={orders.items}
+				orders={orders}
 				finances={finances.items}
 				branchs={branchs.items}
 				formResponse={formResponse}
@@ -236,22 +222,31 @@ const Order = () => {
 
 		if (method === 'save' && data) {
 			if (selectedId === 0) {
-				orders.update(0, data)
+				orderUpdateItem(0, data)
 				//orders.remove(0)
 				setSelectedId(data.id)
 			} else {
-				orders.update(data.id, data)
+				orderUpdateItem(data.id, data)
 				setSelectedId(-1)
 			}
 		}
 		else if (method === 'cancel') {
 			if (selectedId === 0) {
-				orders.remove(0)
+				orderRemoveItem(0)
 			}
 			setSelectedId(-1)
 		}
 		else if (method === 'remove') {
-			orders.remove(selectedId)
+
+			const i = orderGetIndex(selectedId)
+
+			const list = [...orders]
+			
+			if(i>=0) {
+				list.splice(i,1)
+				setOrders(list)
+			}
+			//orders.remove(selectedId)
 			setSelectedId(-1)
 		}
 
@@ -259,12 +254,51 @@ const Order = () => {
 	}
 
 	function updateChild(data: iOrder) {
-		orders.update(data.id, data)
+		orderUpdateItem(data.id, data)
+		//orders.update(data.id, data)
 	}
 
-	function addNewOrder() {
-		if (!orders.getItem(0)) {
-			orders.insert(0, {
+	function orderGetIndex(id: number): number {
+		for(let c=0; c<orders.length;c++) {
+			if(orders[c].id === id) {
+				return c
+			}
+		}
+		return -1;
+	}
+
+	function orderRemoveItem(id: number) {
+		const i = orderGetIndex(id)
+
+		if(i>=0) {
+			const list = [...orders]
+			list.splice(i,1)
+			setOrders(list)
+		}
+	}
+
+	function orderUpdateItem(id: number, data: iOrder) {
+		const i = orderGetIndex(id)
+		
+		if(i>=0) {
+			const list = [...orders]
+			list.splice(i, 1, data)
+			setOrders(list)
+		}
+	}
+
+	function orderGetItem(id: number): iOrder | undefined {
+		const i = orderGetIndex(id);
+		if(i >= 0) {
+			return orders[i]
+		}
+		return undefined
+	}
+
+	function orderInsertNew() {
+		if (!orderGetItem(0)) {
+			const list = [...orders]
+			list.splice(0, 0, {
 				id: 0,
 				name: '',
 				orderAt: dateParam(null),
@@ -280,6 +314,7 @@ const Order = () => {
 				stnkPrice: 0,
 				matrix: 0
 			})
+			setOrders(list)
 		}
 		setSelectedId(0)
 	}

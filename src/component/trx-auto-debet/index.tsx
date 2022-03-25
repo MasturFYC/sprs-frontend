@@ -49,7 +49,7 @@ const TrxAutoDebet = () => {
           return data
         })
         .catch(error => {
-          console.log('-------', error)
+          console.log(error)
         })
 
       return { items: res }
@@ -71,7 +71,7 @@ const TrxAutoDebet = () => {
           setAccount(data)
         })
         .catch(error => {
-          console.log({ 'Error': error })
+          console.log(error)
           return []
         })
     }

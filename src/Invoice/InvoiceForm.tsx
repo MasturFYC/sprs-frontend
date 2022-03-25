@@ -110,7 +110,6 @@ const InvoiceForm = () => {
 			const tomorrow = new Date(today)
 			tomorrow.setDate(tomorrow.getDate()+0.1)
 			const invDate = new Date(invoice.invoiceAt)
-			//console.log({tomorrow: tomorrow, now: invDate})
 			return invDate < tomorrow
 		},
 		[invoice]
@@ -149,7 +148,6 @@ const InvoiceForm = () => {
 				console.log(error)
 			})
 
-		//	console.log(res)
 		return res;
 	}
 
@@ -633,7 +631,6 @@ const InvoiceForm = () => {
 		}
 
 		const data = createInvoice(p)
-		//console.log(data)
 
 		const res = await axios
 			.post(`/invoices/`, data, { headers: headers })
@@ -653,8 +650,6 @@ const InvoiceForm = () => {
 		}
 
 		const data = createInvoice(p)
-
-		// console.log(data)
 
 		const res = await axios
 			.put(`/invoices/${id}/`, data, { headers: headers })

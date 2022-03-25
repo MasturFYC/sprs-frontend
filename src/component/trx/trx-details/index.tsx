@@ -32,7 +32,7 @@ const TrxDetails = (props: TrxDetailsParam) => {
           return data ? data : []
         })
         .catch(error => {
-          console.log('-------', error)
+          console.log(error)
           return []
         })
 
@@ -93,33 +93,6 @@ const TrxDetails = (props: TrxDetailsParam) => {
       </View>
     </View>
   );
-
-  // function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
-  //   const detailUpdate = { ...detail, [fieldName]: value }
-  //   setDetail(o => (detailUpdate))
-  //   //setIsDirty(true)
-  // }
-
-  // async function deleteDetail(trxid: number, id: number): Promise<Boolean> {
-  //   const headers = {
-  //     'Content-Type': 'application/json'
-  //   }
-
-  //   //console.log(trxid, id)
-
-  //   let res = await axios
-  //     .delete(`/trx-detail/${trxid}/${id}/`, { headers: headers })
-  //     .then(response => response.data)
-  //     .then(data => {
-  //       return true
-  //     })
-  //     .catch(error => {
-  //       console.log('-------', error)
-  //       return false
-  //     })
-  //     return res
-  // }
-
   function getCodeName(id: number) {
     const c = accs.filter(o => o.id === id)[0];
     return c ? `${c.id} - ${c.name}` : '---'
