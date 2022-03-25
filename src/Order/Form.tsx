@@ -353,7 +353,7 @@ const OrderForm = (props: OrderFormOptions) => {
 						<View marginY={'size-100'}>
 							{tabId === 0 &&
 								<React.Suspense fallback={<div>Please wait...</div>}>
-									<CustomerForm isReadOnly={data.verifiedBy ? true : false} orderId={data.id} />
+									<CustomerForm orderId={data.id} />
 								</React.Suspense>
 							}
 							{tabId === 1 && <React.Suspense fallback={<div>Please wait...</div>}><UnitForm

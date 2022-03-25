@@ -113,7 +113,12 @@ const Order = () => {
 				setOrders(res)
 			})
 
-			setTxtSearch(s === 'search' ? p : '')
+			//console.log(p)
+
+			s === 'search' && setTxtSearch(p)
+			s === 'month' && setBulan(+p)
+			s === 'finance' && setFinanceId(+p)
+			s === 'branch' && setBranchId(+p)
 		}
 
 		return () => { isLoaded = true }
