@@ -5,6 +5,7 @@ import { FormatDate, FormatNumber } from "../lib/format";
 import { iInvoice } from "../lib/invoice-interfaces";
 import { iAccCode, iFinance } from "../lib/interfaces";
 import axios from "../lib/axios-base";
+import Finance from "@src/component/Finance";
 
 export interface InvoiceInfo extends iInvoice {
 	finance?: iFinance
@@ -101,7 +102,7 @@ export function InvoiceList({
 	}
 
 	async function downloadInvoice(id: number) {
-		const url = `/invoices/download/${id}`;
+		const url = `/invoices/download/${invoice.finance?.groupId}/${id}`;
 		let res = await axios.get(url, {
 			responseType: 'arraybuffer',
 			headers: {
