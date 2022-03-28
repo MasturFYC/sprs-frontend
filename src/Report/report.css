@@ -83,7 +83,7 @@ td {
 }
 
 .table-small {
-  font-size: 9pt;
+  font-size: 85%;
   border: 1px solid #ececec;
 }
 .table-small td {
@@ -92,7 +92,6 @@ td {
 
 .tr-hover:hover {
   background-color: rgb(102, 167, 5);
-  color: #fff
 }
 
 
@@ -116,10 +115,15 @@ a {
   text-decoration: none;
 }
 
-tr:hover a {
-  color: #fff
-}
-
 a:hover {
   text-decoration: underline;
+}
+
+.tr-hover:hover {
+  color: #fff;
+}
+
+
+.tr-hover:hover a {
+  color: #fff;
 }

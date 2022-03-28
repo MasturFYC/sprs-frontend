@@ -28,3 +28,12 @@ table thead tr {
 .back-color-orange {
   background-color: rgb(255, 225, 214)
 }
+
+.back-orange-600 {
+  background-color: orangered;
+}
+
+
+.table-small2 {
+  font-size: 85%;
+}

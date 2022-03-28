@@ -1,28 +1,29 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, Link as RouteLink } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
 //import OrderForm, { initOrder } from './Form'
-import { Button, ComboBox, Text, Flex, Item, Link, ProgressCircle, SearchField, View } from "@adobe/react-spectrum";
+import { Button, Flex,
+	//ComboBox, Text,  Item, 
+	Link, ProgressCircle, SearchField, View } from "@adobe/react-spectrum";
 import { useAsyncList } from '@react-stately/data'
 
 import { FormatDate, FormatNumber } from "../lib/format";
-
-import './table.css'
-import MonthComponent from "../component/Bulan";
+//import MonthComponent from "../component/Bulan";
 import { AxiosRequestConfig } from "axios";
+import './table.css'
 
 const OrderForm = React.lazy(() => import('./Form'))
 
 
 const Order = () => {
 	let { s, p } = useParams();
-	 const navigate = useNavigate();
+	const navigate = useNavigate();
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	const [financeId, setFinanceId] = useState<number>(0);
-	const [branchId, setBranchId] = useState<number>(0);
+	//const [financeId, setFinanceId] = useState<number>(0);
+	//const [branchId, setBranchId] = useState<number>(0);
 	const [txtSearch, setTxtSearch] = useState<string>('');
-	const [bulan, setBulan] = useState<number>(0);
+	//const [bulan, setBulan] = useState<number>(0);
 	//const [isSearch, setIsSearch] = useState(false)
 	//const [test, setTest] = useState(false)
 	//const [url, setUrl] = useState("/orders")
@@ -116,9 +117,9 @@ const Order = () => {
 			//console.log(p)
 
 			s === 'search' && setTxtSearch(p)
-			s === 'month' && setBulan(+p)
-			s === 'finance' && setFinanceId(+p)
-			s === 'branch' && setBranchId(+p)
+			//s === 'month' && setBulan(+p)
+			//s === 'finance' && setFinanceId(+p)
+			//s === 'branch' && setBranchId(+p)
 		}
 
 		return () => { isLoaded = true }
@@ -133,25 +134,32 @@ const Order = () => {
 			<View marginBottom={'size-200'}><span className="div-h1">Order (SPK)</span></View>
 
 			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>
-				<Button variant="cta" onPress={() => orderInsertNew()}>Order Baru</Button>
+				<View flex>
+					<Button variant="cta" onPress={() => orderInsertNew()}>Order Baru</Button>
+				</View>
 				<SearchField
 					type="search"
 					aria-label="order-search-item"
-					flex
-					width={'auto'}
+					width={{base:'auto', L:'size-3600'}}
 					value={txtSearch}
 					placeholder={'e.g. yamaha | 2022 | BAF'}
-					maxLength={50}
+					maxLength={128}
+					onClear={() => {
+						navigate("/order/month/0")
+					}}
 					onSubmit={(e) => {
+						setSelectedId(-1)
 						navigate(`/order/search/${e}`)
 					}}
 					onChange={(e) => {
 						setTxtSearch(e)
 					}}
 				/>
+				{/*
 				<MonthComponent width="150px" selectedId={bulan}
 					onChange={(e) => {
 						setBulan(e.id)
+						setSelectedId(-1)
 						navigate(`/order/month/${e.id}`)
 					}} />
 				<ComboBox
@@ -165,6 +173,7 @@ const Order = () => {
 					selectedKey={financeId}
 					onSelectionChange={(e) => {
 						setFinanceId(+e);
+						setSelectedId(-1)
 						navigate(`/order/finance/${+e}`)
 					}}
 				>
@@ -188,6 +197,7 @@ const Order = () => {
 					selectedKey={branchId}
 					onSelectionChange={(e) => {
 						setBranchId(+e);
+						setSelectedId(-1)
 						navigate(`/order/branch/${+e}`)
 					}}
 				>
@@ -210,6 +220,7 @@ const Order = () => {
 
 					</Item>}
 				</ComboBox>
+						*/}
 			</Flex>
 			<TableOrder
 				selectedId={selectedId}
@@ -346,13 +357,15 @@ function TableOrder(props: TableOrderProp) {
 		finances,
 		branchs
 	} = props;
+	const { pathname } = useLocation();
 
-	return <table>
+	return <table className="table-small2">
 		<thead>
 			<tr>
 				<th>NO</th>
 				<th>TANGGAL</th>
 				<th align="left" style={{ whiteSpace: 'nowrap' }}>NOMOR (SPK)</th>
+				<th align="left">CABANG</th>
 				<th align="left">FINANCE</th>
 				<th align="left">TYPE</th>
 				<th align="left">MERK</th>
@@ -366,7 +379,7 @@ function TableOrder(props: TableOrderProp) {
 		<tbody style={{ color: selectedId < 0 ? 'black' : '#abc' }}>
 			{orders.map((item, index) => item.id === selectedId ?
 				<tr key={item.id}>
-					<td colSpan={12} style={{ padding: '12px 0', color: selectedId >= 0 ? 'black' : 'auto' }}>
+					<td colSpan={13} style={{ padding: '12px 0', color: selectedId >= 0 ? 'black' : 'auto' }}>
 						<React.Suspense fallback={<div>Please wait...</div>}>
 							<OrderForm order={item}
 								branchs={branchs}
@@ -379,7 +392,7 @@ function TableOrder(props: TableOrderProp) {
 				:
 				<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
-					<td className={item.verifiedBy ? 'back-color-orange' : ''} align="center">{index + 1}</td>
+					<td className={selectedId >= 0 ? '' : item.verifiedBy ? 'back-green-700 text-white' : 'back-orange-600 text-white'} align="center">{index + 1}</td>
 					<td align="center" style={{ whiteSpace: 'nowrap' }}>{FormatDate(item.orderAt)}</td>
 					<td>
 						{selectedId < 0 ?
@@ -390,10 +403,11 @@ function TableOrder(props: TableOrderProp) {
 							item.name
 						}
 					</td>
+					<td>{item.branch?.name}</td>
 					<td>{item.finance?.shortName}</td>
 					<td style={{ whiteSpace: 'nowrap' }}>{item.unit?.type?.name}</td>
 					<td>{item.unit?.type?.merk?.name}</td>
-					<td>{item.unit?.nopol}</td>
+					<td>{selectedId >= 0 ? item.unit?.nopol || '---' : <Link isQuiet variant="primary"><RouteLink className="nopol" to={`/order/${item.id}`} state={{ from: pathname }}>{item.unit?.nopol || '---'}</RouteLink></Link>}</td>
 					<td align="center">{item.unit?.year}</td>
 					<td align="right">
 						{item.isStnk ? '✔' : ''}{' '}
@@ -406,7 +420,7 @@ function TableOrder(props: TableOrderProp) {
 		</tbody>
 		<tfoot>
 			<tr>
-				<th colSpan={8} align="left">Total</th>
+				<th colSpan={9} align="left">Total</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btFinance, 0))}</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btMatel, 0))}</th>

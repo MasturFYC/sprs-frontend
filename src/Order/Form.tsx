@@ -228,6 +228,7 @@ const OrderForm = (props: OrderFormOptions) => {
 											{data.isStnk ? 'Ada STNK' : 'Tidak ada STNK'}
 										</Checkbox>
 										<NumberField
+											flex
 											isDisabled={data.isStnk}
 											hideStepper={true}
 											validationState={isStnkValid ? 'valid' : 'invalid'}
@@ -241,6 +242,7 @@ const OrderForm = (props: OrderFormOptions) => {
 
 									<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
 										<NumberField
+											flex
 											hideStepper={true}
 											width={{ base: 'auto', L: 'size-1700' }}
 											isReadOnly
@@ -252,13 +254,14 @@ const OrderForm = (props: OrderFormOptions) => {
 											validationState={isBtPercentValid ? 'valid' : 'invalid'}
 											width={{ base: "auto", M: "90px" }}
 											label={"Prosentase (%)"}
+											formatOptions={{ maximumFractionDigits: 2 }}
 											onChange={(e) => setPercent(e)}
 											value={data.btPercent} />
 										<NumberField
 											flex
 											hideStepper={true}
-											isReadOnly
-											onChange={(e) => changeData("btMatel", e)}
+											validationState={isBtPercentValid ? 'valid' : 'invalid'}
+											onChange={(e) => setMatel(e)}
 											width={{ base: 'auto', L: 'size-1700' }}
 											label={"BT Matel"}
 											value={data.btMatel} />
@@ -336,14 +339,11 @@ const OrderForm = (props: OrderFormOptions) => {
 					<View paddingX={'size-400'}>
 						<Tabs
 							aria-label="Tab-Order"
-							//	disabledKeys={order.verifiedBy ? ['0', '1'] : ['']}
-							defaultSelectedKey={order.verifiedBy ? '1' : '0'}
-							//selectedKey={data.verifiedBy ? '2' : '0'}
 							density='compact'
 							onSelectionChange={(e) => setTabId(+e)}>
 							<TabList aria-label="Tab-Order-List">
-								<Item key={'0'}><span style={{ fontWeight: 700, color: 'green' }}>Data Konsumen</span></Item>
-								<Item key={'1'}><span style={{ fontWeight: 700, color: 'orangered' }}>Data Asset</span></Item>
+								<Item key={'0'}><span style={{ fontWeight: 700, color: 'orangered' }}>Data Asset</span></Item>
+								<Item key={'1'}><span style={{ fontWeight: 700, color: 'green' }}>Data Konsumen</span></Item>
 								{/* <Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>Data Tunggakan</span></Item> */}
 								<Item key={'2'}><span style={{ fontWeight: 700, color: 'green' }}>History</span></Item>
 								<Item key={'3'}><span style={{ fontWeight: 700, color: 'green' }}>Data Alamat</span></Item>
@@ -351,17 +351,17 @@ const OrderForm = (props: OrderFormOptions) => {
 							</TabList>
 						</Tabs>
 						<View marginY={'size-100'}>
-							{tabId === 0 &&
-								<React.Suspense fallback={<div>Please wait...</div>}>
-									<CustomerForm orderId={data.id} />
-								</React.Suspense>
-							}
-							{tabId === 1 && <React.Suspense fallback={<div>Please wait...</div>}><UnitForm
+							{tabId === 0 && <React.Suspense fallback={<div>Please wait...</div>}><UnitForm
 								isReadOnly={data.verifiedBy ? true : false}
 								dataUnit={data.unit ? { ...data.unit, orderId: data.id } : { ...initUnit, orderId: data.id }}
 								isNew={data.unit ? data.unit.orderId === 0 : true}
 								callback={(e) => responseUnitChange(e)} />
 							</React.Suspense>}
+							{tabId === 1 &&
+								<React.Suspense fallback={<div>Please wait...</div>}>
+									<CustomerForm orderId={data.id} />
+								</React.Suspense>
+							}
 							{/* tabId === 2 &&
 								<React.Suspense fallback={<div>Please wait...</div>}>
 									<ReceivableForm
@@ -378,7 +378,7 @@ const OrderForm = (props: OrderFormOptions) => {
 											<View flex>
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
-														title='Alamat Sesuai KTP'														
+														title='Alamat Sesuai KTP'
 														apiAddress='ktp-address'
 														orderId={data.id}
 													/>
@@ -387,7 +387,7 @@ const OrderForm = (props: OrderFormOptions) => {
 											<View flex>
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
-														title='Alamat Rumah'														
+														title='Alamat Rumah'
 														apiAddress='home-address'
 														orderId={data.id}
 													/>
@@ -400,7 +400,7 @@ const OrderForm = (props: OrderFormOptions) => {
 											<View flex>
 												<React.Suspense fallback={<div>Please wait...</div>}>
 													<AddressForm
-														title='Alamat Kantor'														
+														title='Alamat Kantor'
 														apiAddress='office-address'
 														orderId={data.id}
 													/>
@@ -411,7 +411,7 @@ const OrderForm = (props: OrderFormOptions) => {
 													<AddressForm
 														title='Alamat Surat / Tagih'
 														apiAddress='post-address'
-														orderId={data.id}													/>
+														orderId={data.id} />
 												</React.Suspense>
 											</View>
 										</Flex>
@@ -432,6 +432,21 @@ const OrderForm = (props: OrderFormOptions) => {
 		</View >
 
 	);
+
+	function setMatel(e: number) {
+		const percent = data.btPercent; // ((data.btFinance - e) / data.btFinance) * 100.0
+		const fin = e + (e * (percent/100.0) )
+  
+		setData(o => ({
+		  ...o,
+		  btFinance: fin,
+		  //btPercent: percent,
+		  btMatel: e,
+		}))
+  
+		setIsDirty(true)
+	 }
+  
 
 	function setMatrix(v: number) {
 		const fin = v - data.stnkPrice

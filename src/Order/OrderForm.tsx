@@ -250,6 +250,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
                     {order.isStnk ? 'Ada STNK' : 'Tidak ada STNK'}
                   </Checkbox>
                   <NumberField
+                    flex
                     isDisabled={order.isStnk}
                     hideStepper={true}
                     validationState={isStnkValid ? 'valid' : 'invalid'}
@@ -263,6 +264,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
 
                 <Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
                   <NumberField
+                  flex
                     hideStepper={true}
                     width={{ base: 'auto', L: 'size-1700' }}
                     isReadOnly
@@ -274,13 +276,14 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
                     validationState={isBtPercentValid ? 'valid' : 'invalid'}
                     width={{ base: "auto", M: "90px" }}
                     label={"Prosentase (%)"}
+                    formatOptions={{ maximumFractionDigits: 2 }}
                     onChange={(e) => setPercent(e)}
                     value={order.btPercent} />
                   <NumberField
                     flex
                     hideStepper={true}
-                    isReadOnly
-                    onChange={(e) => handleChange("btMatel", e)}
+                    validationState={isBtPercentValid ? 'valid' : 'invalid'}
+                    onChange={(e) => setMatel(e)}
                     width={{ base: 'auto', L: 'size-1700' }}
                     label={"BT Matel"}
                     value={order.btMatel} />
@@ -424,6 +427,20 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
 
   );
 
+  function setMatel(e: number) {
+    const percent = ((order.btFinance - e) / order.btFinance) * 100.0
+    //const fin = e + (e * (percent/100.0) )
+
+    setOrder(o => ({
+      ...o,
+      //btFinance: fin,
+      btPercent: percent,
+      btMatel: e,
+    }))
+
+    setIsDirty(true)
+  }
+
   function setMatrix(v: number) {
     const fin = v - order.stnkPrice
     const matel = fin - (fin * (order.btPercent / 100.0))
@@ -439,6 +456,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
   }
 
   function setPercent(v: number) {
+    //console.log('test')
     const matel = order.btFinance - (order.btFinance * (v / 100.0))
 
     setOrder(o => ({

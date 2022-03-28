@@ -20,6 +20,10 @@ type financeGroupMenu = {
 
 const Aside = () => {
 
+  function getToday(): string {
+    var d = new Date()
+    return '' + d.getDate() + '-' + d.toLocaleString("id-ID", { month: "short" }).toLowerCase()    + '-' + d.getFullYear()
+  }
   return (
     <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginX={'size-100'}>
       <View><Link isQuiet variant='primary' UNSAFE_className='font-bold'><RouterLink to="/">Home</RouterLink></Link></View>
@@ -62,7 +66,7 @@ const Aside = () => {
 
       <View>
         <Link isQuiet variant='primary' UNSAFE_className='font-bold'>
-          <RouterLink to={`/order/month/${new Date().getMonth()+1}`}>Order (SPK)</RouterLink>
+          <RouterLink to={`/order/search/${getToday()}`}>Order (SPK)</RouterLink>
         </Link>
       </View>
 
@@ -113,6 +117,8 @@ const Aside = () => {
     </Flex>
   )
 }
+
+
 type MasterMenuProps = {
   title: String | React.ReactNode
   children: React.ReactNode
