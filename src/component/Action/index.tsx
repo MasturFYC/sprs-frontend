@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import axios from "../../lib/axios-base";
 import { iAction } from '../../lib/interfaces'
 import ActionForm, { initAction } from './Form'
@@ -39,7 +39,7 @@ const Action = (prop: ActionParam) => {
 
 
 	return (
-		<Fragment>
+		<View>
 			<div className="div-h2">TINDAKAN YANG PERNAH DILAKUKAN</div>
 			{actions.isLoading &&
 				<Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
@@ -80,7 +80,7 @@ const Action = (prop: ActionParam) => {
 						<Divider size={'S'} marginY={'size-100'} />
 					</View>
 			})}
-		</Fragment>
+		</View>
 	);
 
 	function formResponse(params: { method: string, data?: iAction }) {

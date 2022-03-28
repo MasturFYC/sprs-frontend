@@ -18,7 +18,7 @@ const AccType = () => {
 			}
 
 			let res = await axios
-				.get("/acc-group/", { headers: headers })
+				.get("/acc-group", { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
@@ -38,7 +38,7 @@ const AccType = () => {
 			}
 
 			let res = await axios
-				.get(`/acc-group/types/${groupId ? groupId : 0}/`, { headers: headers })
+				.get(`/acc-group/types/${groupId ? groupId : 0}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
@@ -124,7 +124,7 @@ const AccType = () => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.put(`/acc-type/${p.id}/`, xData, { headers: headers })
+			.put(`/acc-type/${p.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				accs.update(oldId, p)
@@ -144,7 +144,7 @@ const AccType = () => {
 		const xData = JSON.stringify(p)		
 
 		await axios
-			.post(`/acc-type/`, xData, { headers: headers })
+			.post(`/acc-type`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				accs.insert(0, p)
@@ -164,7 +164,7 @@ const AccType = () => {
 		}
 
 		await axios
-			.delete(`/acc-type/${id}/`, { headers: headers })
+			.delete(`/acc-type/${id}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				accs.remove(id)

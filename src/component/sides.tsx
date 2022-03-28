@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ActionButton, Flex, ProgressCircle, useAsyncList, View } from '@adobe/react-spectrum';
 import { Link } from '@adobe/react-spectrum';
 import { Link as RouterLink } from 'react-router-dom';
-import { iAccountInfo } from '@src/lib/interfaces';
+import { iAccountInfo } from '../lib/interfaces';
 import axios from "../lib/axios-base";
 import RefreshIcon from '@spectrum-icons/workflow/DocumentRefresh'
 
@@ -100,7 +100,7 @@ const Aside = () => {
           </View>
           <View>
             <Link isQuiet variant='primary'>
-              <RouterLink to="/report/order-status">Status Order</RouterLink>
+              <RouterLink to={`/report/order-status/${new Date().getMonth()+1}/${new Date().getFullYear()}/0/0/0/-/-`}>Status Order</RouterLink>
             </Link>
           </View>
           <View>
@@ -204,7 +204,7 @@ function AutoMenu() {
         'Content-Type': 'application/json'
       }
       await axios
-        .get(`/acc-group/all-accounts/`, { headers: headers })
+        .get(`/acc-group/all-accounts`, { headers: headers })
         .then(response => response.data)
         .then(data => {
           setTypes(data.filter((c: iAccountInfo) => c.isType));

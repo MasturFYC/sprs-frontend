@@ -101,6 +101,9 @@ td {
   padding-right: 3px;
 }
 
+.text-white {
+  color: #fff;
+}
 .back-orange-700 {
   background-color: orangered;
 }

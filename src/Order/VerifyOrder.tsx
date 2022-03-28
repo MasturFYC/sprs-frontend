@@ -25,7 +25,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
         'Content-Type': 'application/json'
       }
       await axios
-        .get(`/acc-code/spec/1/`, { headers: headers })
+        .get(`/acc-code/spec/1`, { headers: headers })
         .then(response => response.data)
         .then(data => {
           setAccountCashes(data)

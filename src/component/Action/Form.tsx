@@ -54,69 +54,71 @@ const ActionForm = (props: ActionFormOptions) => {
   }, [action]);
 
   return (
-    <form onSubmit={(e) => handleSubmit(e)}>
-      <Flex rowGap={'size-50'} direction={'column'}>
-      <Flex columnGap='size-200' rowGap={'size-50'} direction={{ base: 'column', M: 'row' }}>
-        <TextField
-          type={'date'}
-          label='Tanggal'
-          autoFocus
-          width={'auto'}
-          value={dateOnly(data.actionAt)}
-          onChange={(e) => changeData("actionAt", e)}
-        />
-        <TextField
-          validationState={isPicValid ? 'valid' : 'invalid'}
-          flex
-          placeholder={'e.g. Junaedi'}
-          label='Nama orang'
-          width={'auto'}
-          value={data.pic}
-          maxLength={50}
-          onChange={(e) => changeData("pic", e)}
-        />
+    <View>
+      <form onSubmit={(e) => handleSubmit(e)}>
+        <Flex rowGap={'size-50'} direction={'column'}>
+          <Flex columnGap='size-200' rowGap={'size-50'} direction={{ base: 'column', M: 'row' }}>
+            <TextField
+              type={'date'}
+              label='Tanggal'
+              autoFocus
+              width={'auto'}
+              value={dateOnly(data.actionAt)}
+              onChange={(e) => changeData("actionAt", e)}
+            />
+            <TextField
+              validationState={isPicValid ? 'valid' : 'invalid'}
+              flex
+              placeholder={'e.g. Junaedi'}
+              label='Nama orang'
+              width={'auto'}
+              value={data.pic}
+              maxLength={50}
+              onChange={(e) => changeData("pic", e)}
+            />
+          </Flex>
+          <TextArea
+            validationState={isDescriptionsValid ? 'valid' : 'invalid'}
+            flex
+            label='Keterangan'
+            placeholder={'e.g. Kendaraan sudah tidak ada di pelanggan pada tanggal: ...'}
+            width={'auto'}
+            value={data.descriptions || ''}
+            maxLength={256}
+            onChange={(e) => changeData("descriptions", e)}
+          />
         </Flex>
-      <TextArea
-        validationState={isDescriptionsValid ? 'valid' : 'invalid'}
-        flex
-        label='Keterangan'
-        placeholder={'e.g. Kendaraan sudah tidak ada di pelanggan pada tanggal: ...'}
-        width={'auto'}
-        value={data.descriptions || ''}
-        maxLength={256}
-        onChange={(e) => changeData("descriptions", e)}
-      />
-      </Flex>
-      <Flex direction={'row'} gap='size-100' marginY={'size-200'}>
-        <Flex flex direction={'row'} columnGap={'size-100'}>
-          <Button type='submit' variant='cta'
-            isDisabled={!isDirty || !(isDescriptionsValid && isPicValid)}
-          >
-            Save
-          </Button>
-          <Button
-            type='button'
-            variant='primary'
-            onPress={() => callback({ method: 'cancel' })}
-          >
-            Cancel
-          </Button>
-        </Flex>
-        {data.id > 0 && (
-          <View>
+        <Flex direction={'row'} gap='size-100' marginY={'size-200'}>
+          <Flex flex direction={'row'} columnGap={'size-100'}>
+            <Button type='submit' variant='cta'
+              isDisabled={!isDirty || !(isDescriptionsValid && isPicValid)}
+            >
+              Save
+            </Button>
             <Button
               type='button'
-              alignSelf={'flex-end'}
-              isDisabled={data.id === 0}
-              variant='negative'
-              onPress={() => deleteAction(data)}
+              variant='primary'
+              onPress={() => callback({ method: 'cancel' })}
             >
-              Remove
+              Cancel
             </Button>
-          </View>
-        )}
-      </Flex>
-    </form>
+          </Flex>
+          {data.id > 0 && (
+            <View>
+              <Button
+                type='button'
+                alignSelf={'flex-end'}
+                isDisabled={data.id === 0}
+                variant='negative'
+                onPress={() => deleteAction(data)}
+              >
+                Remove
+              </Button>
+            </View>
+          )}
+        </Flex>
+      </form>
+    </View>
   );
 
   async function handleSubmit(e: FormEvent) {

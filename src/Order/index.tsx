@@ -65,7 +65,7 @@ const Order = () => {
 			}
 
 			let res = await axios
-				.get("/branchs/", { headers: headers })
+				.get("/branchs", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
 					return data
@@ -350,16 +350,17 @@ function TableOrder(props: TableOrderProp) {
 	return <table>
 		<thead>
 			<tr>
-				<th align="left" style={{ whiteSpace: 'nowrap' }}>NOMOR (SPK)</th>
+				<th>NO</th>
 				<th>TANGGAL</th>
-				<th align="left">MERK</th>
-				<th align="left">TYPE</th>
+				<th align="left" style={{ whiteSpace: 'nowrap' }}>NOMOR (SPK)</th>
 				<th align="left">FINANCE</th>
+				<th align="left">TYPE</th>
+				<th align="left">MERK</th>
 				<th align="left">NOPOL</th>
 				<th>TAHUN</th>
+				<th align="right" style={{ whiteSpace: 'nowrap' }}>STNK ?</th>
 				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT FINANCE</th>
 				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT MATEL</th>
-				<th align="right" style={{ whiteSpace: 'nowrap' }}>STNK ?</th>
 			</tr>
 		</thead>
 		<tbody style={{ color: selectedId < 0 ? 'black' : '#abc' }}>
@@ -378,38 +379,37 @@ function TableOrder(props: TableOrderProp) {
 				:
 				<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
-					<td className={item.verifiedBy ? 'back-color-orange' : ''}>
+					<td className={item.verifiedBy ? 'back-color-orange' : ''} align="center">{index + 1}</td>
+					<td align="center" style={{ whiteSpace: 'nowrap' }}>{FormatDate(item.orderAt)}</td>
+					<td>
 						{selectedId < 0 ?
-							<Link isQuiet variant="primary"
-								UNSAFE_className={"font-bold"} onPress={(e) => {
+							<Link isQuiet variant="primary" onPress={(e) => {
 									setSelectedId(item.id);
-								}}>{item.name}</Link>
-							// <RouterLink className="text-decoration-none" to={`/trx/8`}><span className="font-bold">#{item.name}</span></RouterLink>
+							}}><span className={"font-bold"}>{item.name}</span></Link>
 							:
 							item.name
 						}
 					</td>
-					<td align="center" style={{ whiteSpace: 'nowrap' }}>{FormatDate(item.orderAt)}</td>
-					<td>{item.unit?.type?.merk?.name}</td>
-					<td style={{ whiteSpace: 'nowrap' }}>{item.unit?.type?.name}</td>
 					<td>{item.finance?.shortName}</td>
+					<td style={{ whiteSpace: 'nowrap' }}>{item.unit?.type?.name}</td>
+					<td>{item.unit?.type?.merk?.name}</td>
 					<td>{item.unit?.nopol}</td>
 					<td align="center">{item.unit?.year}</td>
-					<td align="right">{FormatNumber(item.btFinance)}</td>
-					<td align="right">{FormatNumber(item.btMatel)}</td>
 					<td align="right">
 						{item.isStnk ? '✔' : ''}{' '}
 						{FormatNumber(item.stnkPrice)}
 					</td>
+					<td align="right">{FormatNumber(item.btFinance)}</td>
+					<td align="right">{FormatNumber(item.btMatel)}</td>
 				</tr>
 			)}
 		</tbody>
 		<tfoot>
 			<tr>
-				<th colSpan={7} align="left">Total</th>
+				<th colSpan={8} align="left">Total</th>
+				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btFinance, 0))}</th>
 				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btMatel, 0))}</th>
-				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
 			</tr>
 		</tfoot>
 	</table>;

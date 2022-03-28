@@ -25,7 +25,7 @@ const Trx = () => {
       }
 
       let res = await axios
-        .get("/acc-code/props/", { headers: headers })
+        .get("/acc-code/props", { headers: headers })
         .then(response => response.data)
         .then(data => {
           return data
@@ -46,7 +46,7 @@ const Trx = () => {
       }
 
       let res = await axios
-        .get("/acc-group/", { headers: headers })
+        .get("/acc-group", { headers: headers })
         .then(response => response.data)
         .then(data => {
           return data

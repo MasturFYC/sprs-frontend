@@ -104,7 +104,7 @@ const WheelForm = (props: WheelFormOptions) => {
         const xData = JSON.stringify(wheel)
 
         await axios
-            .put(`/wheels/${wheel.id}/`, xData, { headers: headers })
+            .put(`/wheels/${wheel.id}`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 callback({ method: 'save', data: wheel })
@@ -123,7 +123,7 @@ const WheelForm = (props: WheelFormOptions) => {
         const xData = JSON.stringify(wheel)
 
         await axios
-            .post(`/wheels/`, xData, { headers: headers })
+            .post(`/wheels`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 callback({ method: 'save', data: data })
@@ -141,7 +141,7 @@ const WheelForm = (props: WheelFormOptions) => {
         }
 
         await axios
-            .delete(`/wheels/${wheel.id}/`, { headers: headers })
+            .delete(`/wheels/${wheel.id}`, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 callback({ method: 'remove', data: data })

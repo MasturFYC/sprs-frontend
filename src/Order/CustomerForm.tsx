@@ -12,7 +12,7 @@ export const initCustomer: iCustomer = {
 
 type CustomerFormOptions = {
 	orderId: number
-	isReadOnly?:boolean
+	isReadOnly?: boolean
 }
 
 const CustomerForm = (props: CustomerFormOptions) => {
@@ -64,68 +64,71 @@ const CustomerForm = (props: CustomerFormOptions) => {
 	}, [orderId])
 
 	return (
-		<Form isReadOnly={isReadOnly} onSubmit={(e) => handleSubmit(e)}>
+		<View>
 			<div className='div-h2'>DATA KONSUMEN</div>
-			<Flex direction={'column'} columnGap='size-200' rowGap='size-50'>
-				<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap='size-50'>
-					<TextField
-						validationState={isNameValid ? 'valid' : 'invalid'}
-						label='Nama konsumen'
-						flex
-						placeholder='e.g. Wardiman'
-						autoComplete='name'
-						width={{ base: 'auto' }}
-						value={data.name}
-						maxLength={50}
-						onChange={(e) => changeData("name", e )}
-					/>
-					<TextField
-						flex
-						label='Nomor perjanjian'
-						// validationState={isAgreementValid ? 'valid' : 'invalid'}
-						width={'auto'}
-						placeholder='e.g. XXX-XXXX-XXXXXXXXX'
-						value={data.agreementNumber || ''}
-						maxLength={25}
-						onChange={(e) => changeData("agreementNumber", e )}
-					/>
-					<TextField
-						label='Jenis pembayaran'
-						width={{ base: 'auto', M: '25%' }}
-						value={data.paymentType}
-						placeholder='e.g. CO-1'
-						validationState={isPaymentValid ? 'valid' : 'invalid'}
-						maxLength={25}
-						onChange={(e) => changeData("paymentType", e)}
-					/>
-				</Flex>
-				<Flex direction={'row'} columnGap='size-200' rowGap='size-50' marginTop={'size-200'}>
-					<Flex flex direction={'row'} columnGap='size-100'>
-						<Button type='submit' 
-						isDisabled={!isDirty || !(isNameValid && isPaymentValid)}
-						variant='secondary'>Update</Button>
-						<Button type='button' variant='primary'
-							isDisabled={!isDirty}
-							onPress={() => {
-								setData(oldData);
-								setIsDirty(false)
-							}}>Cancel</Button>
+			<Form isReadOnly={isReadOnly} onSubmit={(e) => handleSubmit(e)}>
+
+				<Flex direction={'column'} columnGap='size-200' rowGap='size-50'>
+					<Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap='size-50'>
+						<TextField
+							validationState={isNameValid ? 'valid' : 'invalid'}
+							label='Nama konsumen'
+							flex
+							placeholder='e.g. Wardiman'
+							autoComplete='name'
+							width={{ base: 'auto' }}
+							value={data.name}
+							maxLength={50}
+							onChange={(e) => changeData("name", e)}
+						/>
+						<TextField
+							flex
+							label='Nomor perjanjian'
+							// validationState={isAgreementValid ? 'valid' : 'invalid'}
+							width={'auto'}
+							placeholder='e.g. XXX-XXXX-XXXXXXXXX'
+							value={data.agreementNumber || ''}
+							maxLength={25}
+							onChange={(e) => changeData("agreementNumber", e)}
+						/>
+						<TextField
+							label='Jenis pembayaran'
+							width={{ base: 'auto', M: '25%' }}
+							value={data.paymentType}
+							placeholder='e.g. CO-1'
+							validationState={isPaymentValid ? 'valid' : 'invalid'}
+							maxLength={25}
+							onChange={(e) => changeData("paymentType", e)}
+						/>
 					</Flex>
-					{data.orderId > 0 &&
-						<View>
-							<Button
-								isDisabled={data.orderId === 0 || isReadOnly}
-								type='button' alignSelf={'flex-end'} variant='negative'
-								onPress={() => deleteData(data)}>Clear</Button>
-						</View>
-					}
+					<Flex direction={'row'} columnGap='size-200' rowGap='size-50' marginTop={'size-200'}>
+						<Flex flex direction={'row'} columnGap='size-100'>
+							<Button type='submit'
+								isDisabled={!isDirty || !(isNameValid && isPaymentValid)}
+								variant='secondary'>Update</Button>
+							<Button type='button' variant='primary'
+								isDisabled={!isDirty}
+								onPress={() => {
+									setData(oldData);
+									setIsDirty(false)
+								}}>Cancel</Button>
+						</Flex>
+						{data.orderId > 0 &&
+							<View>
+								<Button
+									isDisabled={data.orderId === 0 || isReadOnly}
+									type='button' alignSelf={'flex-end'} variant='negative'
+									onPress={() => deleteData(data)}>Clear</Button>
+							</View>
+						}
+					</Flex>
 				</Flex>
-			</Flex>
-		</Form>
+			</Form>
+		</View>
 	);
 
 	function changeData(fieldName: string, value: string | number | undefined | null) {
-		setData(o => ({...o, [fieldName]: value}))
+		setData(o => ({ ...o, [fieldName]: value }))
 		setIsDirty(true)
 	}
 
@@ -134,7 +137,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		if (isNameValid && isPaymentValid) {
 
 			if (data.orderId === 0) {
-				await inserData({...data, orderId: orderId});
+				await inserData({ ...data, orderId: orderId });
 			} else {
 				await updateData(data);
 			}
@@ -174,7 +177,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 			.then(response => response.data)
 			.then(data => {
 				changeData("orderId", orderId)
-				setOldData({...p, orderId: orderId})
+				setOldData({ ...p, orderId: orderId })
 				setIsDirty(false)
 			})
 			.catch(error => {

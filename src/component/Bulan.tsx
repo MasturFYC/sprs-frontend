@@ -3,6 +3,8 @@ import { ComboBox, Item } from '@adobe/react-spectrum';
 
 
 type ValidationState = 'valid' | 'invalid';
+type Alignment = 'start' | 'end';
+
 interface iBulan {
 	id: number
 	name: string
@@ -14,8 +16,9 @@ type MonthComponentProps = {
 	onChange?: (e: iBulan) => void,
 	ValidationState?: ValidationState,
 	labelPosition?: 'top' | 'side',
-	label?: string,
-	width?: string
+	label?: React.ReactNode,
+	width?: string,
+	labelAilgn?: Alignment
 }
 
 export const monthNames: iBulan[] = [
@@ -36,9 +39,10 @@ export const monthNames: iBulan[] = [
 
 export default function MonthComponent(props: MonthComponentProps) {
 	const {
-		selectedId, 
-		onChange: onchange, 
-		removeId, 
+		selectedId,
+		labelAilgn,
+		onChange: onchange,
+		removeId,
 		ValidationState: vstate,
 		labelPosition,
 		label,
@@ -46,24 +50,25 @@ export default function MonthComponent(props: MonthComponentProps) {
 	} = props;
 
 	return (
-			<ComboBox
-				menuTrigger="focus"
-				validationState={vstate}
-				flex={{base: true, M:false}}
-				width={{base: 'auto', M: width}}
-				label={label}
-				aria-label={'bulan-component'}
-				labelPosition={labelPosition}
-				placeholder={"e.g. Agustus"}
-				defaultItems={removeId ? monthNames : monthNames.filter(o => o.id !== removeId)}
-				selectedKey={selectedId}
-				onSelectionChange={(e) => {
-					if (onchange) {
-						onchange(monthNames.filter(o => o.id === +e)[0])
-					}
-				}}
-			>
-				{(item) => <Item>{item.name}</Item>}
-			</ComboBox>
+		<ComboBox
+			menuTrigger="focus"
+			validationState={vstate}
+			flex={{ base: true, M: false }}
+			width={{ base: 'auto', M: width }}
+			label={label}
+			labelAlign={labelAilgn}
+			aria-label={'bulan-component'}
+			labelPosition={labelPosition}
+			placeholder={"e.g. Agustus"}
+			defaultItems={removeId ? monthNames : monthNames.filter(o => o.id !== removeId)}
+			selectedKey={selectedId}
+			onSelectionChange={(e) => {
+				if (onchange) {
+					onchange(monthNames.filter(o => o.id === +e)[0])
+				}
+			}}
+		>
+			{(item) => <Item>{item.name}</Item>}
+		</ComboBox>
 	);
 }

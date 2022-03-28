@@ -59,7 +59,7 @@ const UnitForm = (props: UnitFormOptions) => {
 			}
 
 			let res = await axios
-				.get("/types/", { headers: headers })
+				.get("/types", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
 					return data ? data : []
@@ -128,8 +128,9 @@ const UnitForm = (props: UnitFormOptions) => {
 					</View>}
 			</DialogContainer>
 
-			<Form onSubmit={(e) => handleSubmit(e)} isReadOnly={isReadOnly}>
-				<div className='div-h2'>DATA ASSET / UNIT</div>
+			<div className='div-h2'>DATA ASSET / UNIT</div>
+
+			<Form onSubmit={(e) => handleSubmit(e)} isReadOnly={isReadOnly}>				
 				<View>
 					{(houses.isLoading || types.isLoading) &&
 						<Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -145,6 +146,7 @@ const UnitForm = (props: UnitFormOptions) => {
 									validationState={isTypeValid ? "valid" : "invalid"}
 									width={'auto'}
 									labelPosition={'side'}
+									labelAlign={'end'}
 									label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Tipe</View>}
 									placeholder={"e.g. Vario 125"}
 									defaultItems={types.items}
@@ -174,6 +176,7 @@ const UnitForm = (props: UnitFormOptions) => {
 							<Flex direction={'row'} columnGap={'size-100'}>
 								<NumberField
 									flex
+									labelAlign={'end'}
 									labelPosition={'side'}
 									label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Tahun</View>}
 									formatOptions={{ useGrouping: false }}
@@ -188,6 +191,7 @@ const UnitForm = (props: UnitFormOptions) => {
 								/>
 								<TextField
 									labelPosition={'side'}
+									labelAlign={'end'}
 									label={'Warna'}
 									flex
 									width={{ base: 'auto' }}
@@ -202,6 +206,7 @@ const UnitForm = (props: UnitFormOptions) => {
 
 							<TextField
 								labelPosition={'side'}
+								labelAlign={'end'}
 								label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Nomor Polisi</View>}
 								flex
 								validationState={isNopolValid ? 'valid' : 'invalid'}
@@ -220,6 +225,7 @@ const UnitForm = (props: UnitFormOptions) => {
 							<ComboBox
 								menuTrigger={isReadOnly ? "manual" : "focus"}
 								flex
+								labelAlign={'end'}
 								validationState={isWarehouseValid ? "valid" : "invalid"}
 								width={'auto'}
 								labelPosition={'side'}
@@ -247,6 +253,7 @@ const UnitForm = (props: UnitFormOptions) => {
 								labelPosition={'side'}
 								label={<View width={'size-1600'}>Nomor rangka</View>}
 								flex
+								labelAlign={'end'}
 								width={{ base: 'auto' }}
 								value={data.frameNumber ?? ''}
 								maxLength={25}
@@ -259,6 +266,7 @@ const UnitForm = (props: UnitFormOptions) => {
 								labelPosition={'side'}
 								label={<View width={'size-1600'}>Nomor mesin</View>}
 								flex
+								labelAlign={'end'}
 								width={{ base: 'auto' }}
 								value={data.machineNumber ?? ''}
 								maxLength={25}

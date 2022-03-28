@@ -14,7 +14,7 @@ const Wheel = () => {
             }
 
             let res = await axios
-                .get("/wheels/", { headers: headers })
+                .get("/wheels", { headers: headers })
                 .then(response => response.data)
                 .then(data => {
                     return data ? data : []

@@ -17,7 +17,7 @@ const AccountType = () => {
 			}
 
 			let res = await axios
-				.get("/acc-group/", { headers: headers })
+				.get("/acc-group", { headers: headers })
 				.then(response => response.data)
 				.then(data => {
 					return data ? data : []

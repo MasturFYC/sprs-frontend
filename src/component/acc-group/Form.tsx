@@ -117,7 +117,7 @@ const AccGroupForm = (props: AccGroupFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.put(`/acc-group/${accGroup.id}/`, xData, { headers: headers })
+			.put(`/acc-group/${accGroup.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: p })
@@ -136,7 +136,7 @@ const AccGroupForm = (props: AccGroupFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.post(`/acc-group/`, xData, { headers: headers })
+			.post(`/acc-group`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: p })
@@ -154,7 +154,7 @@ const AccGroupForm = (props: AccGroupFormOptions) => {
 		}
 
 		await axios
-			.delete(`/acc-group/${p.id}/`, { headers: headers })
+			.delete(`/acc-group/${p.id}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove', data: p })

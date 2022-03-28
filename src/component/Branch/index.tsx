@@ -14,7 +14,7 @@ const Branch = () => {
             }
 
             let res = await axios
-                .get("/branchs/", { headers: headers })
+                .get("/branchs", { headers: headers })
                 .then(response => response.data)
                 .then(data => {
                     return data ? data : []

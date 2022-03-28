@@ -57,12 +57,12 @@ const initInvoice: InvoiceById = {
 
 const InvoiceForm = () => {
 	const { financeId, invoiceId } = useParams()
+	const navigate = useNavigate();
 	const [invoice, setInvoice] = useState<InvoiceById>({ ...initInvoice, financeId: financeId ? +financeId : 0 })
 	const [finance, setFinance] = useState<iFinance>({} as iFinance)
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [showOrderList, setShowOrderList] = useState(false)
 	const debtAccount = 4111;
-	const navigate = useNavigate();
 
 	const isCashValid = React.useMemo(
 		() => invoice.accountId > 0,
@@ -122,7 +122,7 @@ const InvoiceForm = () => {
 			}
 
 			let res = await axios
-				.get("/acc-code/spec/1/", { headers: headers })
+				.get("/acc-code/spec/1", { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {

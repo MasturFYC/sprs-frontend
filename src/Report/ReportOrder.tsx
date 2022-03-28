@@ -1,58 +1,42 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ActionButton, ComboBox, Flex, Item, NumberField, ProgressCircle, Text, useAsyncList, View } from '@adobe/react-spectrum';
+import React, { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom';
+import { TextField, Form, Checkbox, ComboBox, Flex, Item, NumberField, ProgressCircle, Text, useAsyncList, View, Tabs, TabList, Divider, Button } from '@adobe/react-spectrum';
 import axios from "../lib/axios-base";
-import { FormatDate, FormatNumber } from '../lib/format';
 import MonthComponent from "../component/Bulan";
-import './report.css'
-import { iFinance } from '@src/lib/interfaces';
-//import FindAndReplace from '@spectrum-icons/workflow/FindAndReplace';
+import { dateOnly, dateParam, iFinance } from '../lib/interfaces';
 import Find from '../find.svg';
-
-type tOrderInvoiced = {
-  id: number
-  name: string
-  orderAt: string
-  btFinance: number
-  btPercent: number
-  btMatel: number
-  isStnk: boolean
-  stnkPrice: number
-  status: number
-  financeId: number
-
-  branch: {
-    name: string
-  }
-
-  unit?: {
-    nopol: string
-    year: number
-
-    type: {
-      name: string
-      wheel: { name: string, shortName: string }
-      merk: { name: string }
-    }
-  }
-
-  finance: {
-    name: string
-    shortName: string
-  }
-}
+import ComboBranch from '../component/combo-branch';
+import ComboWheel from '../component/combo-wheel';
+import './report.css'
+import { ReportOrderAllWaiting } from './ReportOrderAllWaiting';
+import { tOrderInvoiced } from './interface';
+import { TableContent } from "./TableContent";
 
 const ReportOrder = () => {
   const navigate = useNavigate();
-  let { m, y, f } = useParams();
+  let { m: pmonth, y: pyear, f: pfinance, b: pbranch, t: ptype, tf: pfrom, to: pto } = useParams();
   let [monthId, setMonthId] = useState<number>(0);
   let [yearId, setYearId] = useState<number>(0);
   const [financeId, setFinanceId] = useState<number>(0);
+  const [branchId, setBranchId] = useState<number>(0);
   const [orders, setOrders] = useState<tOrderInvoiced[]>([])
-  const [isOrderLoading, setIsOrderLoading] = useState<boolean>(false)
+  //const [isOrderLoading, setIsOrderLoading] = useState<boolean>(false)
   const [isDirty, setIsDirty] = useState<boolean>(false)
+  const [isDate, setIsDate] = useState(false)
+  const [typeId, setTypeId] = useState(0)
+  const [dateFrom, setDateFrom] = useState(dateParam(null))
+  const [dateTo, setDateTo] = useState(dateParam(null))
+  const [tabId, setTabId] = useState(0)
 
   const status: string[] = ['Not verified', 'Invoiced', 'Waiting']
+
+
+  const isFromValid = useMemo(
+    () => {
+      return dateFrom <= dateTo
+    },
+    [dateFrom, dateTo]
+  )
 
   let finances = useAsyncList<iFinance>({
     async load({ signal }) {
@@ -77,12 +61,13 @@ const ReportOrder = () => {
   useEffect(() => {
     let isLoaded = false
 
-    const load = async (month: number, year: number, finance: number) => {
+    const load = async () => {
       const headers = {
         'Content-Type': 'application/json'
       }
 
-      const url = `/orders/invoiced/${month}/${year}/${finance}`
+      const url = `/report/order-status/${pfinance}/${pbranch}/${ptype}/${pmonth}/${pyear}/${pfrom}/${pto}`
+      //const url = `orders/{finance}/{branch}/{type}/{month}/{year}/{from}/{to}`
 
       let res = await axios
         .get(url, { headers: headers })
@@ -96,157 +81,192 @@ const ReportOrder = () => {
     }
 
     if (!isLoaded) {
-      const month = m ? +m : new Date().getMonth() + 1
-      const year = y ? +y : new Date().getFullYear()
-      setIsOrderLoading(true)
+      const month = pmonth ? +pmonth : new Date().getMonth() + 1
+      const year = pyear ? +pyear : new Date().getFullYear()
+      //setIsOrderLoading(true)
       setMonthId(month)
       setYearId(year)
-      setFinanceId(f?+f:0)
+      setFinanceId(pfinance ? +pfinance : 0)
+      setBranchId(pbranch ? +pbranch : 0)
+      setTypeId(ptype ? +ptype : 0)
 
-      load(month, year, f?+f:0).then(data => {
-        setOrders(data)
-        setIsOrderLoading(false)
-        setIsDirty(false)
-      })
+      if (pmonth && pyear && pbranch && ptype) {
+        load().then(data => {
+          setOrders(data)
+          //setIsOrderLoading(false)
+          setIsDirty(false)
+        })
+      }
     }
 
     return () => { isLoaded = true }
 
-  }, [m, y, f])
+  }, [pmonth, pyear, pfinance, pbranch, ptype, pfrom, pto])
 
-  if (isOrderLoading || finances.isLoading) {
+  if (finances.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
 
   return (
     <View>
-      <View marginBottom={'size-200'}><span className='div-h1'>Satus Order</span></View>
-      <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} marginBottom={'size-100'}>
-        <MonthComponent labelPosition='side' label={'Dari bulan'} selectedId={monthId} onChange={(e) => {
-          setMonthId(e.id);
-          setIsDirty(true);
-        }} />
-        <NumberField
-          minValue={2021}
-          label='Tahun'
-          labelPosition='side'
-          formatOptions={{ useGrouping: false }}
-          hideStepper={true}
-          width={'size-1250'}
-          value={yearId}
-          onChange={(e) => {
-            setYearId(e)
+      <Form onSubmit={handleSubmit}>
+        <Flex direction={{ base: 'column', L: 'row' }} marginBottom={'size-200'} columnGap={'size-400'} rowGap={'size-50'}>
+          <View flex><span className='div-h1'>Status Order</span></View>
+          <View alignSelf={{ base: 'center', L: 'flex-end' }}>
+            {isDate ?
+              <Flex direction={{ base: 'column', L: 'row' }} gap={'size-100'}>
+                <TextField
+                  type={'date'}
+                  labelAlign={'end'}
+                  label='Dari tanggal'
+                  labelPosition={'side'}
+                  width={'auto'}
+                  validationState={isFromValid ? 'valid' : 'invalid'}
+                  value={dateOnly(dateFrom)}
+                  onChange={(e) => {
+                    setDateFrom(dateOnly(e))
+                    setIsDirty(true)
+                  }}
+                />
+                <TextField
+                  type={'date'}
+                  labelAlign={'end'}
+                  labelPosition={'side'}
+                  validationState={isFromValid ? 'valid' : 'invalid'}
+                  label='Sampai'
+                  width={'auto'}
+                  value={dateOnly(dateTo)}
+                  onChange={(e) => {
+                    setDateTo(dateOnly(e))
+                    setIsDirty(true)
+                  }}
+                />
+              </Flex>
+              :
+              <Flex flex direction={{ base: 'column', L: 'row' }} gap={'size-100'} >
+                <NumberField
+                  minValue={2021}
+                  label={<div style={{ width: '60px' }}>Tahun</div>}
+                  labelAlign={'end'}
+                  labelPosition='side'
+                  formatOptions={{ useGrouping: false }}
+                  hideStepper={true}
+                  width={'size-1600'}
+                  value={yearId}
+                  onChange={(e) => {
+                    setYearId(e)
+                    setIsDirty(true)
+                  }}
+                />
+
+                <MonthComponent labelPosition='side' labelAilgn='end'
+                  label={<div style={{ width: '60px' }}>Bulan</div>} selectedId={monthId} onChange={(e) => {
+                    setMonthId(e.id);
+                    setIsDirty(true);
+                  }} />
+              </Flex>
+            }
+          </View>
+          <View alignSelf={{ base: 'center', L: 'flex-end' }}><Checkbox isSelected={isDate} onChange={(e) => {
+            setIsDate(e)
             setIsDirty(true)
-          }}
-        />
-        <ComboBox
-          flex={{ base: true, M: false }}
-          width={'auto'}
-          label="Finance"
-          labelPosition={'side'}
-          menuTrigger='focus'
-          placeholder={"e.g. Adira"}
-          defaultItems={[{ id: 0, shortName: 'Semua finance', name: '', descriptions: '' }, ...finances.items]}
-          selectedKey={financeId}
-          onSelectionChange={(e) => {
-            setFinanceId(+e);
-            setIsDirty(true);
-          }}
-        >
-          {(o) => <Item textValue={o.shortName}>
-            <Text>{o.shortName}</Text>
-            <Text slot='description'>{o.name}</Text>
-          </Item>}
-        </ComboBox>
-        <ActionButton width={'size-1200'} onPress={() => {
-          isDirty && navigate(`/report/order-status/${monthId}/${yearId}/${financeId}`)
-        }}
-        >
-          <img src={Find} alt="logo" style={{ width: "32px", marginLeft: '12px' }} />
-          <Text>Load</Text>
-        </ActionButton>
-      </Flex>
+          }}>Cari dengan tanggal</Checkbox></View>
+        </Flex>
 
-      {[1, 2, 0].map(s => <View key={s}>
+        <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-50'} marginBottom={'size-100'}>
 
-        <View marginTop={'size-400'} marginBottom={'size-200'}>
-          <span className='table-caption'>Status: <strong>{status[s]}</strong></span>
-        </View>
-        <table className={'table-100 table-small collapse-none'} cellPadding={4}>
-          <TableHead isInvoice={s === 1} status={s} />
-          <tbody>
-            {orders.filter(f => f.status === s).map((o, i) => <tr key={o.id} className={`tr-hover border-b-gray-50 ${i % 2 === 1 ? 'tr-bg-green' : 'bg-white'}`}>
-              {/* <td className=' text-right '>{i+1}.</td> */}
-              <td>{o.branch.name}</td>
-              <td className='text-no-wrap'>{s === 1 ? <Link to={`/invoice/${o.financeId}/${o.name}`}>Invoice #{o.name}</Link> : o.name}</td>
-              <td className='text-center'>{FormatDate(o.orderAt, '2-digit')}</td>
-              <td>{o.unit && o.unit.type.merk.name}</td>
-              <td>{o.unit && o.unit.type.name}</td>
-              <td>{o.finance.name} ({o.finance.shortName})</td>
-              <td className='text-no-wrap'>{o.unit && o.unit.nopol}</td>
-              <td className='text-center'>{o.unit && o.unit.year}</td>
-              <td className={`${s === 1 ? "text-right" : "text-center"}`}>{s === 1 ? FormatNumber(o.btFinance) : o.isStnk ? '✔' : ''}</td>
-              <td className='text-right'>{s === 1 ? `${FormatNumber(o.btPercent)}%` : FormatNumber(o.btFinance)}</td>
-              <td className='text-right'>{FormatNumber(o.btMatel)}</td>
-            </tr>
-            )}
-          </tbody>
-          <TableFooter count={orders.filter(f => f.status === s).length}
-            isInvoice={s === 1}
-            finance={orders.filter(f => f.status === s).reduce((t, c) => t + c.btFinance, 0)}
-            matel={orders.filter(f => f.status === s).reduce((t, c) => t + c.btMatel, 0)} />
-        </table>
+          <ComboBranch
+            labelAlign={'end'}
+            label={<div style={{ width: '60px' }}>Cabang</div>}
+            onSelectionChange={(e) => {
+              setBranchId(e)
+              setIsDirty(true)
+            }} labelPosition={'side'} selectedKey={branchId} />
+          <ComboBox
+            flex={{ base: true, M: false }}
+            width={'auto'}
+            labelAlign={'end'}
+            label={<div style={{ width: '60px' }}>Finance</div>}
+            labelPosition={'side'}
+            menuTrigger='focus'
+            placeholder={"e.g. Adira"}
+            defaultItems={[{ id: 0, shortName: 'Semua finance', name: '', descriptions: '' }, ...finances.items]}
+            selectedKey={financeId}
+            onSelectionChange={(e) => {
+              setFinanceId(+e);
+              setIsDirty(true);
+            }}
+          >
+            {(o) => <Item textValue={o.shortName}>
+              <Text>{o.shortName}</Text>
+              <Text slot='description'>{o.name}</Text>
+            </Item>}
+          </ComboBox>
+          <Flex flex direction={'row'} columnGap={'size-200'}>
+            <ComboWheel
+              labelAlign={'end'}
+              label={<div style={{ width: '60px' }}>Roda</div>}
+              onSelectionChange={(e) => {
+                setTypeId(e)
+                setIsDirty(true)
+              }} labelPosition={'side'} selectedKey={typeId} />
+
+            <Button type="submit" variant="cta">
+              <img src={Find} alt="logo" style={{ width: "32px" }} />
+              <Text>Load</Text>
+            </Button>
+          </Flex>
+        </Flex>
+      </Form>
+
+      <Divider size="S" marginY={'size-200'} />
+
+      <View>
+        <Tabs
+          aria-label="Tab-Order"
+          defaultSelectedKey={0}
+          density='compact'
+          onSelectionChange={(e) => setTabId(+e)}>
+          <TabList aria-label="Tab-Order-List">
+            <Item key={'0'}>All</Item>
+            <Item key={'2'}>Invoiced</Item>
+            <Item key={'3'}>Waiting</Item>
+            <Item key={'1'}>Not verified</Item>
+            <Item key={'4'}>All waiting list</Item>
+          </TabList>
+        </Tabs>
       </View>
-      )}
+
+      {tabId === 4 ?
+        <ReportOrderAllWaiting financeId={pfinance} branchId={pbranch} typeId={ptype} />
+        :
+        <View>
+          {(tabId === 0 ? [1, 2, 0] : [tabId - 1]).map(s => <View key={s}>
+
+            <View marginTop={'size-200'} marginBottom={'size-200'}>
+              <span className='table-caption'>Status: <strong>{status[s]}</strong></span>
+            </View>
+            {TableContent(s, orders)}
+          </View>
+          )}
+        </View>
+      }
     </View>
   )
 
-}
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (isDirty) {
+      if (isDate) {
+        navigate(`/report/order-status/${monthId}/${yearId}/${financeId}/${branchId}/${typeId}/${dateFrom}/${dateTo}`)
+      } else {
+        navigate(`/report/order-status/${monthId}/${yearId}/${financeId}/${branchId}/${typeId}/-/-`)
+      }
+    }
 
-type TableFooterProps = {
-  count: number
-  finance: number
-  matel: number
-  isInvoice?: boolean
-}
-
-function TableFooter({
-  count, finance, matel, isInvoice
-}: TableFooterProps) {
-  return (<tfoot>
-    <tr>
-      <td colSpan={isInvoice ? 8 : 9} className={'border-b-1 border-t-1'}>Total: {count} unit{count > 1 ? 's' : ''}</td>
-      <td className='border-b-1 border-t-1 text-right font-bold'>{FormatNumber(finance)}</td>
-      {isInvoice && <td className='border-b-1 border-t-1 text-right font-bold'>{'-'}</td>}
-      <td className='border-b-1 border-t-1 text-right font-bold'>{FormatNumber(matel)}</td>
-    </tr>
-  </tfoot>)
-}
-
-type TableHeadProps = {
-  isInvoice?: boolean
-  status: number
-}
-function TableHead({ isInvoice, status }: TableHeadProps) {
-  const backColor = ['back-orange-700', 'back-green-700', 'back-purple-700']
-  return (
-    <thead>
-      <tr className={`text-white ${backColor[status]}`}>
-        {/* <td className=' text-right font-bold padding-left-6'>NO.</td> */}
-        <td className='font-bold'>CABANG</td>
-        <td className='font-bold text-no-wrap'>{isInvoice ? 'INVOICE' : 'ORDER (SPK)'}</td>
-        <td className='text-center font-bold'>TANGGAL</td>
-        <td className='font-bold'>MERK</td>
-        <td className='font-bold'>TIPE</td>
-        <td className='font-bold'>FINANCE</td>
-        <td className='font-bold'>NOPOL</td>
-        <td className='text-center font-bold'>TAHUN</td>
-        <td className={`${isInvoice ? 'text-right' : 'text-center'} font-bold`}>{isInvoice ? 'BT-FINANCE' : 'STNK?'}</td>
-        <td className='text-right font-bold text-no-wrap'>{isInvoice ? 'PPN' : 'BT-FINANCE'}</td>
-        <td className='text-right font-bold text-no-wrap'>{isInvoice ? 'SUBTOTAL' : 'BT-MATEL'}</td>
-      </tr>
-    </thead>
-  )
+  }
 }
 
 export default ReportOrder;
+
+

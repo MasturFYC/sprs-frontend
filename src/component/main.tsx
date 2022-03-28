@@ -11,6 +11,7 @@ const Warehouse = React.lazy(() => import('./Warehouse'));
 const Finance = React.lazy(() => import('./Finance'));
 
 const Order = React.lazy(() => import('../Order'));
+const OrderPage = React.lazy(() => import('../Order/OrderPage'));
 const Invoice = React.lazy(() => import('../Invoice'));
 const InvoiceForm = React.lazy(() => import('../Invoice/InvoiceForm'));
 const AccType = React.lazy(() => import('./acc-type'));
@@ -36,7 +37,10 @@ const Main = () => {
       <Route path="/branch" element={<React.Suspense fallback={<div>Please wait...</div>}><Branch /></React.Suspense>} />
       <Route path="/warehouse" element={<React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
       <Route path="/finance" element={<React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
-      <Route path="/order/:s/:p" element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
+      <Route path="/order">
+        <Route path=':pid' element={<React.Suspense fallback={<div>Please wait...</div>}><OrderPage /></React.Suspense>} />
+        <Route path=':s/:p' element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
+      </Route>
       <Route path="/invoice">
         <Route path='list' element={<React.Suspense fallback={<div>Please wait...</div>}><Invoice /></React.Suspense>} />
         <Route path=":financeId/:invoiceId" element={<React.Suspense fallback={<div>Please wait...</div>}><InvoiceForm /></React.Suspense>} />
@@ -64,7 +68,7 @@ const Main = () => {
             </React.Suspense>} />
         </Route>
         <Route path="order-status" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>}>
-          <Route path=":m/:y/:f" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>}/>
+          <Route path=":m/:y/:f/:b/:t/:tf/:to" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>} />
         </Route>
       </Route>
     </Routes>

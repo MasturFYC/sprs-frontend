@@ -3,7 +3,6 @@ import { Checkbox, Flex, Link, View } from '@adobe/react-spectrum'
 import { FormatNumber } from '../lib/format'
 import useSWR from 'swr'
 import axios from '../lib/axios-base'
-// import { iAccGroup } from '@src/lib/interfaces'
 
 interface iSaldo {
 	id: number

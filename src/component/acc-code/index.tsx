@@ -20,7 +20,7 @@ const AccCode = () => {
       }
 
       let res = await axios
-        .get("/acc-type/", { headers: headers })
+        .get("/acc-type", { headers: headers })
         .then(response => response.data)
         .then(data => data)
         .catch(error => {
@@ -40,7 +40,7 @@ const AccCode = () => {
       }
 
       let res = await axios
-        .get(`/acc-code/group-type/${paramId ? paramId : 0}/`, { headers: headers })
+        .get(`/acc-code/group-type/${paramId ? paramId : 0}`, { headers: headers })
         .then(response => response.data)
         .then(data => {
           return data
@@ -185,7 +185,7 @@ const AccCode = () => {
     //const txt = e.replace(/ /g, ' | ')
 
     await axios
-      .get(`/acc-code/search-name/${e}/`, { headers: headers })
+      .get(`/acc-code/search-name/${e}`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         accs.append(...data);
@@ -206,7 +206,7 @@ const AccCode = () => {
     }
 
     await axios
-      .get(`/acc-code/group-type/${id}/`, { headers: headers })
+      .get(`/acc-code/group-type/${id}`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         accs.append(...data);
@@ -227,7 +227,7 @@ const AccCode = () => {
     }
 
     await axios
-      .get(`/acc-code/`, { headers: headers })
+      .get(`/acc-code`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         accs.append(...data);
@@ -248,7 +248,7 @@ const AccCode = () => {
     const xData = JSON.stringify(p)
 
     await axios
-      .put(`/acc-code/${oldId}/`, xData, { headers: headers })
+      .put(`/acc-code/${oldId}`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         accs.update(oldId, p)
@@ -267,7 +267,7 @@ const AccCode = () => {
     const xData = JSON.stringify(p)
 
     await axios
-      .post(`/acc-code/`, xData, { headers: headers })
+      .post(`/acc-code`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         accs.insert(0, p)
@@ -287,7 +287,7 @@ const AccCode = () => {
     }
 
     await axios
-      .delete(`/acc-code/${p}/`, { headers: headers })
+      .delete(`/acc-code/${p}`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         accs.remove(p)

@@ -14,7 +14,7 @@ const Vehicle = () => {
             }
 
             let res = await axios
-                .get("/types/", { headers: headers })
+                .get("/types", { headers: headers })
                 .then(response => response.data)
                 .then(data => {
                     return data ? data : []
