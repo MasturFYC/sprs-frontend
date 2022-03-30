@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Link as RouterLink } from 'react-router-dom';
 import { Flex, Link, View, Divider, ProgressCircle } from "@adobe/react-spectrum";
-import { FormatDate, FormatNumber } from "../lib/format";
-import { iInvoice } from "../lib/invoice-interfaces";
-import { iAccCode, iFinance } from "../lib/interfaces";
-import axios from "../lib/axios-base";
-import Finance from "@src/component/Finance";
+import { FormatDate, FormatNumber } from "lib/format";
+import { iInvoice } from "lib/invoice-interfaces";
+import { iAccCode, iFinance } from "lib/interfaces";
+import axios from 'lib/axios-base';
 
 export interface InvoiceInfo extends iInvoice {
 	finance?: iFinance

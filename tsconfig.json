@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "baseUrl": ".",
+    "baseUrl": "src",
     "lib": [
       "dom",
       "dom.iterable",
@@ -21,18 +21,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@src/*" : [
-        "src/*"
-      ],
-      "@component/*": [
-        "src/component/*"
-      ],
-      "@lib/*": [
-        "lib/*"
-      ],
-      "@model/*": [
-        "src/models/*"
-      ],
+      "component/*": ["component/*"],
+      "pages/*": ["pages/*"],
+      "lib/*": ["lib/*"]
     },
     "incremental": true
   },

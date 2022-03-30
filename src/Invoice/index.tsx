@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import axios from "../lib/axios-base";
-import { iFinance } from '../lib/interfaces'
+import axios from "lib/axios-base";
+import { iFinance } from 'lib/interfaces'
 import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, useAsyncList, View, Divider, NumberField } from "@adobe/react-spectrum";
-import MonthComponent from "../component/Bulan";
+import MonthComponent from "component/Bulan";
 import { InvoiceInfo, InvoiceList } from "./InvoiceList";
 
 // const OrderForm = React.lazy(() => import('./Form'))

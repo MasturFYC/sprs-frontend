@@ -239,8 +239,18 @@ function AutoMenu() {
   return (
     <MasterMenu title={'Transaksi'} onLinkPress={(e) => setShow(!show)}>
       <View>
-        <Link isQuiet variant='primary'>
+      <Link isQuiet variant='primary'>
           <RouterLink to="/trx"><b>Ledger (Buku Besar)</b></RouterLink>
+        </Link>
+        </View>
+        <View>
+        <Link isQuiet variant='primary'>
+          <RouterLink to="/loan/list"><b>Buku Piutang</b></RouterLink>
+        </Link>
+        </View>
+        <View>
+        <Link isQuiet variant='primary'>
+          <RouterLink to="/lent"><b>Buku Pinjaman Unit</b></RouterLink>
         </Link>
       </View>
 

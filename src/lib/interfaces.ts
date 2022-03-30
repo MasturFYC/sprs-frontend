@@ -6,7 +6,7 @@ const dateOnlyString = 'YYYY-MM-DD';
 export const dateParam = (value?: string | undefined | null) => (value) ? moment(value, stringDateFormat).format(stringDateFormat) : moment(new Date(), stringDateFormat).format(stringDateFormat);
 export const dateOnly = (value?: string | undefined | null, format: string = dateOnlyString) => (value) ? moment(value, dateOnlyString).format(format) : moment(new Date(), dateOnlyString).format(format);
 export const setRefId = (id: number, code: string) => {
-  return code + '-' + id.toString().padStart(9, '0');
+    return code + '-' + id.toString().padStart(9, '0');
 }
 
 export interface iMerk {
@@ -89,13 +89,13 @@ export interface iOrder {
     isStnk: boolean
     stnkPrice: number
     matrix: number
-    
+
     branch?: iBranch
     finance?: iFinance
 
     customer?: iCustomer
     unit?: iUnit
-//    receivable?: iReceivable
+    //    receivable?: iReceivable
     homeAddress?: iAddress,
     ktpAddress?: iAddress,
     officeAddress?: iAddress,
@@ -116,10 +116,10 @@ export interface iUnit {
     year: number
     frameNumber?: string
     machineNumber?: string
-//    bpkbName?: string
+    //    bpkbName?: string
     color?: string
-//    dealer?: string
-//    surveyor?: string
+    //    dealer?: string
+    //    surveyor?: string
     typeId: number
     warehouseId: number
     warehouse?: iWarehouse
@@ -137,7 +137,7 @@ export interface iUnit {
 
 //     // angsuran per bulan
 //     mortgageByMonth: number
-    
+
 //     // angsuran tunggakan
 //     mortgageReceivable: number
 
@@ -260,4 +260,48 @@ export type iAccountSpecific = {
     name: string
     descriptions?: string
 
+}
+
+export interface iLoan {
+    id: number
+    name: string
+    loanAt: string
+    descripts?: string
+    street?: string
+    city?: string
+    phone?: string
+    cell?: string
+    zip?: string
+}
+
+
+export interface iLent {
+    orderId: number
+    name: string
+    descripts?: string
+    street?: string
+    city?: string
+    phone?: string
+    cell?: string
+    zip?: string
+}
+
+export interface iLentDetail {
+    orderId: number
+    paymentAt: string
+    id: number
+    descripts?: string
+    debt: number
+    cred: number
+    cashId: number
+}
+
+export interface iLoanDetail {
+    loanId: number
+    paymentAt: string
+    id: number
+    descripts?: string
+    debt: number
+    cred: number
+    cashId: number
 }
