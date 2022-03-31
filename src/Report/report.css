@@ -136,6 +136,10 @@ a:hover {
   text-align: left;
 }
 
-.width-70 {
-  width: 70px;
+.width-80 {
+  width: 80px;
+}
+
+.bg-green {
+  background-color: rgb(102, 167, 5);
 }

@@ -270,7 +270,7 @@ export interface iLoan {
     phone?: string
     cell?: string
     zip?: string
-    Persen: number
+    persen: number
 }
 
 

@@ -10,6 +10,8 @@ import {
 	NumberField, TextField, useAsyncList, Button, Link, ActionButton, Form
 } from "@adobe/react-spectrum";
 import AddToSelection from "@spectrum-icons/workflow/AddToSelection";
+import { PrettyPrintJson } from "lib/utils";
+import { CurrentLoan } from "./form";
 
 type TrxDetail = {
 	groupId: number,
@@ -32,24 +34,21 @@ type Trx = {
 }
 
 interface Loan extends iLoan {
-	trx: Trx[]
-}
-
-const initLoadDetail: Loan = {
-	id: 0,
-	name: "",
-	Persen: 0,
-	trx: []
+	trxs: Trx[]
 }
 
 
 type LoanListDetailProps = {
-	details: Loan[]
+	loanId: number,
+	name: string,
+	trxs: Trx[],
+	onChange?: (id: number, data: Trx) => void
+	onDelete?: (id: number) => void
 }
 
-const LoanListDetails = ({ details }: LoanListDetailProps) => {
+const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDetailProps) => {
 	const [open, setOpen] = React.useState(false)
-	let [loan, setDetail] = useState<Loan>(initLoadDetail)
+	let [trx, setTrx] = useState<Trx>(initTrx)
 
 	return (
 		<View>
@@ -62,15 +61,20 @@ const LoanListDetails = ({ details }: LoanListDetailProps) => {
 						<Heading marginStart={'size-200'}>Angsuran</Heading>
 						<Divider size='S' />
 						<View marginX={'size-200'} marginTop={'size-100'}>
-							<FormDetail trx={loan.trx[0]}
-								onCancel={() => setOpen(false)}
-								onInsert={(e) => {
-									//setDetail(o => ({...o, trx: e}))
-									setOpen(false)
+							<FormDetail name={name} loanId={loanId} editedTrx={trx}
+								onDelete={(id) => {
+									onDelete && onDelete(id)
 								}}
+								onCancel={() => setOpen(false)}
+								// onInsert={(e) => {
+								// 	//setDetail(o => ({...o, trx: e}))
+								// 	setOpen(false)
+								// }}
 								onUpdate={(id, e) => {
 									//setDetail(o => ({ ...o, trx: e }))
+									setTrx(e)
 									setOpen(false)
+									onChange && onChange(trx.id, e)
 								}}
 							/>
 						</View>
@@ -89,27 +93,33 @@ const LoanListDetails = ({ details }: LoanListDetailProps) => {
 					</tr>
 				</thead>
 				<tbody>
-					{details && details.map((o, i) => <tr key={o.id}>
+					{trxs && trxs.map((o, i) => <tr key={o.id}>
 						<td className="text-center">{i + 1}</td>
-						<td className="text-center">{FormatDate(o.trx[0].trxDate || dateParam(null))}</td>
-						<td><Link onPress={() => setDetail(o)} isQuiet variant="primary">{o.trx[0].descriptions || '---'}</Link></td>
-						<td className="text-right">{FormatNumber(o.trx[0].detail.debt)}</td>
-						<td className="text-right">{FormatNumber(o.trx[0].detail.cred)}</td>
-						<td className="text-right">{FormatNumber(o.trx[0].detail.saldo)}</td>
+						<td className="text-center">{FormatDate(o.trxDate || dateParam(null))}</td>
+						<td><Link onPress={() => {
+							setOpen(true)
+							setTrx(o)
+						}} isQuiet variant="primary">{o.descriptions || '---'}</Link></td>
+						<td className="text-right">{FormatNumber(o.detail.debt)}</td>
+						<td className="text-right">{FormatNumber(o.detail.cred)}</td>
+						<td className="text-right">{FormatNumber(o.detail.saldo)}</td>
 					</tr>
 					)}
 				</tbody>
 				<tfoot>
 					<tr>
 						<td colSpan={3}>Total: {getDetailLength()} items</td>
-						<td className="text-right font-bold">{details && FormatNumber(getDetailDebt())}</td>
-						<td className="text-right font-bold">{details && FormatNumber(getDetailCred())}</td>
-						<td className="text-right font-bold">{details && FormatNumber(getDetailSaldo())}</td>
+						<td className="text-right font-bold">{trxs && FormatNumber(getDetailDebt())}</td>
+						<td className="text-right font-bold">{trxs && FormatNumber(getDetailCred())}</td>
+						<td className="text-right font-bold">{trxs && FormatNumber(getDetailSaldo())}</td>
 					</tr>
 				</tfoot>
 			</table>
 			<View marginY={'size-100'}>
-				<ActionButton isQuiet onPress={() => setOpen(!open)}>
+				<ActionButton isQuiet onPress={() => {
+					setTrx(initTrx)
+					setOpen(!open)
+				}}>
 					<AddToSelection size="S" />
 					<Text>Tambah angsuran</Text>
 				</ActionButton>
@@ -118,17 +128,17 @@ const LoanListDetails = ({ details }: LoanListDetailProps) => {
 	);
 
 	function getDetailLength() {
-		return details ? details.length : 0
+		return trxs ? trxs.length : 0
 	}
 
 	function getDetailDebt() {
-		return details.reduce((t, c) => t + c.trx[0].detail.debt, 0)
+		return trxs.reduce((t, c) => t + c.detail.debt, 0)
 	}
 	function getDetailCred() {
-		return details.reduce((t, c) => t + c.trx[0].detail.cred, 0)
+		return trxs.reduce((t, c) => t + c.detail.cred, 0)
 	}
 	function getDetailSaldo() {
-		return details.reduce((t, c) => t + c.trx[0].detail.saldo, 0)
+		return trxs.reduce((t, c) => t + c.detail.saldo, 0)
 	}
 
 }
@@ -146,25 +156,24 @@ const initDetail: TrxDetail = {
 const initTrx: Trx = {
 	id: 0,
 	refId: 0,
-	division: "",
-	trxDate: "",
+	division: "trx-angsuran",
+	trxDate: dateParam(null),
 	detail: initDetail
 }
 
 type FormDetailProps = {
-	trx: Trx
+	loanId: number
+	editedTrx: Trx
+	name: string
 	onCancel?: (id: number) => void
 	onInsert?: (data: Trx) => void
 	onUpdate?: (id: number, data: Trx) => void
 	onDelete?: (id: number) => void
 }
-function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
+function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
 	const inputRef = useRef<HTMLDivElement>(null);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
-	let [data, setData] = useState<Trx>(initTrx)
-	let [detail, setDetail] = useState<TrxDetail>(initDetail)
-	let [cred, setCred] = useState(0.0)
-	let [code, setCode] = useState(0)
+	let [trx, setTrx] = useState<Trx>(initTrx)
 
 
 	let accountCashes = useAsyncList<iAccountSpecific>({
@@ -189,23 +198,22 @@ function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailP
 	})
 
 	const isDescriptionsValid = React.useMemo(
-		() => data.descriptions ? data.descriptions.length > 5 : false,
-		[data]
+		() => trx.descriptions ? trx.descriptions.length > 5 : false,
+		[trx]
 	)
 
-	const isCredValid = React.useMemo(() => cred > 0, [cred])
-	const isCodeValid = React.useMemo(() => code > 0, [code])
+	const isDebtValid = React.useMemo(() => trx.detail.debt > 0, [trx.detail])
+	const isCodeValid = React.useMemo(() => trx.detail.codeId > 0, [trx.detail])
 
 	React.useEffect(() => {
 		let isLoaded = false;
 
 		if (!isLoaded) {
-			setData(trx)
-			setDetail(trx.detail)
+			setTrx({ ...editedTrx, refId: loanId })
 		}
 
 		return () => { isLoaded = false }
-	}, [trx])
+	}, [editedTrx])
 
 	return (<Form onSubmit={handleSubmit}>
 		<Flex rowGap='size-200' direction={'column'}>
@@ -214,7 +222,7 @@ function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailP
 					type={'date'}
 					label='Tanggal'
 					width={{ base: 'auto', M: 'size-2000' }}
-					value={dateOnly(data.trxDate)}
+					value={dateOnly(trx.trxDate)}
 					maxLength={10}
 					onChange={(e) => handleChange("trxDate", e)}
 				/>
@@ -226,7 +234,7 @@ function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailP
 						width={{ base: 'auto', L: 'size-5000' }}
 						validationState={isDescriptionsValid ? 'valid' : 'invalid'}
 						placeholder={'e.g. Angsuran 1.'}
-						value={data.descriptions || ''}
+						value={trx.descriptions || ''}
 						maxLength={128}
 						onChange={(e) => handleChange("descriptions", e)}
 					/>
@@ -237,10 +245,14 @@ function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailP
 				<NumberField
 					hideStepper={true}
 					width={{ base: 'auto', M: 'size-2000' }}
-					validationState={isCredValid ? 'valid' : 'invalid'}
+					validationState={isDebtValid ? 'valid' : 'invalid'}
 					label={"Jumlah angsuran"}
-					onChange={(e) => setDetail(o => ({ ...o, cred: e })) }
-					value={detail.cred} />
+					onChange={(e) => {
+						setTrx(o => ({ ...o, detail: { ...o.detail, debt: e } }))
+						setIsDirty(true)
+						setTrx(o => ({ ...o, detail: { ...o.detail, saldo: e } }))
+					}}
+					value={trx.detail.debt} />
 				<ComboBox
 					flex
 					menuTrigger='focus'
@@ -249,8 +261,11 @@ function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailP
 					label={"Akun kas"}
 					placeholder={"e.g. Kas / bank"}
 					defaultItems={accountCashes.items}
-					selectedKey={detail.codeId}
-					onSelectionChange={(e) => setDetail(o => ({ ...o, codeId: +e}))}
+					selectedKey={trx.detail.codeId}
+					onSelectionChange={(e) => {
+						setTrx(o => ({ ...o, detail: { ...o.detail, codeId: +e } }))
+						setIsDirty(true)
+					}}
 				>
 					{(item) => <Item textValue={`${item.id} - ${item.name}`}>
 						<Text><div className='font-bold'>{item.id} - {item.name}</div></Text>
@@ -260,12 +275,16 @@ function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailP
 			</Flex>
 		</Flex>
 
+		<View>
+			<PrettyPrintJson data={trx} />
+		</View>
+
 		<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 			<Button type='submit' variant='cta'
-				isDisabled={!isDirty || !(isDescriptionsValid && isCodeValid && isCredValid)}>Save</Button>
+				isDisabled={!isDirty || !(isDescriptionsValid && isCodeValid && isDebtValid)}>Save</Button>
 			<Button type='button' variant='primary'
 				onPress={() => {
-					onCancel && onCancel(data.id)
+					onCancel && onCancel(trx.id)
 				}}
 			>
 				{isDirty ? 'Cancel' : 'Close'}</Button>
@@ -274,19 +293,72 @@ function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailP
 
 
 	function handleChange(fieldName: string, value: string | number | boolean | undefined | null) {
-		setData(o => ({ ...o, [fieldName]: value }))
+		setTrx(o => ({ ...o, [fieldName]: value }))
 		setIsDirty(true)
 	}
 
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
-		if (data.id === 0) {
-			onInsert && onInsert(data)
-		} else {
-			onUpdate && onUpdate(trx.id, data)
-		}
+		inserData(trx)
+		
 	}
+
+	async function inserData(p: Trx) {
+		const headers = {
+			Accept: 'application/json',
+			'Content-Type': 'application/json'
+		}
+
+		const t_rx = {
+			id: p.id,
+			refId: loanId,
+			division: 'trx-angsuran',
+			descriptions: p.descriptions,
+			trxDate: dateOnly(p.trxDate),
+			memo: ['Ansuran', name].join(" "),
+			details: [
+				{
+					id: 1,
+					codeId: p.detail.codeId,
+					trxId: p.id,
+					debt: p.detail.debt,
+					cred: 0
+				},
+				{
+					id: 2,
+					codeId: 4112,
+					trxId: p.id,
+					debt: 0,
+					cred: p.detail.debt
+				}
+			]
+		}
+
+
+		const xData = JSON.stringify({
+			trx: t_rx,
+			token: [trx.descriptions || ' ', trx.memo].join(" ")
+		})
+
+		await axios
+			.post(`/loans/payment/${trx.id}`, xData, { headers: headers })
+			.then(response => response.data)
+			.then(data => {
+				setIsDirty(false)
+				if (trx.id === 0) {
+					const t = {... p, id: data.id, detail: {...t_rx.details[0], trxId: data.id, groupId: 0, saldo: p.detail.debt}}
+					setTrx(t)
+					onInsert && onInsert(t)
+				}
+				onUpdate && onUpdate(loanId, { ...trx, id: data.id, detail: { ...t_rx.details[0], trxId: data.id, groupId: 0, saldo: p.detail.debt } })
+			})
+			.catch(error => {
+				console.log(error)
+			})
+	}
+
 }
+
 
 export default LoanListDetails;
