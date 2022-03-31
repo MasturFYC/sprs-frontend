@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { dateParam, iAccountSpecific, iLoan } from 'lib/interfaces'
-import { Flex, View, ProgressCircle, ActionButton, Text, useAsyncList } from '@adobe/react-spectrum';
+import { Flex, View, ProgressCircle, ActionButton, Text, useAsyncList, Divider } from '@adobe/react-spectrum';
 import axios from 'lib/axios-base';
 //import AddIcon from '@spectrum-icons/workflow/Add'
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FormatDate, FormatNumber } from 'lib/format';
 import EditCircle from '@spectrum-icons/workflow/EditCircle';
-import Back from '@spectrum-icons/workflow/Back';
+import Back from '@spectrum-icons/workflow/BackAndroid';
 import LoanListDetails from './listdetails';
-import { PrettyPrintJson } from 'lib/utils';
+//import { PrettyPrintJson } from 'lib/utils';
 import { CurrentLoan } from './form';
-import TrxDetails from 'component/trx/trx-details';
 
 const LoanForm = React.lazy(() => import('./form'));
 
@@ -57,17 +56,17 @@ const initLoan: Loan = {
 	trxs: [initTrx],
 	id: 0,
 	name: '',
-	persen: 10
+	persen: 10,
 }
 
 export default function PageForm() {
 	const { pid } = useParams()
 	const navigate = useNavigate();
-	const { state } = useLocation();
+	//const { state } = useLocation();
 	const [loan, setLoan] = useState<Loan>(initLoan)
 	let [isLoading, setIsLoading] = useState(false)
 	let [isEdit, setIsEdit] = useState(false)
-	let [reload, setReload] = useState(0)
+	// let [reload, setReload] = useState(0)
 
 
 	let accountCashes = useAsyncList<iAccountSpecific>({
@@ -108,7 +107,7 @@ export default function PageForm() {
 					console.log(error)
 				})
 
-				
+
 			return res ? res : initLoan;
 		}
 
@@ -122,7 +121,7 @@ export default function PageForm() {
 
 		return () => { isLoaded = true }
 
-	}, [pid, reload])
+	}, [pid])
 
 
 	if (isLoading || accountCashes.isLoading) {
@@ -165,19 +164,33 @@ export default function PageForm() {
 
 	return (
 		<View>
-			<View marginBottom={'size-200'}><div className='div-h1'>Data Piutang</div></View>
+			<Flex direction={'row'} columnGap={'size-100'}>
+				<View flex><div className='div-h2 font-bold'>Data Piutang</div></View>
+				<View>
+					<ActionButton isQuiet isDisabled={isEdit || loan.id === 0} onPress={() => setIsEdit(true)}>
+						<EditCircle size={'S'} />
+						<Text>Edit</Text>
+					</ActionButton>
+					<ActionButton isQuiet onPress={() => navigate('/loan/list')}>
+						<Back size={'S'} />
+						<Text>Back to list</Text>
+					</ActionButton>
+				</View>
+			</Flex>
+
+			<Divider size={'S'} marginBottom={'size-200'} />
 			{isEdit || loan.id === 0 ? <React.Suspense fallback={<div>Please wait...</div>}>
 				<LoanForm data={loanGetDefaultTrx()}
 					accCode={accountCashes.items}
 					onCancel={(id) => {
 						setIsEdit(false)
 						if (id === 0) {
-							navigate(`${(state as any).from}`)
+							navigate('/loan/list')
 						}
 					}}
 					onDelete={() => {
 						setIsEdit(false)
-						navigate(`/loan/list`)
+						navigate(`/loan`)
 					}}
 					onUpdate={(id, data) => {
 						loanSetDefaultTrx(data)
@@ -192,7 +205,6 @@ export default function PageForm() {
 						//setLoan(data)
 						//const count = reload + 1
 						//setReload(count)
-						//console.log(`/loan/${data.id}`)
 						navigate(`/loan/${data.id}`, { replace: false })
 						//setIsEdit(false)
 					}}
@@ -200,7 +212,7 @@ export default function PageForm() {
 			</React.Suspense>
 				:
 				<View>
-					
+
 					<Flex direction={{ base: 'column', L: 'row' }} rowGap={'size-50'} columnGap={'size-200'}>
 						<View flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
@@ -250,30 +262,18 @@ export default function PageForm() {
 
 				</View>
 			}
-
-			<View marginY={'size-200'}>
-				<ActionButton isQuiet isDisabled={isEdit || loan.id === 0} onPress={() => setIsEdit(true)}>
-					<EditCircle size={'S'} />
-					<Text>Edit</Text>
-				</ActionButton>
-				<ActionButton isQuiet onPress={() => navigate('/loan/list')}>
-					<Back size={'S'} />
-					<Text>Back to list</Text>
-				</ActionButton>
-			</View>
-
+			{/* 
 			<View>
 				<PrettyPrintJson data={loanGetDefaultTrx()} />
 			</View>
-
-
+ */}
+			<Divider size={'S'} marginTop={'size-200'} />
 			<LoanListDetails
 				name={loan.name}
 				onDelete={(e) => {
 					deleteTrx(e)
 				}}
 				onChange={(id, e) => {
-					console.log('-----------', id, ';----------', e)
 					updateSelectedTrx(id, e)
 					//setReload(reload + 1)
 				}}
@@ -287,45 +287,45 @@ export default function PageForm() {
 	function deleteTrx(id: number) {
 		const trxs = loan.trxs;
 		let i = -1;
-		for(let c = 0; c<trxs.length;c++) {
-			if(trxs[c].id === id) {
+		for (let c = 0; c < trxs.length; c++) {
+			if (trxs[c].id === id) {
 				i = c;
 				break;
 			}
 		}
 
-		if(i !== -1) {
-			trxs.splice(i,1)
-			setLoan(o=>({...o, trxs: trxs}))
+		if (i !== -1) {
+			trxs.splice(i, 1)
+			setLoan(o => ({ ...o, trxs: trxs }))
 		}
 
 
 	}
 
-	function updateSelectedTrx(id: number, p: Trx)	 {
+	function updateSelectedTrx(id: number, p: Trx) {
 		const trxs = loan.trxs;
-		
-		if(id === 0) {
+
+		if (id === 0) {
 			trxs.push(p)
 		} else {
 			let i = -1;
-			for(let c = 0; c<trxs.length;c++) {
-				if(trxs[c].id === id) {
+			for (let c = 0; c < trxs.length; c++) {
+				if (trxs[c].id === id) {
 					i = c;
 					break;
 				}
 			}
 
-			if(i !== -1) {
-				trxs.splice(i,1,p)
-				setLoan(o=>({...o, trxs: trxs}))
+			if (i !== -1) {
+				trxs.splice(i, 1, p)
+				setLoan(o => ({ ...o, trxs: trxs }))
 			}
-			
+
 			// else {
 			// 	trxs.push(p)
 			// }
 		}
-		setLoan({...loan, trxs: trxs})
+		setLoan({ ...loan, trxs: trxs })
 	}
 
 	function getTotalPiutang() {

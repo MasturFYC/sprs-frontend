@@ -1,5 +1,5 @@
 import React, { FormEvent, useRef, useState } from "react";
-import { dateOnly, dateParam, iAccountSpecific, iLoan } from 'lib/interfaces'
+import { dateOnly, dateParam, iAccountSpecific } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { FormatDate, FormatNumber } from "lib/format";
 import axios from 'lib/axios-base';
@@ -10,8 +10,7 @@ import {
 	NumberField, TextField, useAsyncList, Button, Link, ActionButton, Form
 } from "@adobe/react-spectrum";
 import AddToSelection from "@spectrum-icons/workflow/AddToSelection";
-import { PrettyPrintJson } from "lib/utils";
-import { CurrentLoan } from "./form";
+// import { PrettyPrintJson } from "lib/utils";
 
 type TrxDetail = {
 	groupId: number,
@@ -33,9 +32,9 @@ type Trx = {
 	detail: TrxDetail
 }
 
-interface Loan extends iLoan {
-	trxs: Trx[]
-}
+// interface Loan extends iLoan {
+// 	trxs: Trx[]
+// }
 
 
 type LoanListDetailProps = {
@@ -81,19 +80,19 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 					</View>}
 			</DialogContainer>
 
-			<table className="table-small width-100-percent collapse-none" cellPadding={4}>
+			<table className="table-small collapse-none" cellPadding={5}>
 				<thead>
-					<tr>
+					<tr className="border-b-1 border-t-1 bg-green text-white">
 						<th className="text-center">NO</th>
 						<th className="text-center">TANGGAL</th>
 						<th className="text-left">DESKRIPSI</th>
-						<th className="text-right">DEBET</th>
-						<th className="text-right">KREDIT</th>
-						<th className="text-right">SALDO</th>
+						<th className="text-right">ANGSURAN</th>
+						{/* <th className="text-right">KREDIT</th> */}
+						{/* <th className="text-right">SALDO</th> */}
 					</tr>
 				</thead>
 				<tbody>
-					{trxs && trxs.map((o, i) => <tr key={o.id}>
+					{trxs && trxs.map((o, i) => <tr key={o.id} className="border-b-gray-50">
 						<td className="text-center">{i + 1}</td>
 						<td className="text-center">{FormatDate(o.trxDate || dateParam(null))}</td>
 						<td><Link onPress={() => {
@@ -101,17 +100,17 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 							setTrx(o)
 						}} isQuiet variant="primary">{o.descriptions || '---'}</Link></td>
 						<td className="text-right">{FormatNumber(o.detail.debt)}</td>
-						<td className="text-right">{FormatNumber(o.detail.cred)}</td>
-						<td className="text-right">{FormatNumber(o.detail.saldo)}</td>
+						{/* <td className="text-right">{FormatNumber(o.detail.cred)}</td>
+						<td className="text-right">{FormatNumber(o.detail.saldo)}</td> */}
 					</tr>
 					)}
 				</tbody>
 				<tfoot>
-					<tr>
-						<td colSpan={3}>Total: {getDetailLength()} items</td>
-						<td className="text-right font-bold">{trxs && FormatNumber(getDetailDebt())}</td>
-						<td className="text-right font-bold">{trxs && FormatNumber(getDetailCred())}</td>
-						<td className="text-right font-bold">{trxs && FormatNumber(getDetailSaldo())}</td>
+					<tr className="border-b-1">
+						<td className="border-t-1" colSpan={3}>Total: {getDetailLength()} items</td>
+						<td className="text-right border-t-1 font-bold">{trxs && FormatNumber(getDetailDebt())}</td>
+						{/* <td className="text-right border-t-1 font-bold">{trxs && FormatNumber(getDetailCred())}</td>
+						<td className="text-right border-t-1 font-bold">{trxs && FormatNumber(getDetailSaldo())}</td> */}
 					</tr>
 				</tfoot>
 			</table>
@@ -133,13 +132,13 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 
 	function getDetailDebt() {
 		return trxs.reduce((t, c) => t + c.detail.debt, 0)
-	}
-	function getDetailCred() {
-		return trxs.reduce((t, c) => t + c.detail.cred, 0)
-	}
-	function getDetailSaldo() {
-		return trxs.reduce((t, c) => t + c.detail.saldo, 0)
-	}
+	 }
+	// function getDetailCred() {
+	// 	return trxs.reduce((t, c) => t + c.detail.cred, 0)
+	// }
+	// function getDetailSaldo() {
+	// 	return trxs.reduce((t, c) => t + c.detail.saldo, 0)
+	// }
 
 }
 
@@ -213,7 +212,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 		}
 
 		return () => { isLoaded = false }
-	}, [editedTrx])
+	}, [editedTrx, loanId])
 
 	return (<Form onSubmit={handleSubmit}>
 		<Flex rowGap='size-200' direction={'column'}>
@@ -275,9 +274,9 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 			</Flex>
 		</Flex>
 
-		<View>
+		{/* <View>
 			<PrettyPrintJson data={trx} />
-		</View>
+		</View> */}
 
 		<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 			<Button type='submit' variant='cta'
@@ -301,7 +300,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
 		inserData(trx)
-		
+
 	}
 
 	async function inserData(p: Trx) {
@@ -316,7 +315,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 			division: 'trx-angsuran',
 			descriptions: p.descriptions,
 			trxDate: dateOnly(p.trxDate),
-			memo: ['Ansuran', name].join(" "),
+			memo: ['Angsuran', name].join(" "),
 			details: [
 				{
 					id: 1,
@@ -347,7 +346,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 			.then(data => {
 				setIsDirty(false)
 				if (trx.id === 0) {
-					const t = {... p, id: data.id, detail: {...t_rx.details[0], trxId: data.id, groupId: 0, saldo: p.detail.debt}}
+					const t = { ...p, id: data.id, detail: { ...t_rx.details[0], trxId: data.id, groupId: 0, saldo: p.detail.debt } }
 					setTrx(t)
 					onInsert && onInsert(t)
 				}

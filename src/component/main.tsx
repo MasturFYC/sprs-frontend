@@ -23,6 +23,7 @@ const TrxAutoDebet = React.lazy(() => import('./trx-auto-debet'));
 const ReportTrxtByMonth = React.lazy(() => import('../Report/ReportTrxByMonth'));
 const ReportOrder = React.lazy(() => import('../Report/ReportOrder'));
 const LoanPage = React.lazy(() => import('../pages/loan'));
+const LoanListPage = React.lazy(() => import('../pages/loan/loan-list'));
 const PageForm = React.lazy(() => import('../pages/loan/form'));
 
 const Main = () => {
@@ -47,9 +48,9 @@ const Main = () => {
         <Route path='list' element={<React.Suspense fallback={<div>Please wait...</div>}><Invoice /></React.Suspense>} />
         <Route path=":financeId/:invoiceId" element={<React.Suspense fallback={<div>Please wait...</div>}><InvoiceForm /></React.Suspense>} />
       </Route>
-      <Route path="/loan">
-        <Route path="list" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPage /></React.Suspense>} />
-        <Route path=":pid" element={<React.Suspense fallback={<div>Please wait...</div>}><PageForm /></React.Suspense>} />
+      <Route path="/loan" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPage /></React.Suspense>}>
+        <Route path="list" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanListPage /></React.Suspense>} />        
+        <Route path=":pid" element={<React.Suspense fallback={<div>Please wait...</div>}><PageForm /></React.Suspense>} />        
       </Route>
       <Route path="/acc-type" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>}>
         <Route path=":id/:name" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>} />

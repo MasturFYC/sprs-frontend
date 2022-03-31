@@ -2,8 +2,8 @@ import React, { FormEvent, useState } from 'react';
 import { dateOnly, dateParam, iAccountSpecific, iLoan } from 'lib/interfaces'
 import { Button, ComboBox, Flex, Item, Text, NumberField, TextField, View } from '@adobe/react-spectrum';
 import axios from 'lib/axios-base';
-import Trx from 'component/trx';
-import { PrettyPrintJson } from 'lib/utils';
+//import Trx from 'component/trx';
+//import { PrettyPrintJson } from 'lib/utils';
 
 export interface CurrentLoan extends iLoan {
 	trx: {
@@ -45,7 +45,7 @@ const initLoan: CurrentLoan = {
 			cred: 0,
 			saldo: 0
 		}
-	}
+	},
 }
 
 type LoanFormProps = {
@@ -63,7 +63,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 
 	const isDescriptionsValid = React.useMemo(
 		() => {
-			if(loan.trx.descriptions) {
+			if (loan.trx.descriptions) {
 				return loan.trx.descriptions.length >= 5
 			}
 			return false
@@ -71,20 +71,21 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 		[loan]
 	)
 
-
 	const isNameValid = React.useMemo(
 		() => loan.name.length >= 3,
-		[loan.name]
+		[loan]
 	)
 
 	const isPiutangValid = React.useMemo(
 		() => loan.trx.detail.cred > 0,
-		[loan.trx.detail.cred]
+		[loan]
 	)
 
 	const isPersenValid = React.useMemo(
-		() => loan.persen > 0,
-		[loan.persen]
+		() => {
+			return loan.persen >= 0
+		},
+		[loan]
 	)
 
 
@@ -109,8 +110,8 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 		<View>
 			<form onSubmit={(e) => handleSubmit(e)}>
 				<View padding={{ base: 'size-50', M: 'size-200' }}>
-					<Flex gap='size-200' direction={'column'}>
-						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
+					<Flex rowGap='size-50' direction={'column'}>
+						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
 							<TextField
 								flex
 								autoFocus
@@ -134,21 +135,22 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 								value={dateOnly(loan.trx.trxDate)}
 								onChange={(e) => {
 									setIsDirty(true)
-									setLoan(o => ({ ...o, trx: {...o.trx, trxDate: e }}))
+									setLoan(o => ({ ...o, trx: { ...o.trx, trxDate: e } }))
 								}}
 							/>
 						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
+						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
 							<NumberField
 								flex
 								hideStepper={true}
 								labelPosition='side'
 								labelAlign='end'
 								width={{ base: 'auto', M: 'size-2000' }}
+								formatOptions={{ currency: 'IDR', style: 'currency', maximumFractionDigits: 0 }}
 								validationState={isPiutangValid ? "valid" : "invalid"}
 								label={<div className='width-80'>Pokok</div>}
 								onChange={(e) => {
-									setLoan(o => ({ ...o, trx: {...o.trx, detail: { ...o.trx.detail, cred: e, saldo: -e} }}))
+									setLoan(o => ({ ...o, trx: { ...o.trx, detail: { ...o.trx.detail, cred: e, saldo: -e } } }))
 									setIsDirty(true)
 								}}
 								value={loan.trx.detail.cred} />
@@ -164,7 +166,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 								selectedKey={loan.trx.detail.codeId}
 								onSelectionChange={(e) => {
 									setIsDirty(true)
-									setLoan(o => ({ ...o, trx: {...o.trx, detail: { ...o.trx.detail, codeId: +e} }}))
+									setLoan(o => ({ ...o, trx: { ...o.trx, detail: { ...o.trx.detail, codeId: +e } } }))
 								}}
 							>
 								{(item) => <Item textValue={`${item.id} - ${item.name}`}>
@@ -173,42 +175,39 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 								</Item>}
 							</ComboBox>
 						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
-						<NumberField
+						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
+							<NumberField
 								flex
 								hideStepper={true}
 								labelPosition='side'
 								labelAlign='end'
+								formatOptions={{ style: 'percent', useGrouping: false, maximumFractionDigits: 4 }}
 								width={{ base: 'auto', M: 'size-2000' }}
 								validationState={isPersenValid ? "valid" : "invalid"}
 								label={<div className='width-80'>Prosentase</div>}
-								onChange={(e) => handleChange("persen", e)}
-								value={loan.persen} />
+								onChange={(e) => handleChange("persen", e*100.0)}
+								value={loan.persen/100.0} />
 
 							<NumberField
 								flex
 								hideStepper={true}
 								labelPosition='side'
 								labelAlign='end'
+								formatOptions={{ currency: 'IDR', style: 'currency', maximumFractionDigits: 0 }}
 								width={{ base: 'auto', M: 'size-2000' }}
 								validationState={isPiutangValid ? "valid" : "invalid"}
-								label={<div className='width-80'>Piutang</div>}								
-								value={((loan.persen/100) * loan.trx.detail.cred) + loan.trx.detail.cred} />
+								label={<div className='width-80'>Piutang</div>}
+								value={((loan.persen / 100) * loan.trx.detail.cred) + loan.trx.detail.cred}
+								onChange={(e) => {
+									setLoan(o => ({ ...o, 
+										persen: ((e - loan.trx.detail.cred) / loan.trx.detail.cred) * 100.0
+									}))
+									setIsDirty(true)
+								}}
+								 />
 
 						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
-
-							<TextField
-								flex
-								label={<div className='width-80'>Alamat</div>}
-								labelAlign='end'
-								labelPosition='side'
-								width={'auto'}
-								value={loan.street}
-								placeholder={'e.g. Jl. Jend. Sudirman No. 155'}
-								maxLength={50}
-								onChange={(e) => handleChange("street", e)}
-							/>
+						<Flex flex direction={'column'} rowGap='size-75'>
 							<TextField
 								flex
 								label={<div className='width-80'>Keterangan</div>}
@@ -220,13 +219,24 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 								placeholder={'e.g. Indramayu'}
 								maxLength={50}
 								onChange={(e) => {
-									setLoan(o => ({ ...o, trx: {...o.trx, descriptions: e} }))
+									setLoan(o => ({ ...o, trx: { ...o.trx, descriptions: e } }))
 									setIsDirty(true)
 								}}
 							/>
+							<TextField
+								flex
+								label={<div className='width-80'>Alamat</div>}
+								labelAlign='end'
+								labelPosition='side'
+								width={'auto'}
+								value={loan.street}
+								placeholder={'e.g. Jl. Jend. Sudirman No. 155'}
+								maxLength={50}
+								onChange={(e) => handleChange("street", e)}
+							/>
 						</Flex>
 
-						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
+						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
 							<TextField
 								flex
 								label={<div className='width-80'>Kota</div>}
@@ -250,7 +260,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 								onChange={(e) => handleChange("phone", e)}
 							/>
 						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
+						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
 							<TextField
 								flex
 								label={<div className='width-80'>Cellular</div>}
@@ -277,7 +287,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 					</Flex>
 					<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 						<Flex flex direction={'row'} columnGap={'size-100'}>
-							<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid || isPersenValid || isDescriptionsValid || isPiutangValid || isCodeValid)}>Save</Button>
+							<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isPersenValid && isDescriptionsValid && isPiutangValid && isCodeValid)}>Save</Button>
 							<Button type='button' variant='primary' onPress={() => onCancel && onCancel(loan.id)}>
 								{isDirty ? 'Cancel' : 'Close'}</Button>
 						</Flex>
@@ -292,10 +302,10 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 					</Flex>
 				</View>
 			</form>
-
+{/* 
 			<View>
 				<PrettyPrintJson data={loan} />
-			</View>			
+			</View> */}
 		</View>
 
 	);
@@ -365,7 +375,6 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 			token: [loan.trx.descriptions || ' ', loan.trx.memo || ' ', p.name].join(" ")
 		})
 
-		//console.log(xData)
 
 		await axios
 			.put(`/loans/${p.id}`, xData, { headers: headers })
@@ -421,9 +430,6 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 			]
 		}
 
-		//console.log(t_rx)
-
-
 		const xData = JSON.stringify({
 			loan: t_loan,
 			trx: t_rx,
@@ -437,13 +443,14 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 				setIsDirty(false)
 				onInsert && onInsert({
 					...p,
-				id: data.loan.id,
-				trx: {
-					...p.trx, 
-					id: data.trx.id, 
-					refId: data.loan.id,
-					detail: {...p.trx.detail, trxId: data.trx.id}
-				}})
+					id: data.loan.id,
+					trx: {
+						...p.trx,
+						id: data.trx.id,
+						refId: data.loan.id,
+						detail: { ...p.trx.detail, trxId: data.trx.id }
+					}
+				})
 			})
 			.catch(error => {
 				console.log(error)
