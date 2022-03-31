@@ -6,26 +6,61 @@ import axios from 'lib/axios-base';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { FormatDate, FormatNumber } from 'lib/format';
 import EditCircle from '@spectrum-icons/workflow/EditCircle';
-import LoanListDetails, { LoanDetailSaldo } from './listdetails';
+// import LoanListDetails from './listdetails';
 
 const LoanForm = React.lazy(() => import('./form'));
 
-export interface LoanDetail extends iLoan {
-	details?: LoanDetailSaldo[]
+type TrxDetail = {
+	groupId: number,
+	id: number,
+	trxId: number,
+	codeId: number,
+	debt: number,
+	cred: number,
+	saldo: number
 }
 
-const initLoan: LoanDetail = {
+type Trx = {
+	id: number,
+	refId: number,
+	division: string,
+	trxDate: string,
+	descriptions?: string | undefined,
+	memo?: string | undefined,
+	detail: TrxDetail
+}
+
+interface Loan extends iLoan {
+	trx: Trx[]
+}
+const initTrx: Trx = {
+	id: 0,
+	refId: 0,
+	division: '',
+	trxDate: dateParam(null),
+	detail: {
+		groupId: 0,
+		id: 0,
+		trxId: 0,
+		codeId: 0,
+		debt: 0,
+		cred: 0,
+		saldo: 0
+	}
+}
+
+const initLoan: Loan = {
+	trx: [initTrx],
 	id: 0,
 	name: '',
-	loanAt: dateParam(null),
-	details: []
+	Persen: 0
 }
 
 export default function PageForm() {
 	const { pid } = useParams()
 	const navigate = useNavigate();
 	const { state } = useLocation();
-	const [loan, setLoan] = useState<LoanDetail>(initLoan)
+	const [loan, setLoan] = useState<Loan>(initLoan)
 	let [isLoading, setIsLoading] = useState(false)
 	let [isEdit, setIsEdit] = useState(false)
 
@@ -46,6 +81,7 @@ export default function PageForm() {
 					console.log(error)
 				})
 
+			console.log(res)
 			return res ? res : initLoan;
 		}
 
@@ -70,7 +106,7 @@ export default function PageForm() {
 		<View>
 			<View marginBottom={'size-200'}><div className='div-h1'>Data Piutang</div></View>
 			{isEdit || loan.id === 0 ? <React.Suspense fallback={<div>Please wait...</div>}>
-				<LoanForm data={getLoan(loan)}
+				<LoanForm data={loan}
 					onCancel={(id) => {
 						setIsEdit(false)
 						if(id===0) {
@@ -79,14 +115,13 @@ export default function PageForm() {
 					}}
 					onDelete={() => navigate(`${(state as any).from}`)}
 					onUpdate={(id, data) => {
-						const d = loan.details ? [...loan.details] : []
-						setLoan({ ...data, details: d })
+						setLoan(data)
 						setIsEdit(false)
 					}}
 					onInsert={(data) => {
 						setIsEdit(false)
 						//const d = loan.details ? [...loan.details] : []
-						setLoan({ ...data, details: [] })
+						setLoan(data)
 					}}
 				/>
 			</React.Suspense>
@@ -100,7 +135,7 @@ export default function PageForm() {
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Tanggal</View>
-								<View flex>{FormatDate(loan.loanAt)}</View>
+								<View flex>{FormatDate(loan.trx[0].trxDate)}</View>
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Alamat</View>
@@ -110,19 +145,19 @@ export default function PageForm() {
 						<View flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Keterangan</View>
-								<View flex>{loan.descripts}</View>
+								<View flex>{loan.trx[0].descriptions}</View>
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Pinjaman</View>
-								<View flex>{loan.details && FormatNumber(loan.details.reduce((t, c) => t + c.debt, 0))}</View>
+								<View flex>{FormatNumber(loan.trx[0].detail.debt)}</View>
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Angsuran</View>
-								<View flex>{loan.details && FormatNumber(loan.details.reduce((t, c) => t + c.cred, 0))}</View>
+								<View flex>{FormatNumber(loan.trx[0].detail.cred)}</View>
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Sisa Bayar</View>
-								<View flex>{loan.details && FormatNumber(loan.details.reduce((t, c) => t + c.debt - c.cred, 0))}</View>
+								<View flex>{FormatNumber(loan.trx[0].detail.saldo)}</View>
 							</Flex>
 						</View>
 					</Flex>
@@ -136,23 +171,10 @@ export default function PageForm() {
 				</ActionButton>
 			</View>
 
-			<LoanListDetails details={loan.details} />
+			{/* <LoanListDetails details={loan.trx} /> */}
 
 		</View>
 
 	);
-
-	function getLoan(p: LoanDetail) {
-		if (p.id > 0) {
-			const t = { ...p }
-			delete t.details;
-			return t;
-		}
-		return {
-			id: 0,
-			name: '',
-			loanAt: dateParam(null)
-		}
-	}
 
 }

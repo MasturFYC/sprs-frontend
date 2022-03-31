@@ -1,5 +1,5 @@
 import React, { FormEvent, useRef, useState } from "react";
-import { dateOnly, dateParam, iAccountSpecific, iLoanDetail } from 'lib/interfaces'
+import { dateOnly, dateParam, iAccountSpecific, iLoan } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { FormatDate, FormatNumber } from "lib/format";
 import axios from 'lib/axios-base';
@@ -11,29 +11,45 @@ import {
 } from "@adobe/react-spectrum";
 import AddToSelection from "@spectrum-icons/workflow/AddToSelection";
 
-
-
-const initLoadDetail: iLoanDetail = {
-	loanId: 0,
-	paymentAt: dateParam(null),
-	id: 0,
-	debt: 0,
-	cred: 0,
-	cashId: 0
-}
-
-
-export interface LoanDetailSaldo extends iLoanDetail {
+type TrxDetail = {
+	groupId: number,
+	id: number,
+	trxId: number,
+	codeId: number,
+	debt: number,
+	cred: number,
 	saldo: number
 }
 
+type Trx = {
+	id: number,
+	refId: number,
+	division: string,
+	trxDate: string,
+	descriptions?: string | undefined,
+	memo?: string | undefined,
+	detail: TrxDetail
+}
+
+interface Loan extends iLoan {
+	trx: Trx[]
+}
+
+const initLoadDetail: Loan = {
+	id: 0,
+	name: "",
+	Persen: 0,
+	trx: []
+}
+
+
 type LoanListDetailProps = {
-	details?: LoanDetailSaldo[] | undefined
+	details: Loan[]
 }
 
 const LoanListDetails = ({ details }: LoanListDetailProps) => {
 	const [open, setOpen] = React.useState(false)
-	let [detail, setDetail] = useState<iLoanDetail>(initLoadDetail)
+	let [loan, setDetail] = useState<Loan>(initLoadDetail)
 
 	return (
 		<View>
@@ -46,14 +62,14 @@ const LoanListDetails = ({ details }: LoanListDetailProps) => {
 						<Heading marginStart={'size-200'}>Angsuran</Heading>
 						<Divider size='S' />
 						<View marginX={'size-200'} marginTop={'size-100'}>
-							<FormDetail detail={detail}
+							<FormDetail trx={loan.trx[0]}
 								onCancel={() => setOpen(false)}
 								onInsert={(e) => {
-									setDetail(e)
+									//setDetail(o => ({...o, trx: e}))
 									setOpen(false)
 								}}
 								onUpdate={(id, e) => {
-									setDetail(e)
+									//setDetail(o => ({ ...o, trx: e }))
 									setOpen(false)
 								}}
 							/>
@@ -75,11 +91,11 @@ const LoanListDetails = ({ details }: LoanListDetailProps) => {
 				<tbody>
 					{details && details.map((o, i) => <tr key={o.id}>
 						<td className="text-center">{i + 1}</td>
-						<td className="text-center">{FormatDate(o.paymentAt)}</td>
-						<td><Link onPress={() => setDetail(o)} isQuiet variant="primary">{o.descripts || '---'}</Link></td>
-						<td className="text-right">{FormatNumber(o.debt)}</td>
-						<td className="text-right">{FormatNumber(o.cred)}</td>
-						<td className="text-right">{FormatNumber(o.saldo)}</td>
+						<td className="text-center">{FormatDate(o.trx[0].trxDate || dateParam(null))}</td>
+						<td><Link onPress={() => setDetail(o)} isQuiet variant="primary">{o.trx[0].descriptions || '---'}</Link></td>
+						<td className="text-right">{FormatNumber(o.trx[0].detail.debt)}</td>
+						<td className="text-right">{FormatNumber(o.trx[0].detail.cred)}</td>
+						<td className="text-right">{FormatNumber(o.trx[0].detail.saldo)}</td>
 					</tr>
 					)}
 				</tbody>
@@ -106,28 +122,49 @@ const LoanListDetails = ({ details }: LoanListDetailProps) => {
 	}
 
 	function getDetailDebt() {
-		return details ? details.reduce((t, c) => t + c.debt, 0) : 0
+		return details.reduce((t, c) => t + c.trx[0].detail.debt, 0)
 	}
 	function getDetailCred() {
-		return details ? details.reduce((t, c) => t + c.cred, 0) : 0
+		return details.reduce((t, c) => t + c.trx[0].detail.cred, 0)
 	}
 	function getDetailSaldo() {
-		return details ? details.reduce((t, c) => t + c.saldo, 0) : 0
+		return details.reduce((t, c) => t + c.trx[0].detail.saldo, 0)
 	}
 
+}
+
+const initDetail: TrxDetail = {
+	groupId: 0,
+	id: 0,
+	trxId: 0,
+	codeId: 0,
+	debt: 0,
+	cred: 0,
+	saldo: 0
+}
+
+const initTrx: Trx = {
+	id: 0,
+	refId: 0,
+	division: "",
+	trxDate: "",
+	detail: initDetail
 }
 
 type FormDetailProps = {
-	detail: iLoanDetail
+	trx: Trx
 	onCancel?: (id: number) => void
-	onInsert?: (data: iLoanDetail) => void
-	onUpdate?: (id: number, data: iLoanDetail) => void
+	onInsert?: (data: Trx) => void
+	onUpdate?: (id: number, data: Trx) => void
 	onDelete?: (id: number) => void
 }
-function FormDetail({ detail, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
+function FormDetail({ trx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
 	const inputRef = useRef<HTMLDivElement>(null);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
-	let [data, setData] = useState<iLoanDetail>(initLoadDetail)
+	let [data, setData] = useState<Trx>(initTrx)
+	let [detail, setDetail] = useState<TrxDetail>(initDetail)
+	let [cred, setCred] = useState(0.0)
+	let [code, setCode] = useState(0)
 
 
 	let accountCashes = useAsyncList<iAccountSpecific>({
@@ -152,29 +189,23 @@ function FormDetail({ detail, onCancel, onUpdate, onInsert, onDelete }: FormDeta
 	})
 
 	const isDescriptionsValid = React.useMemo(
-		() => data.descripts ? data.descripts.length > 5 : false,
+		() => data.descriptions ? data.descriptions.length > 5 : false,
 		[data]
 	)
 
-	const isAccValid = React.useMemo(
-		() => data.cashId > 0,
-		[data]
-	)
-
-	const isCredValid = React.useMemo(
-		() => data.cred > 0,
-		[data]
-	)
+	const isCredValid = React.useMemo(() => cred > 0, [cred])
+	const isCodeValid = React.useMemo(() => code > 0, [code])
 
 	React.useEffect(() => {
 		let isLoaded = false;
 
 		if (!isLoaded) {
-			setData(detail)
+			setData(trx)
+			setDetail(trx.detail)
 		}
 
 		return () => { isLoaded = false }
-	}, [detail])
+	}, [trx])
 
 	return (<Form onSubmit={handleSubmit}>
 		<Flex rowGap='size-200' direction={'column'}>
@@ -183,9 +214,9 @@ function FormDetail({ detail, onCancel, onUpdate, onInsert, onDelete }: FormDeta
 					type={'date'}
 					label='Tanggal'
 					width={{ base: 'auto', M: 'size-2000' }}
-					value={dateOnly(data.paymentAt)}
+					value={dateOnly(data.trxDate)}
 					maxLength={10}
-					onChange={(e) => handleChange("paymentAt", e)}
+					onChange={(e) => handleChange("trxDate", e)}
 				/>
 				<div ref={inputRef} style={{ display: 'flex', width: '100%' }}>
 					<TextField
@@ -194,10 +225,10 @@ function FormDetail({ detail, onCancel, onUpdate, onInsert, onDelete }: FormDeta
 						autoFocus
 						width={{ base: 'auto', L: 'size-5000' }}
 						validationState={isDescriptionsValid ? 'valid' : 'invalid'}
-						placeholder={'e.g. Beli kopi dan rokok untuk om Mastur.'}
-						value={data.descripts || ''}
+						placeholder={'e.g. Angsuran 1.'}
+						value={data.descriptions || ''}
 						maxLength={128}
-						onChange={(e) => handleChange("descripts", e)}
+						onChange={(e) => handleChange("descriptions", e)}
 					/>
 				</div>
 			</Flex>
@@ -208,18 +239,18 @@ function FormDetail({ detail, onCancel, onUpdate, onInsert, onDelete }: FormDeta
 					width={{ base: 'auto', M: 'size-2000' }}
 					validationState={isCredValid ? 'valid' : 'invalid'}
 					label={"Jumlah angsuran"}
-					onChange={(e) => handleChange("cred", e)}
-					value={data.cred} />
+					onChange={(e) => setDetail(o => ({ ...o, cred: e })) }
+					value={detail.cred} />
 				<ComboBox
 					flex
 					menuTrigger='focus'
 					width={{ base: 'auto', L: 'size-5000' }}
-					validationState={isAccValid ? 'valid' : 'invalid'}
+					validationState={isCodeValid ? 'valid' : 'invalid'}
 					label={"Akun kas"}
 					placeholder={"e.g. Kas / bank"}
 					defaultItems={accountCashes.items}
-					selectedKey={data.cashId}
-					onSelectionChange={(e) => handleChange("cashId", +e)}
+					selectedKey={detail.codeId}
+					onSelectionChange={(e) => setDetail(o => ({ ...o, codeId: +e}))}
 				>
 					{(item) => <Item textValue={`${item.id} - ${item.name}`}>
 						<Text><div className='font-bold'>{item.id} - {item.name}</div></Text>
@@ -231,7 +262,7 @@ function FormDetail({ detail, onCancel, onUpdate, onInsert, onDelete }: FormDeta
 
 		<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 			<Button type='submit' variant='cta'
-				isDisabled={!isDirty || !(isDescriptionsValid && isAccValid && isCredValid)}>Save</Button>
+				isDisabled={!isDirty || !(isDescriptionsValid && isCodeValid && isCredValid)}>Save</Button>
 			<Button type='button' variant='primary'
 				onPress={() => {
 					onCancel && onCancel(data.id)
@@ -250,12 +281,10 @@ function FormDetail({ detail, onCancel, onUpdate, onInsert, onDelete }: FormDeta
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
-		if (isDescriptionsValid && isAccValid && isCredValid) {
-			if (data.id === 0) {
-				onInsert && onInsert(data)
-			} else {
-				onUpdate && onUpdate(detail.id, data)
-			}
+		if (data.id === 0) {
+			onInsert && onInsert(data)
+		} else {
+			onUpdate && onUpdate(trx.id, data)
 		}
 	}
 }

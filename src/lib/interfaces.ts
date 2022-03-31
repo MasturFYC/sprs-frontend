@@ -265,13 +265,12 @@ export type iAccountSpecific = {
 export interface iLoan {
     id: number
     name: string
-    loanAt: string
-    descripts?: string
     street?: string
     city?: string
     phone?: string
     cell?: string
     zip?: string
+    Persen: number
 }
 
 
@@ -284,24 +283,4 @@ export interface iLent {
     phone?: string
     cell?: string
     zip?: string
-}
-
-export interface iLentDetail {
-    orderId: number
-    paymentAt: string
-    id: number
-    descripts?: string
-    debt: number
-    cred: number
-    cashId: number
-}
-
-export interface iLoanDetail {
-    loanId: number
-    paymentAt: string
-    id: number
-    descripts?: string
-    debt: number
-    cred: number
-    cashId: number
 }
