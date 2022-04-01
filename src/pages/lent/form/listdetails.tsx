@@ -169,7 +169,6 @@ type FormDetailProps = {
 	onUpdate?: (id: number, data: Trx) => void
 	onDelete?: (id: number) => void
 }
-
 function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
 	const inputRef = useRef<HTMLDivElement>(null);
 	const [isDirty, setIsDirty] = useState<boolean>(false);

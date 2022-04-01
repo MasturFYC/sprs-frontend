@@ -42,15 +42,15 @@ export function ReportOrderAllWaiting({
 
     if (!isLoaded) {
       setIsLoading(true)
-        load().then(data => {
-          setOrders(data)
-          setIsLoading(false)
-        })
-      }
+      load().then(data => {
+        setOrders(data)
+        setIsLoading(false)
+      })
+    }
 
     return () => { isLoaded = true }
 
-  }, [financeId,    branchId,    typeId])
+  }, [financeId, branchId, typeId])
 
   if (isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>

@@ -99,7 +99,7 @@ const LoanPage = () => {
 
 	return (
 		<View>
-			<View><span className="div-h1">Buku Piutang</span></View>
+			<View><span className="div-h1">Piutang</span></View>
 			<Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
 				<Link isQuiet variant="primary"><RouteLink to={'/loan/0'}>Buat Piutang Baru</RouteLink></Link>
 				<Link isQuiet variant="primary"><RouteLink to={'/loan/list'}>Daftar Piutang</RouteLink></Link>

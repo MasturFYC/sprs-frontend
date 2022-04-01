@@ -250,7 +250,7 @@ function AutoMenu() {
         </View>
         <View>
         <Link isQuiet variant='primary'>
-          <RouterLink to="/lent"><b>Buku Pinjaman Unit</b></RouterLink>
+          <RouterLink to="/lent/list"><b>Buku Pinjaman Unit</b></RouterLink>
         </Link>
       </View>
 
