@@ -32,20 +32,15 @@ type Trx = {
 	detail: TrxDetail
 }
 
-// interface Loan extends iLoan {
-// 	trxs: Trx[]
-// }
-
-
-type LoanListDetailProps = {
-	loanId: number,
+type lentListDetailProps = {
+	lentId: number,
 	name: string,
 	trxs: Trx[],
 	onChange?: (id: number, data: Trx) => void
 	onDelete?: (id: number) => void
 }
 
-const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDetailProps) => {
+const LentListDetails = ({ trxs, onChange, onDelete, name, lentId }: lentListDetailProps) => {
 	const [open, setOpen] = React.useState(false)
 	let [trx, setTrx] = useState<Trx>(initTrx)
 
@@ -60,7 +55,7 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 						<Heading marginStart={'size-200'}>Angsuran</Heading>
 						<Divider size='S' />
 						<View marginX={'size-200'} marginTop={'size-100'}>
-							<FormDetail name={name} loanId={loanId} editedTrx={trx}
+							<FormDetail name={name} lentId={lentId} editedTrx={trx}
 								onDelete={(id) => {
 									onDelete && onDelete(id)
 								}}
@@ -161,7 +156,7 @@ const initTrx: Trx = {
 }
 
 type FormDetailProps = {
-	loanId: number
+	lentId: number
 	editedTrx: Trx
 	name: string
 	onCancel?: (id: number) => void
@@ -169,7 +164,7 @@ type FormDetailProps = {
 	onUpdate?: (id: number, data: Trx) => void
 	onDelete?: (id: number) => void
 }
-function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
+function FormDetail({ lentId, name, editedTrx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
 	const inputRef = useRef<HTMLDivElement>(null);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	let [trx, setTrx] = useState<Trx>(initTrx)
@@ -208,11 +203,11 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 		let isLoaded = false;
 
 		if (!isLoaded) {
-			setTrx({ ...editedTrx, refId: loanId })
+			setTrx({ ...editedTrx, refId: lentId })
 		}
 
 		return () => { isLoaded = false }
-	}, [editedTrx, loanId])
+	}, [editedTrx, lentId])
 
 	return (<Form onSubmit={handleSubmit}>
 		<Flex rowGap='size-200' direction={'column'}>
@@ -311,7 +306,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 
 		const t_rx = {
 			id: p.id,
-			refId: loanId,
+			refId: lentId,
 			division: 'trx-angsuran',
 			descriptions: p.descriptions,
 			trxDate: dateOnly(p.trxDate),
@@ -326,7 +321,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 				},
 				{
 					id: 2,
-					codeId: 4112,
+					codeId: 4113,
 					trxId: p.id,
 					debt: 0,
 					cred: p.detail.debt
@@ -341,7 +336,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 		})
 
 		await axios
-			.post(`/loans/payment/${trx.id}`, xData, { headers: headers })
+			.post(`/lents/payment/${trx.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
@@ -350,7 +345,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 					setTrx(t)
 					onInsert && onInsert(t)
 				}
-				onUpdate && onUpdate(loanId, { ...trx, id: data.id, detail: { ...t_rx.details[0], trxId: data.id, groupId: 0, saldo: p.detail.debt } })
+				onUpdate && onUpdate(lentId, { ...trx, id: data.id, detail: { ...t_rx.details[0], trxId: data.id, groupId: 0, saldo: p.detail.debt } })
 			})
 			.catch(error => {
 				console.log(error)
@@ -360,4 +355,4 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 }
 
 
-export default LoanListDetails;
+export default LentListDetails;

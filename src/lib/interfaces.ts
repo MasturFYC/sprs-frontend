@@ -277,7 +277,6 @@ export interface iLoan {
 export interface iLent {
     orderId: number
     name: string
-    descripts?: string
     street?: string
     city?: string
     phone?: string

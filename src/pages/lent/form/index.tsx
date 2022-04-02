@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { iAccountSpecific, iLent } from 'lib/interfaces'
+import { dateParam, iAccountSpecific, iLent } from 'lib/interfaces'
 import { Flex, View, ProgressCircle, ActionButton, Text, useAsyncList, Divider } from '@adobe/react-spectrum';
 import axios from 'lib/axios-base';
 //import AddIcon from '@spectrum-icons/workflow/Add'
@@ -7,27 +7,33 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FormatDate, FormatNumber } from 'lib/format';
 import EditCircle from '@spectrum-icons/workflow/EditCircle';
 import Back from '@spectrum-icons/workflow/BackAndroid';
-import LoanListDetails from './listdetails';
-//import { PrettyPrintJson } from 'lib/utils';
-import { lentTrx, tsLentItem } from '../interfaces';
+//import LentListDetails from './listdetails';
+import { PrettyPrintJson } from 'lib/utils';
+import { lentTrx, lentDetail, tsLentItem } from '../interfaces';
 
 const LentForm = React.lazy(() => import('./form'));
 
 const initTrx: lentTrx = {
 	id: 0,
 	refId: 0,
-	division: '',
-	trxDate: '',
-	memo: ''
-} 
+	division: 'trx-lent',
+	trxDate: dateParam(null),
+	memo: '',
+	detail: {
+		id: 0,
+		trxId: 0,
+		codeId: 0,
+		debt: 0,
+		cred: 0,
+		saldo: 0
+	}
+}
 
 const initLent: tsLentItem = {
-	orderId: 0,
-	name: '',
 	unit: {
 		id: 0,
 		name: '',
-		orderAt: '',
+		orderAt: dateParam(null),
 		btFinance: 0,
 		btPercent: 0,
 		btMatel: 0,
@@ -37,10 +43,13 @@ const initLent: tsLentItem = {
 		wheel: '',
 		merk: ''
 	},
-	trxs: [initTrx]
+	trxs: [initTrx],
+	orderId: 0,
+	name: ''
 }
 
-export default function PageForm() {
+
+export default function LentPageForm() {
 	const { pid } = useParams()
 	const navigate = useNavigate();
 	//const { state } = useLocation();
@@ -88,13 +97,14 @@ export default function PageForm() {
 					console.log(error)
 				})
 
-
 			return res ? res : initLent;
 		}
 
 		if (!isLoaded && pid) {
 			setIsLoading(true)
 			load(pid ? pid : '0').then(data => {
+
+				console.log(data)
 				setLent(data);
 				setIsLoading(false)
 			})
@@ -114,11 +124,11 @@ export default function PageForm() {
 			<Flex direction={'row'} columnGap={'size-100'}>
 				<View flex><div className='div-h2 font-bold'>Data Piutang</div></View>
 				<View>
-					<ActionButton isQuiet isDisabled={isEdit || lent.id === 0} onPress={() => setIsEdit(true)}>
+					<ActionButton isQuiet isDisabled={isEdit || lent.orderId === 0} onPress={() => setIsEdit(true)}>
 						<EditCircle size={'S'} />
 						<Text>Edit</Text>
 					</ActionButton>
-					<ActionButton isQuiet onPress={() => navigate('/loan/list')}>
+					<ActionButton isQuiet onPress={() => navigate('/lent/list')}>
 						<Back size={'S'} />
 						<Text>Back to list</Text>
 					</ActionButton>
@@ -126,34 +136,27 @@ export default function PageForm() {
 			</Flex>
 
 			<Divider size={'S'} marginBottom={'size-200'} />
-			{isEdit || lent.id === 0 ? <React.Suspense fallback={<div>Please wait...</div>}>
-				<LentForm data={loanGetDefaultTrx()}
+
+			{isEdit || lent.orderId === 0 ? <React.Suspense fallback={<div>Please wait...</div>}>
+				<LentForm data={getEditedLent()}
 					accCode={accountCashes.items}
 					onCancel={(id) => {
 						setIsEdit(false)
 						if (id === 0) {
-							navigate('/loan/list')
+							navigate('/lent/list')
 						}
 					}}
 					onDelete={() => {
-						setIsEdit(false)
-						navigate(`/loan`)
+						//setIsEdit(false)
+						navigate(`/lent`)
 					}}
 					onUpdate={(id, data) => {
 						loanSetDefaultTrx(data)
-						//setLoan(data)
-						//const count = reload + 1
-						//setReload(count)
 						setIsEdit(false)
 					}}
 					onInsert={(data) => {
 						loanSetDefaultTrx(data)
-						//const d = loan.details ? [...loan.details] : []
-						//setLoan(data)
-						//const count = reload + 1
-						//setReload(count)
-						navigate(`/loan/${data.id}`, { replace: false })
-						//setIsEdit(false)
+						navigate(`/lent/${data.orderId}`, { replace: false })
 					}}
 				/>
 			</React.Suspense>
@@ -186,15 +189,11 @@ export default function PageForm() {
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Pokok</View>
-								<View flex>{FormatNumber(lent.trxs.reduce((t, c) => t + c.detail.cred, 0))}</View>
-							</Flex>
-							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
-								<View width={'size-1250'}>Prosentase</View>
-								<View flex>{FormatNumber(lent.persen)}%</View>
+								<View flex>{FormatNumber(lent.unit.btMatel)}</View>
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Piutang</View>
-								<View flex>{FormatNumber(getTotalPiutang())}</View>
+								<View flex>{FormatNumber(lent.unit.btFinance)}</View>
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Angsuran</View>
@@ -209,27 +208,54 @@ export default function PageForm() {
 
 				</View>
 			}
-			{/* 
-			<View>
-				<PrettyPrintJson data={loanGetDefaultTrx()} />
-			</View>
- */}
+
+			{/* <View>
+				<PrettyPrintJson data={lent.trxs[0]} />
+			</View> */}
+
 			<Divider size={'S'} marginTop={'size-200'} />
-			<LoanListDetails
+
+			{/* <LentListDetails
 				name={lent.name}
 				onDelete={(e) => {
 					deleteTrx(e)
 				}}
-				onChange={(id, e) => {
-					updateSelectedTrx(id, e)
-					//setReload(reload + 1)
-				}}
-				loanId={lent.id}
-				trxs={lent.trxs.filter((x, i) => i > 0)} />
+				lentId={lent.orderId}
+				trxs={lent.trxs.filter((x, i) => i > 0)} /> */}
 
 		</View>
 
 	);
+
+	function loanSetDefaultTrx(p: any) {
+
+		setLent(o => ({
+			...o,
+			name: p.name,
+			street: p.street,
+			city: p.city,
+			phone: p.phone,
+			cell: p.cell,
+			zip: p.zip,
+		}))
+
+	}	
+
+	function getEditedLent() {
+		const data = {
+			orderId: lent.orderId,
+			name: lent.name,
+			street: lent.street,
+			city: lent.city,
+			phone: lent.phone,
+			cell: lent.cell,
+			zip: lent.zip,
+			unit: lent.unit,
+			trx: lent.trxs[0]
+		}
+		return data;
+	}
+
 
 	function deleteTrx(id: number) {
 		const trxs = lent.trxs;
@@ -249,7 +275,7 @@ export default function PageForm() {
 
 	}
 
-	function updateSelectedTrx(id: number, p: Trx) {
+	function updateSelectedTrx(id: number, p: lentTrx) {
 		const trxs = lent.trxs;
 
 		if (id === 0) {
@@ -275,16 +301,14 @@ export default function PageForm() {
 		setLent({ ...lent, trxs: trxs })
 	}
 
-	function getTotalPiutang() {
-		const pokok = lent.trxs.reduce((t, c) => t + c.detail.cred, 0);
-		const total = pokok + (pokok * (lent.persen / 100.0))
-		return total;
-	}
+	// function getTotalPiutang() {
+	// 	const pokok = lent.trxs.reduce((t, c) => t + c.detail.cred, 0);
+	// 	return pokok;
+	// }
+
 	function getSisaPiutang() {
-		const pokok = lent.trxs.reduce((t, c) => t + c.detail.cred, 0);
 		const payment = lent.trxs.reduce((t, c) => t + c.detail.debt, 0);
-		const total = pokok + (pokok * (lent.persen / 100.0))
-		return total - payment;
+		return lent.unit.btFinance - payment;
 	}
 
 }

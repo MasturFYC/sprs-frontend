@@ -24,6 +24,7 @@ export type lentPayment = {
   order_id: number,
   debt: number,
   cred: number,
+  piutang: number,
   saldo: number
 }
 

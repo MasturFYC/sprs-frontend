@@ -1,94 +1,102 @@
 import React, { FormEvent, useState } from 'react';
-import { dateOnly, dateParam, iAccountSpecific, iLent, iTrx } from 'lib/interfaces'
+import { dateOnly, dateParam, iAccountSpecific, iLent } from 'lib/interfaces'
 import { Button, ComboBox, Flex, Item, Text, NumberField, TextField, View, useAsyncList } from '@adobe/react-spectrum';
 import axios from 'lib/axios-base';
-import { tOrderInvoiced } from 'Report/interface';
-import { tsLent } from '../interfaces';
+import { lentUnit, lentTrx } from '../interfaces';
+import { PrettyPrintJson } from 'lib/utils';
+import { isNewExpression } from '@babel/types';
 
-type ts_lent_create = {
-	lent: iLent
-	trx: iTrx
-	token: string
+const ListUnit = React.lazy(() => import('./ListUnit'));
+
+interface tsItem extends iLent {
+	unit: lentUnit,
+	trx: lentTrx
 }
 
-const initLent: tsLent = {
-	payment: {
-		order_id: 0,
+const initTrx: lentTrx = {
+	id: 0,
+	refId: 0,
+	division: 'trx-lent',
+	trxDate: dateParam(null),
+	memo: '',
+	detail: {
+		id: 0,
+		trxId: 0,
+		codeId: 0,
 		debt: 0,
 		cred: 0,
 		saldo: 0
-	},
-	unit: {
-		id: 0,
-		name: '',
-		orderAt: '',
-		btFinance: 0,
-		btPercent: 0,
-		btMatel: 0,
-		nopol: '',
-		year: 0,
-		type: '',
-		wheel: '',
-		merk: ''
-	},
+	}
+}
+
+const initUnit: lentUnit = {
+	id: 0,
+	name: '',
+	orderAt: dateParam(null),
+	btFinance: 0,
+	btPercent: 0,
+	btMatel: 0,
+	nopol: '',
+	year: 0,
+	type: '',
+	wheel: '',
+	merk: ''
+}
+
+const initLent: tsItem = {
+	unit: initUnit,
+	trx: initTrx,
 	orderId: 0,
 	name: ''
 }
 
 
+
 type LentFormProps = {
-	data: tsLent
+	data: tsItem
 	accCode: iAccountSpecific[]
-	onInsert?: (loan: tsLent) => void
-	onUpdate?: (id: number, loan: tsLent) => void
+	onInsert?: (lent: tsItem) => void
+	onUpdate?: (id: number, lent: iLent) => void
 	onDelete?: (id: number) => void
 	onCancel?: (id: number) => void
 }
 
 const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: LentFormProps) => {
-	const [lent, setLent] = useState<tsLent>(initLent)
+	const [lent, setLent] = useState<tsItem>(initLent)
 	const [isDirty, setIsDirty] = React.useState<boolean>(false);
+	let [isNew, setIsNew] = useState(false)
 
 	const isDescriptionsValid = React.useMemo(
 		() => {
-			if (lent.descripts) {
-				return lent.descripts.length >= 5
+			if (lent.trx.descriptions) {
+				return lent.trx.descriptions.length >= 5
 			}
 			return false
 		},
 		[lent]
 	)
 
+	const isBtMatelValid = React.useMemo(
+		() => lent.trx.detail.cred > 0
+		, [lent])
+
 	const isNameValid = React.useMemo(
 		() => lent.name.length >= 3,
 		[lent]
 	)
 
+	const isCodeValid = React.useMemo(
+		() => lent.trx.detail.codeId > 0,
+		[lent]
+	)
 
-	let units = useAsyncList<tOrderInvoiced>({
-		async load({ signal }) {
-		  const headers = {
-			'Content-Type': 'application/json'
-		  }
-	
-		  let res = await axios
-			.get("/report/order-all-waiting/0/0/0", { headers: headers })
-			.then(response => response.data)
-			.then(data => data)
-			.catch(error => {
-			  console.log(error)
-			  return []
-			})
-		  return { items: res || [] }
-		},
-		getKey: (item: tOrderInvoiced) => item.id
-	  })	
 
 	React.useEffect(() => {
 		let isLoaded = false;
 
 		if (!isLoaded) {
-			setLent(data);
+			setLent(data)
+			setIsNew(data.orderId === 0)
 		}
 
 		return () => { isLoaded = true }
@@ -99,6 +107,19 @@ const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Len
 	return (
 		<View>
 			<form onSubmit={(e) => handleSubmit(e)}>
+				<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
+					<Flex flex direction={'row'} columnGap={'size-100'}>
+						<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isBtMatelValid && isDescriptionsValid && isCodeValid)}>Save</Button>
+						<Button type='button' variant='primary' onPress={() => onCancel && onCancel(isNew ? 0 : lent.orderId)}>
+							{isDirty ? 'Cancel' : 'Close'}</Button>
+					</Flex>
+					<View>
+						<Button type='button'
+							isDisabled={isNew}
+							alignSelf={'flex-end'} variant='negative'
+							onPress={() => deleteData(lent.orderId)}>Remove</Button>
+					</View>
+				</Flex>
 				<View padding={{ base: 'size-50', M: 'size-200' }}>
 					<Flex rowGap='size-50' direction={'column'}>
 						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
@@ -113,59 +134,12 @@ const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Len
 								placeholder={'e.g. Junaedi'}
 								validationState={isNameValid ? "valid" : "invalid"}
 								maxLength={50}
-								onChange={(e) => handleChange("name", e)}
-							/>
-							<TextField
-								flex
-								type={'date'}
-								label={<div className='width-80'>Tanggal</div>}
-								labelAlign='end'
-								labelPosition='side'
-								width={'auto'}
-								value={dateOnly(lent.unit.orderAt)}
 								onChange={(e) => {
+									setLent(o => ({ ...o, name: e }))
 									setIsDirty(true)
-									setLent(o => ({ ...o, unit: {...o.unit, orderAt: e} }))
 								}}
 							/>
-						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
-						<ComboBox
-								flex
-								menuTrigger='focus'
-								labelAlign='end'
-								label={<div className='width-80'>Unit</div>}
-								labelPosition='side'
-								// validationState={isCodeValid ? 'valid' : 'invalid'}
-								placeholder={"Pilih unit"}
-								defaultItems={units.items}
-								selectedKey={lent.payment}
-								onSelectionChange={(e) => {
-									setIsDirty(true)
-									setLent(o => ({ ...o, trx: { ...o.trx, detail: { ...o.trx.detail, codeId: +e } } }))
-								}}
-							>
-								{(item) => <Item textValue={item.unit?.type.name}>
-									<Text><div className='font-bold'>{item.unit?.type.name}</div></Text>
-									<Text slot='description'>
-										{item.unit?.nopol}, tahun {item.unit?.year}
-									</Text>
-								</Item>}
-							</ComboBox>
-							<NumberField
-								flex
-								hideStepper={true}
-								labelPosition='side'
-								labelAlign='end'
-								width={{ base: 'auto', M: 'size-2000' }}
-								formatOptions={{ currency: 'IDR', style: 'currency', maximumFractionDigits: 0 }}
-								validationState={isPiutangValid ? "valid" : "invalid"}
-								label={<div className='width-80'>BT-Matel</div>}
-								onChange={(e) => {
-									setLent(o => ({ ...o, trx: { ...o.trx, detail: { ...o.trx.detail, cred: e, saldo: -e } } }))
-									setIsDirty(true)
-								}}
-								value={lent.trx.detail.cred} />
+							
 							<ComboBox
 								flex
 								menuTrigger='focus'
@@ -186,19 +160,6 @@ const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Len
 									<Text slot='description'><span className='font-bold'>{item.name}</span>{item.descriptions && `, ${item.descriptions}`}</Text>
 								</Item>}
 							</ComboBox>
-						</Flex>
-						<Flex flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'} rowGap={'size-75'}>
-							<NumberField
-								flex
-								hideStepper={true}
-								labelPosition='side'
-								labelAlign='end'
-								formatOptions={{ currency: 'IDR', style: 'currency', maximumFractionDigits: 0 }}
-								width={{ base: 'auto', M: 'size-2000' }}
-								label={<div className='width-80'>BT-Finance</div>}
-								value={((lent.persen / 100) * lent.trx.detail.cred) + lent.trx.detail.cred}
-								 />
-
 						</Flex>
 						<Flex flex direction={'column'} rowGap='size-75'>
 							<TextField
@@ -278,27 +239,33 @@ const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Len
 							/>
 						</Flex>
 					</Flex>
-					<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
-						<Flex flex direction={'row'} columnGap={'size-100'}>
-							<Button type='submit' variant='cta' isDisabled={!isDirty || !(isNameValid && isPersenValid && isDescriptionsValid && isPiutangValid && isCodeValid)}>Save</Button>
-							<Button type='button' variant='primary' onPress={() => onCancel && onCancel(lent.id)}>
-								{isDirty ? 'Cancel' : 'Close'}</Button>
-						</Flex>
-						{lent.id > 0 &&
-							<View>
-								<Button type='button'
-									isDisabled={lent.id === 0}
-									alignSelf={'flex-end'} variant='negative'
-									onPress={() => deleteData(lent.id)}>Remove</Button>
-							</View>
-						}
-					</Flex>
 				</View>
 			</form>
-{/* 
+
+			<View> {isNew &&
+				<React.Suspense fallback={<div>Please wait...</div>}>
+					<ListUnit onChange={(e) => {
+						setLent(o => ({
+							...o,
+							unit: e,
+							orderId: e.id,
+							trx: {
+								...o.trx, refId: e.id,
+								detail: {
+									...o.trx.detail,
+									cred: e.btMatel,
+									saldo: e.btMatel
+								}
+							}
+						}))
+					}} />
+				</React.Suspense>
+			}
+			</View>
+
 			<View>
-				<PrettyPrintJson data={loan} />
-			</View> */}
+				<PrettyPrintJson data={lent} />
+			</View>
 		</View>
 
 	);
@@ -311,104 +278,103 @@ const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Len
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault()
 
-		if (lent.id === 0) {
-			await inserData(lent);
+		if (isNew) {
+			await inserData();
 		} else {
-			await updateData(lent);
+			await updateData();
 		}
 	}
 
-	async function updateData(p: CurrentLent) {
+	async function updateData() {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
 		}
 
-
-		const t_loan = {
-			id: p.id,
-			name: p.name,
-			persen: p.persen,
-			street: p.street,
-			city: p.city,
-			phone: p.phone,
-			cell: p.cell,
-			zip: p.zip
-
-		}
-		const t_rx = {
-			id: lent.trx.id,
-			refId: p.id,
-			division: 'trx-loan',
-			descriptions: lent.trx.descriptions,
-			trxDate: dateOnly(lent.trx.trxDate),
-			memo: lent.trx.memo,
-			details: [
-				{
-					id: 1,
-					codeId: 5512,
-					trxId: lent.trx.id,
-					debt: lent.trx.detail.cred,
-					cred: 0
-				},
-				{
-					id: 2,
-					codeId: lent.trx.detail.codeId,
-					trxId: lent.trx.id,
-					debt: 0,
-					cred: lent.trx.detail.cred
-				}
-			],
+		const t_lent = {
+			orderId: lent.orderId,
+			name: lent.name,
+			street: lent.street,
+			city: lent.city,
+			phone: lent.phone,
+			cell: lent.cell,
+			zip: lent.zip
 		}
 
+		// const t_rx = {
+		// 	id: lent.trx.id,
+		// 	refId: lent.trx.refId,
+		// 	division: 'trx-lent',
+		// 	descriptions: lent.trx.descriptions,
+		// 	trxDate: dateOnly(lent.trx.trxDate),
+		// 	memo: lent.trx.memo,
+		// 	details: [
+		// 		{
+		// 			id: 1,
+		// 			codeId: 5512,
+		// 			trxId: lent.trx.id,
+		// 			debt: lent.trx.detail.cred,
+		// 			cred: 0
+		// 		},
+		// 		{
+		// 			id: 2,
+		// 			codeId: lent.trx.detail.codeId,
+		// 			trxId: lent.trx.id,
+		// 			debt: 0,
+		// 			cred: lent.trx.detail.cred
+		// 		}
+		// 	],
+		// }
 
-		const xData = JSON.stringify({
-			loan: t_loan,
-			trx: t_rx,
-			token: [lent.trx.descriptions || ' ', lent.trx.memo || ' ', p.name].join(" ")
-		})
+
+		 const xData = JSON.stringify(t_lent)
+		// 	lent: t_lent,
+		// 	trx: t_rx,
+		// 	token: [lent.trx.descriptions || ' ', lent.trx.memo || ' ', lent.name].join(" ")
+		// })
+
+		//console.log(xData)
 
 
 		await axios
-			.put(`/loans/${p.id}`, xData, { headers: headers })
+			.put(`/lents/${lent.orderId}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
-				onUpdate && onUpdate(p.id, p)
+				onUpdate && onUpdate(lent.orderId, t_lent)
 			})
 			.catch(error => {
 				console.log(error)
 			})
 	}
 
-	async function inserData(p: CurrentLent) {
+	async function inserData() {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
 		}
 
-		const t_loan = {
-			id: p.id,
-			name: p.name,
-			persen: p.persen,
-			street: p.street,
-			city: p.city,
-			phone: p.phone,
-			cell: p.cell,
-			zip: p.zip
+		const t_lent = {
+			orderId: lent.orderId,
+			name: lent.name,
+			street: lent.street,
+			city: lent.city,
+			phone: lent.phone,
+			cell: lent.cell,
+			zip: lent.zip
 
 		}
 		const t_rx = {
 			id: lent.trx.id,
-			refId: p.id,
-			division: 'trx-loan',
+			refId: lent.trx.refId,
+			division: 'trx-lent',
 			descriptions: lent.trx.descriptions,
 			trxDate: dateOnly(lent.trx.trxDate),
 			memo: lent.trx.memo,
 			details: [
 				{
 					id: 1,
-					codeId: 5512,
+					codeId: 5513,
 					trxId: lent.trx.id,
 					debt: lent.trx.detail.cred,
 					cred: 0
@@ -423,27 +389,19 @@ const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Len
 			]
 		}
 
+
 		const xData = JSON.stringify({
-			loan: t_loan,
+			lent: t_lent,
 			trx: t_rx,
-			token: [lent.trx.descriptions || ' ', lent.trx.memo || ' ', p.name].join(" ")
+			token: [lent.trx.descriptions || ' ', lent.trx.memo || ' ', lent.name].join(" ")
 		})
 
 		await axios
-			.post(`/loans`, xData, { headers: headers })
+			.post(`/lents`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
-				onInsert && onInsert({
-					...p,
-					id: data.loan.id,
-					trx: {
-						...p.trx,
-						id: data.trx.id,
-						refId: data.loan.id,
-						detail: { ...p.trx.detail, trxId: data.trx.id }
-					}
-				})
+				onInsert && onInsert(lent)
 			})
 			.catch(error => {
 				console.log(error)
@@ -458,11 +416,11 @@ const LentForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Len
 		}
 
 		await axios
-			.delete(`/loans/${p}`, { headers: headers })
+			.delete(`/lents/${p}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
-				onDelete && onDelete(lent.id)
+				onDelete && onDelete(p)
 			})
 			.catch(error => {
 				console.log(error)

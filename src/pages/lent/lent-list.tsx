@@ -46,9 +46,9 @@ const LentListPage = () => {
             <th className="text-center text-no-wrap">TANGGAL</th>
             <th className="text-left">NAMA</th>
             <th className="text-left">ALAMAT</th>
-            <th className="text-right">UNIT</th>
-            <th className="text-center">BT FINANCE</th>
-            <th className="text-right">BT MATEL</th>
+            <th className="text-left">UNIT</th>
+            <th className="text-right">POKOK</th>
+            <th className="text-right">PIUTANG</th>
             <th className="text-right">ANGSURAN</th>
             <th className="text-right text-no-wrap">SISA PIUTANG</th>
           </tr>
@@ -57,10 +57,11 @@ const LentListPage = () => {
           {lent.items.map((o, i) => <tr key={o.orderId} className="border-b-gray-50">
             <td className="text-center">{i + 1}</td>
             <td className="text-center text-no-wrap">{FormatDate(o.unit.orderAt)}</td>
-            <td className="text-no-wrap"><Link to={`/lent/${o.orderId}`} state={{ from: pathname }}>{o.name}</Link></td>
-            <td>{o.street}, {o.city} - {o.zip}</td>
-            <td>{o.unit.nopol}, tahun: {o.unit.year}, {o.unit.merk} {o.unit.type} ({o.unit.wheel})</td>
+            <td className="text-left"><Link to={`/lent/${o.orderId}`} state={{ from: pathname }}>{o.name}</Link></td>
+            <td className="text-left">{o.street}, {o.city} - {o.zip}</td>
+            <td className="text-left">({o.unit.wheel}) {o.unit.merk} {o.unit.type} : {o.unit.nopol}, tahun: {o.unit.year}</td>
             <td className="text-right">{FormatNumber(o.payment.debt)}</td>
+            <td className="text-right">{FormatNumber(o.payment.piutang)}</td>
             <td className="text-right">{FormatNumber(o.payment.cred)}</td>
             <td className="text-right">{FormatNumber(o.payment.saldo)}</td>
           </tr>
@@ -70,6 +71,7 @@ const LentListPage = () => {
           <tr className="border-b-1">
             <td className="border-t-1" colSpan={5}>Total: {lent.items.length} items</td>
             <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.debt, 0))}</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.piutang, 0))}</td>
             <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.cred, 0))}</td>
             <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.saldo, 0))}</td>
           </tr>

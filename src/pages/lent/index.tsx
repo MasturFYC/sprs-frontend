@@ -13,9 +13,9 @@ const LentPage = () => {
 			<Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
 				<Link isQuiet variant="primary"><RouteLink to={'/lent/0'}>Buat Pinjaman Unit Baru</RouteLink></Link>
 				<Link isQuiet variant="primary"><RouteLink to={'/lent/list'}>Daftar Pinjaman Unit</RouteLink></Link>
-				{/* <Button variant="cta" onPress={() => navigate("/loan/0", { state: { from: pathname } })}>Buat Piutang Baru</Button> */}
+				{/* <Button variant="cta" onPress={() => navigate("/lent/0", { state: { from: pathname } })}>Buat Piutang Baru</Button> */}
 			</Flex>
-			{/* <PrettyPrintJson data={loan} /> */}
+			{/* <PrettyPrintJson data={lent} /> */}
 			<Outlet />
 		</View>
 	);

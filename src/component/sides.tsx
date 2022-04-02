@@ -245,12 +245,12 @@ function AutoMenu() {
         </View>
         <View>
         <Link isQuiet variant='primary'>
-          <RouterLink to="/loan/list"><b>Buku Piutang</b></RouterLink>
+          <RouterLink to="/loan/list"><b>Piutang</b></RouterLink>
         </Link>
         </View>
         <View>
         <Link isQuiet variant='primary'>
-          <RouterLink to="/lent/list"><b>Buku Pinjaman Unit</b></RouterLink>
+          <RouterLink to="/lent/list"><b>Pinjaman Unit</b></RouterLink>
         </Link>
       </View>
 
