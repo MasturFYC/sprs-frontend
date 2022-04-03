@@ -22,7 +22,7 @@ const Aside = () => {
 
   function getToday(): string {
     var d = new Date()
-    return '' + d.getDate() + '-' + d.toLocaleString("id-ID", { month: "short" }).toLowerCase()    + '-' + d.getFullYear()
+    return '' + d.getDate() + '-' + d.toLocaleString("id-ID", { month: "short" }).toLowerCase() + '-' + d.getFullYear()
   }
   return (
     <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginX={'size-100'}>
@@ -30,37 +30,25 @@ const Aside = () => {
 
       <MasterMenu title={'Master'}>
 
-        <Flex direction={'column'} rowGap='size-50'>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/wheel">Jenis Roda</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/merk">Merk Kendaraan</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/vehicle">Tipe Kendaraan</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/branch">Cabang Kantor</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/warehouse">Gudang</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/finance">Pengelola Keuangan (Finance)</RouterLink>
-            </Link>
-          </View>
+        <Flex direction={'column'} rowGap='size-100'>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/wheel">Jenis Roda</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/merk">Merk Kendaraan</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/vehicle">Tipe Kendaraan</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/branch">Cabang Kantor</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/warehouse">Gudang</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/finance">Pengelola Keuangan (Finance)</RouterLink>
+          </Link>
         </Flex>
       </MasterMenu>
 
@@ -74,44 +62,32 @@ const Aside = () => {
 
       <MasterMenu title={'COA (Chart of Accounts)'}>
 
-        <Flex direction={'column'} rowGap='size-50'>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/acc-group">Group Akun</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/acc-type">Tipe Akun</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/acc-code">Kode Akun</RouterLink>
-            </Link>
-          </View>
+        <Flex direction={'column'} rowGap='size-100'>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/acc-group">Group Akun</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/acc-type">Tipe Akun</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/acc-code">Kode Akun</RouterLink>
+          </Link>
         </Flex>
       </MasterMenu>
 
       <AutoMenu />
 
       <MasterMenu title={'Laporan'}>
-        <Flex direction={'column'} rowGap='size-50'>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to={`/report/trx/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}>Laporan Saldo (Group Akun)</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to={`/report/order-status/${new Date().getMonth()+1}/${new Date().getFullYear()}/0/0/0/-/-`}>Status Order</RouterLink>
-            </Link>
-          </View>
-          <View>
-            <Link isQuiet variant='primary'>
-              <RouterLink to="/report/trx/profit">Laporan Laba Rugi</RouterLink>
-            </Link>
-          </View>
+        <Flex direction={'column'} rowGap='size-100'>
+          <Link isQuiet variant='primary'>
+            <RouterLink to={`/report/trx/${new Date().getMonth() + 1}/${new Date().getFullYear()}`}>Laporan Saldo (Group Akun)</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to={`/report/order-status/${new Date().getMonth() + 1}/${new Date().getFullYear()}/0/0/0/-/-`}>Status Order</RouterLink>
+          </Link>
+          <Link isQuiet variant='primary'>
+            <RouterLink to="/report/trx/profit">Laporan Laba Rugi</RouterLink>
+          </Link>
         </Flex>
       </MasterMenu>
     </Flex>
@@ -238,21 +214,17 @@ function AutoMenu() {
 
   return (
     <MasterMenu title={'Transaksi'} onLinkPress={(e) => setShow(!show)}>
-      <View>
-      <Link isQuiet variant='primary'>
+      <Flex direction={'column'} rowGap={'size-100'}>
+        <Link isQuiet variant='primary'>
           <RouterLink to="/trx"><b>Ledger (Buku Besar)</b></RouterLink>
         </Link>
-        </View>
-        <View>
         <Link isQuiet variant='primary'>
           <RouterLink to="/loan/list"><b>Piutang</b></RouterLink>
         </Link>
-        </View>
-        <View>
         <Link isQuiet variant='primary'>
           <RouterLink to="/lent/list"><b>Pinjaman Unit</b></RouterLink>
         </Link>
-      </View>
+      </Flex>
 
       {types.map(t => {
 

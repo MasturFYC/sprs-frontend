@@ -10,6 +10,7 @@ import Back from '@spectrum-icons/workflow/BackAndroid';
 import LoanListDetails from './listdetails';
 //import { PrettyPrintJson } from 'lib/utils';
 import { CurrentLoan } from './form';
+import { useAccountCash } from 'lib/useAccountCash';
 
 const LoanForm = React.lazy(() => import('./form'));
 
@@ -41,6 +42,7 @@ const initTrx: Trx = {
 	refId: 0,
 	division: '',
 	trxDate: dateParam(null),
+	descriptions: '',
 	detail: {
 		groupId: 0,
 		id: 0,
@@ -68,30 +70,11 @@ export default function PageForm() {
 	let [isEdit, setIsEdit] = useState(false)
 	// let [reload, setReload] = useState(0)
 
-
-	let accountCashes = useAsyncList<iAccountSpecific>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/acc-code/spec/1", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iAccountSpecific) => item.id
-	})
+	let account = useAccountCash();
 
 	React.useEffect(() => {
 		let isLoaded = false;
+		
 
 		async function load(id: string) {
 
@@ -124,12 +107,12 @@ export default function PageForm() {
 	}, [pid])
 
 
-	if (isLoading || accountCashes.isLoading) {
+	if (isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
 	}
 
 	function loanGetDefaultTrx(): CurrentLoan {
-		const x = loan.trxs[0];
+		const x = loan.trxs.filter((f,i) => i === 0)[0];
 		const t = {
 			id: loan.id,
 			name: loan.name,
@@ -181,7 +164,7 @@ export default function PageForm() {
 			<Divider size={'S'} marginBottom={'size-200'} />
 			{isEdit || loan.id === 0 ? <React.Suspense fallback={<div>Please wait...</div>}>
 				<LoanForm data={loanGetDefaultTrx()}
-					accCode={accountCashes.items}
+					accCode={account.items}
 					onCancel={(id) => {
 						setIsEdit(false)
 						if (id === 0) {
@@ -235,7 +218,7 @@ export default function PageForm() {
 						<View flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Dari kas</View>
-								<View flex>{accountCashes.getItem(loan.trxs[0].detail.codeId).name}</View>
+								<View flex>{account.getItem(loan.trxs[0].detail.codeId).name}</View>
 							</Flex>
 							<Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'} rowGap={'size-50'}>
 								<View width={'size-1250'}>Pokok</View>
@@ -268,6 +251,7 @@ export default function PageForm() {
 			</View>
  */}
 			<Divider size={'S'} marginTop={'size-200'} />
+			{pid && +pid > 0 &&
 			<LoanListDetails
 				name={loan.name}
 				onDelete={(e) => {
@@ -278,8 +262,8 @@ export default function PageForm() {
 					//setReload(reload + 1)
 				}}
 				loanId={loan.id}
-				trxs={loan.trxs.filter((x, i) => i > 0)} />
-
+				trxs={ loan.trxs.filter((f,i) => i > 0) } />
+			}
 		</View>
 
 	);

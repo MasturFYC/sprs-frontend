@@ -105,7 +105,6 @@ const LoanPage = () => {
 				<Link isQuiet variant="primary"><RouteLink to={'/loan/list'}>Daftar Piutang</RouteLink></Link>
 				{/* <Button variant="cta" onPress={() => navigate("/loan/0", { state: { from: pathname } })}>Buat Piutang Baru</Button> */}
 			</Flex>
-			{/* <PrettyPrintJson data={loan} /> */}
 			<Outlet />
 		</View>
 	);

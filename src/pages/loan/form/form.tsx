@@ -34,8 +34,8 @@ const initLoan: CurrentLoan = {
 		refId: 0,
 		division: '',
 		trxDate: dateParam(null),
-		descriptions: undefined,
-		memo: undefined,
+		descriptions: '',
+		memo: '',
 		detail: {
 			groupId: 0,
 			id: 0,
@@ -302,10 +302,6 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 					</Flex>
 				</View>
 			</form>
-{/* 
-			<View>
-				<PrettyPrintJson data={loan} />
-			</View> */}
 		</View>
 
 	);

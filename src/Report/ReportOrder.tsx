@@ -28,7 +28,7 @@ const ReportOrder = () => {
   const [dateTo, setDateTo] = useState(dateParam(null))
   const [tabId, setTabId] = useState(0)
 
-  const status: string[] = ['Not verified', 'Invoiced', 'Waiting']
+  const status: string[] = ['Not verified', 'Invoiced', 'Waiting', 'Installment']
 
 
   const isFromValid = useMemo(
@@ -230,18 +230,20 @@ const ReportOrder = () => {
           <TabList aria-label="Tab-Order-List">
             <Item key={'0'}>All</Item>
             <Item key={'2'}>Invoiced</Item>
+            <Item key={'4'}>Installment</Item>
             <Item key={'3'}>Waiting</Item>
             <Item key={'1'}>Not verified</Item>
-            <Item key={'4'}>All waiting list</Item>
+            <Item key={'5'}>All waiting list</Item>
           </TabList>
         </Tabs>
+
       </View>
 
-      {tabId === 4 ?
+      {tabId === 5 ?
         <ReportOrderAllWaiting financeId={pfinance} branchId={pbranch} typeId={ptype} />
         :
         <View>
-          {(tabId === 0 ? [1, 2, 0] : [tabId - 1]).map(s => <View key={s}>
+          {(tabId === 0 ? [1, 3, 2, 0] : [tabId - 1]).map(s => <View key={s}>
 
             <View marginTop={'size-200'} marginBottom={'size-200'}>
               <span className='table-caption'>Status: <strong>{status[s]}</strong></span>

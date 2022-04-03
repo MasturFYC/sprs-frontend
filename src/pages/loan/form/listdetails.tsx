@@ -1,5 +1,5 @@
 import React, { FormEvent, useRef, useState } from "react";
-import { dateOnly, dateParam, iAccountSpecific } from 'lib/interfaces'
+import { dateOnly, dateParam } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { FormatDate, FormatNumber } from "lib/format";
 import axios from 'lib/axios-base';
@@ -7,9 +7,10 @@ import axios from 'lib/axios-base';
 import 'Report/report.css'
 import {
 	ComboBox, Text, DialogContainer, Divider, Flex, Heading, Item,
-	NumberField, TextField, useAsyncList, Button, Link, ActionButton, Form
+	NumberField, TextField, Button, Link, ActionButton, Form
 } from "@adobe/react-spectrum";
 import AddToSelection from "@spectrum-icons/workflow/AddToSelection";
+import { useAccountCash } from "lib/useAccountCash";
 // import { PrettyPrintJson } from "lib/utils";
 
 type TrxDetail = {
@@ -175,27 +176,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	let [trx, setTrx] = useState<Trx>(initTrx)
 
-
-	let accountCashes = useAsyncList<iAccountSpecific>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/acc-code/spec/1", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iAccountSpecific) => item.id
-	})
+	let account = useAccountCash()
 
 	const isDescriptionsValid = React.useMemo(
 		() => trx.descriptions ? trx.descriptions.length > 5 : false,
@@ -212,11 +193,11 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 			setTrx({ ...editedTrx, refId: loanId })
 		}
 
-		return () => { isLoaded = false }
+		return () => { isLoaded = true }
 	}, [editedTrx, loanId])
 
 	return (<Form onSubmit={handleSubmit}>
-		<Flex rowGap='size-200' direction={'column'}>
+		<Flex rowGap='size-200' direction={'column'} width={{ base: 'auto', L: 'calc(size-6000 + size-1000)' }}>
 			<Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'}>
 				<TextField
 					type={'date'}
@@ -226,19 +207,17 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 					maxLength={10}
 					onChange={(e) => handleChange("trxDate", e)}
 				/>
-				<div ref={inputRef} style={{ display: 'flex', width: '100%' }}>
 					<TextField
 						flex
 						label='Deskripsi'
 						autoFocus
-						width={{ base: 'auto', L: 'size-5000' }}
+					width={'auto'}
 						validationState={isDescriptionsValid ? 'valid' : 'invalid'}
 						placeholder={'e.g. Angsuran 1.'}
 						value={trx.descriptions || ''}
 						maxLength={128}
 						onChange={(e) => handleChange("descriptions", e)}
 					/>
-				</div>
 			</Flex>
 			<Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'}>
 
@@ -248,19 +227,18 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 					validationState={isDebtValid ? 'valid' : 'invalid'}
 					label={"Jumlah angsuran"}
 					onChange={(e) => {
-						setTrx(o => ({ ...o, detail: { ...o.detail, debt: e } }))
+						setTrx(o => ({ ...o, detail: { ...o.detail, debt: e, saldo: e } }))
 						setIsDirty(true)
-						setTrx(o => ({ ...o, detail: { ...o.detail, saldo: e } }))
 					}}
 					value={trx.detail.debt} />
 				<ComboBox
 					flex
 					menuTrigger='focus'
-					width={{ base: 'auto', L: 'size-5000' }}
+					width={'auto'}
 					validationState={isCodeValid ? 'valid' : 'invalid'}
 					label={"Akun kas"}
 					placeholder={"e.g. Kas / bank"}
-					defaultItems={accountCashes.items}
+					defaultItems={account.items}
 					selectedKey={trx.detail.codeId}
 					onSelectionChange={(e) => {
 						setTrx(o => ({ ...o, detail: { ...o.detail, codeId: +e } }))
@@ -274,10 +252,6 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 				</ComboBox>
 			</Flex>
 		</Flex>
-
-		{/* <View>
-			<PrettyPrintJson data={trx} />
-		</View> */}
 
 		<Flex direction={'row'} gap='size-100' marginBottom={'size-200'} marginTop={'size-400'}>
 			<Button type='submit' variant='cta'

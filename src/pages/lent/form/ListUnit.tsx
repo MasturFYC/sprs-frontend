@@ -1,109 +1,64 @@
-import React, { useState } from "react";
-import { Cell, Column, Row, TableBody, TableHeader, TableView, useAsyncList } from "@adobe/react-spectrum"
-import { useCollator } from '@react-aria/i18n';
+import React from "react";
+import { Flex, View } from "@adobe/react-spectrum"
 import { lentUnit } from '../interfaces';
-import axios from 'lib/axios-base';
 import { FormatDate, FormatNumber } from "lib/format";
+import '../style.css'
+import { useUnitList } from "lib/useUnitList";
 
 type ListUnitProps = {
-  onChange?: (unit: lentUnit) => void
+  onSelectionChange?: (unit: lentUnit) => void
 }
 
-const ListUnit = ({ onChange }: ListUnitProps): JSX.Element => {
-  let [selectedKeys, setSelectedKeys] = React.useState<'all' | Set<React.Key>>(new Set([0]));
-  let collator = useCollator({ numeric: true });  
+const ListUnit = ({ onSelectionChange }: ListUnitProps): JSX.Element => {
+  //let [selectedKeys, setSelectedKeys] = React.useState<'all' | Set<React.Key>>(new Set([0]));
+ // let collator = useCollator({ numeric: true });
+  let  [value, setValue] = React.useState(0);
 
-  // let columns = [
-  //   { name: 'ID#', uid: 'id' },
-  //   { name: 'NAME', uid: 'name' },
-  //   { name: 'TANGGAL', uid: 'orderAt' },
-  //   { name: 'MERK', uid: 'merk' },
-  //   { name: 'TIPE', uid: 'type' },
-  //   { name: 'TAHUN', uid: 'year' },
-  //   { name: 'NOPOL', uid: 'nopol' },
-  //   { name: 'BT-FINANCE', uid: 'btFinance' },
-  //   { name: 'BT-MATEL', uid: 'btMatel' },
-  // ]
+  let cols = [
+    { id: 0, name: "", className: "text-center" },
+    { id: 1, name: "ID", className:"text-center" },
+    { id: 2, name: "TANGGAL", className:"text-center" },
+    { id: 3, name: "MERK", className: "text-left" },
+    { id: 4, name: "TIPE", className: "text-left" },
+    { id: 5, name: "NOPOL", className: "text-left" },
+    { id: 6, name: "TAHUN", className: "text-center" },
+    { id: 7, name: "BT-FINANCE", className: "text-right" },
+    { id: 8, name: "BT-MATEL", className: "text-right" },
+  ]
 
-  let units = useAsyncList<lentUnit>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json', 
-      }
-
-      let res = await axios
-        .get("/lents/get/units", { signal: signal, headers: headers })
-        .then(response => response.data)
-        .then(data => data)
-        .catch(error => {
-          console.log(error)
-          return []
-        })
-      return { items: res || [] }
-    },
-    async sort({ items, sortDescriptor }) {
-      return {
-        items: items.sort((a, b) => {
-          // @ts-expect-error
-          let first = a[sortDescriptor.column]; // eslint-disable-line
-          // @ts-expect-error
-          let second = b[sortDescriptor.column]; // eslint-disable-line
-          let cmp = collator.compare(first, second);
-          if (sortDescriptor.direction === 'descending') {
-            cmp *= -1;
-          }
-          return cmp;
-        })
-      };
-    },
-
-    getKey: (item: lentUnit) => item.id
-  })
+  let unit = useUnitList();
 
   return (
-    <TableView
-      sortDescriptor={units.sortDescriptor}
-      onSortChange={units.sort}
-      aria-label="table units"
-      selectionMode={'single'}
-      disallowEmptySelection
-      overflowMode="wrap"
-      density={'compact'}
-      selectionStyle="checkbox"
-      selectedKeys={selectedKeys}
-      onSelectionChange={(e) => {
-        const r = Object.values(e)
-        onChange && onChange(units.getItem(+r[0]))
-        setSelectedKeys(new Set(e))
-      }}>
-      <TableHeader>
-        <Column allowsSorting key='name'>ID</Column>
-        <Column allowsSorting key='orderAt' align={'center'}>TANGGAL</Column>
-        <Column allowsSorting key='merk'>MERK</Column>
-        <Column allowsSorting key='type'>TIPE</Column>
-        <Column allowsSorting key='nopol'>NOPOL</Column>
-        <Column allowsSorting key='year' align={'center'}>TAHUN</Column>
-        <Column allowsSorting key='btFinance' align={'end'}>BT-FINANCE</Column>
-        <Column allowsSorting key='btMatel' align={'end'}>BT-MATEL</Column>
-      </TableHeader>
-      <TableBody items={units.items}
-        loadingState={units.loadingState}>
-        {item => (
-          <Row key={item.id}>
-            <Cell>{item.name}</Cell>
-            <Cell>{FormatDate(item.orderAt)}</Cell>
-            <Cell>{item.merk}</Cell>
-            <Cell>{item.type}</Cell>
-            <Cell>{item.nopol}</Cell>
-            <Cell>{item.year}</Cell>
-            <Cell>{FormatNumber(item.btFinance)}</Cell>
-            <Cell>{FormatNumber(item.btMatel)}</Cell>
-          </Row>
-        )
-        }
-      </TableBody>
-
-    </TableView>
+    <View>
+      <View marginY={'size-200'}>
+        Total : {unit.count()} items, pilih salah satu unit yang akan dicicil.
+      </View>
+      <Flex direction={'column'}>
+        <table cellPadding={4} className="table-small width-100-percent collapse-none">
+          <thead>
+            <tr className="border-b-1 border-t-1 bg-green text-white">{cols.map(c => <th key={c.id} className={c.className}>{c.name}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {unit.items.map(item => (
+              <tr key={item.id} onClick={() => setValue(item.id)} className="border-b-gray-50">
+                <td className={cols[0].className}><input type='checkbox' 
+                  checked={value===item.id}                
+                  onChange={() => onSelectionChange && onSelectionChange(item) } /> </td>
+                <td className={cols[1].className}>{item.name}</td>
+                <td className={cols[2].className}>{FormatDate(item.orderAt)}</td>
+                <td className={cols[3].className}>{item.merk}</td>
+                <td className={cols[4].className}>{item.type}</td>
+                <td className={cols[5].className}>{item.nopol}</td>
+                <td className={cols[6].className}>{item.year}</td>
+                <td className={cols[7].className}>{FormatNumber(item.btFinance)}</td>
+                <td className={cols[8].className}>{FormatNumber(item.btMatel)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>      
+      </Flex>
+   </View>
   )
 }
 

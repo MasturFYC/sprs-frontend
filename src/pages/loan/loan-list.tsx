@@ -1,13 +1,13 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "lib/axios-base";
 import { View } from "@react-spectrum/view";
-import { Flex, ProgressCircle, useAsyncList } from "@adobe/react-spectrum";
+import { Flex, ProgressCircle } from "@adobe/react-spectrum";
 //import { useParams } from "react-router-dom";
 import { FormatDate, FormatNumber } from "lib/format";
 import { iLoan } from "lib/interfaces";
 
 import 'Report/report.css'
+import { useLoanList } from "lib/useLoan";
 // import { PrettyPrintJson } from "lib/utils";
 
 export interface LoanAll extends iLoan {
@@ -29,25 +29,7 @@ const LoanListPage = () => {
   const { pathname } = useLocation();
   //	const { id: paramId, name: typeName } = useParams()
 
-  let loan = useAsyncList<LoanAll>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/loans", { headers: headers })
-        .then(response => response.data)
-        .then(data => data)
-        .catch(error => {
-          console.log(error)
-          return []
-        })
-      return { items: res || [] }
-    },
-    getKey: (item: LoanAll) => item.id
-  })
-
+  let loan = useLoanList()
 
   if (loan.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -85,12 +67,12 @@ const LoanListPage = () => {
         </tbody>
         <tfoot>
           <tr className="border-b-1">
-            <td className="border-t-1" colSpan={4}>Total: {loan.items.length} items</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.items.reduce((t, c) => t + c.loan.debt, 0))}</td>
+            <td className="border-t-1" colSpan={4}>Total: {loan.count()} items</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.totalDebt())}</td>
             <td className="text-right border-t-1 font-bold">{' '}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.items.reduce((t, c) => t + c.loan.piutang, 0))}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.items.reduce((t, c) => t + c.loan.cred, 0))}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.items.reduce((t, c) => t + c.loan.saldo, 0))}</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.totalPiutang())}</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.totalCred())}</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(loan.totalSaldo())}</td>
             {/* <td className="text-right border-t-1 font-bold">{FormatNumber(getTotalSisaPiutang())}</td> */}
           </tr>
         </tfoot>

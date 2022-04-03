@@ -1,38 +1,17 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "lib/axios-base";
 import { View } from "@react-spectrum/view";
-import { Flex, ProgressCircle, useAsyncList } from "@adobe/react-spectrum";
+import { Flex, ProgressCircle } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "lib/format";
-
-import 'Report/report.css'
-import { PrettyPrintJson } from "lib/utils";
-import { tsLent } from "./interfaces";
+import './style.css'
+import { useLentList } from "lib/useLent";
 
 
 const LentListPage = () => {
   const { pathname } = useLocation();
 
-  let lent = useAsyncList<tsLent>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/lents", { headers: headers })
-        .then(response => response.data)
-        .then(data => data)
-        .catch(error => {
-          console.log(error)
-          return []
-        })
-      return { items: res || [] }
-    },
-    getKey: (item: tsLent) => item.orderId
-  })
-
-
+  let lent = useLentList()
+  
   if (lent.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
@@ -48,9 +27,9 @@ const LentListPage = () => {
             <th className="text-left">ALAMAT</th>
             <th className="text-left">UNIT</th>
             <th className="text-right">POKOK</th>
-            <th className="text-right">PIUTANG</th>
-            <th className="text-right">ANGSURAN</th>
-            <th className="text-right text-no-wrap">SISA PIUTANG</th>
+            <th className="text-right">PINJAMAN</th>
+            <th className="text-right">CICILAN</th>
+            <th className="text-right text-no-wrap">SISA PINJAMAN</th>
           </tr>
         </thead>
         <tbody>
@@ -69,15 +48,14 @@ const LentListPage = () => {
         </tbody>
         <tfoot>
           <tr className="border-b-1">
-            <td className="border-t-1" colSpan={5}>Total: {lent.items.length} items</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.debt, 0))}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.piutang, 0))}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.cred, 0))}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.items.reduce((t, c) => t + c.payment.saldo, 0))}</td>
+            <td className="border-t-1" colSpan={5}>Total: {lent.count()} items</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalDebt())}</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalPiutang())}</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalCred())}</td>
+            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalSaldo())}</td>
           </tr>
         </tfoot>
       </table>
-      <PrettyPrintJson data={lent.items} /> 
    </View>
   );
 

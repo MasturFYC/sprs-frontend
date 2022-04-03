@@ -28,7 +28,7 @@ const LoanListPage = React.lazy(() => import('../pages/loan/loan-list'));
 const LoanPageForm = React.lazy(() => import('../pages/loan/form'));
 
 const LentPage = React.lazy(() => import('../pages/lent'));
-const LentListPage = React.lazy(() => import('../pages/lent/lent-list'));
+const LentListPage = React.lazy(() => import('../pages/lent/LentListPage'));
 const LentPageForm = React.lazy(() => import('../pages/lent/form'));
 
 const Main = () => {
