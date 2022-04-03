@@ -71,7 +71,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							flex
 							label='Alamat'
 							width={'auto'}
-							value={data.street}
+							value={data.street || ""}
 							placeholder={'e.g. Jl. Jend. Sudirman No. 155'}
 							maxLength={50}
 							onChange={(e) => changeData("street", e)}
@@ -80,7 +80,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							flex
 							label='Kota'
 							width={'auto'}
-							value={data.city}
+							value={data.city || ""}
 							placeholder={'e.g. Indramayu'}
 							maxLength={50}
 							onChange={(e) => changeData("city", e)}
@@ -91,7 +91,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							flex
 							label='Telephone'
 							width={'auto'}
-							value={data.phone}
+							value={data.phone || ""}
 							placeholder={'e.g. 0234 275572'}
 							maxLength={25}
 							onChange={(e) => changeData("phone", e)}
@@ -100,7 +100,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							flex
 							label='Cellular'
 							width={'auto'}
-							value={data.cell}
+							value={data.cell || ""}
 							placeholder={'e.g. 0856 9865 9854'}
 							maxLength={25}
 							onChange={(e) => changeData("cell", e)}
@@ -111,7 +111,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							flex
 							label='Kode pos'
 							width={'auto'}
-							value={data.zip}
+							value={data.zip || ""}
 							placeholder={'e.g. 45215'}
 							maxLength={10}
 							onChange={(e) => changeData("zip", e)}
@@ -121,7 +121,7 @@ const BranchForm = (props: BranchFormOptions) => {
 							type={'email'}
 							label='e-mail'
 							width={'auto'}
-							value={data.email}
+							value={data.email || ""}
 							placeholder={'e.g. 0856 9865 9854'}
 							maxLength={50}
 							onChange={(e) => changeData("email", e)}

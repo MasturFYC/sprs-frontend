@@ -1,9 +1,9 @@
 import React, { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import { TextField, Form, Checkbox, ComboBox, Flex, Item, NumberField, ProgressCircle, Text, useAsyncList, View, Tabs, TabList, Divider, Button } from '@adobe/react-spectrum';
+import { TextField, Form, Checkbox, ComboBox, Flex, Item, NumberField, ProgressCircle, Text, View, Tabs, TabList, Divider, Button } from '@adobe/react-spectrum';
 import axios from "../lib/axios-base";
 import MonthComponent from "../component/Bulan";
-import { dateOnly, dateParam, iFinance } from '../lib/interfaces';
+import { dateOnly, dateParam } from '../lib/interfaces';
 import Find from '../find.svg';
 import ComboBranch from '../component/combo-branch';
 import ComboWheel from '../component/combo-wheel';
@@ -11,6 +11,7 @@ import './report.css'
 import { ReportOrderAllWaiting } from './ReportOrderAllWaiting';
 import { tOrderInvoiced } from './interface';
 import { TableContent } from "./TableContent";
+import { useFinanceList } from 'lib/useFinance';
 
 const ReportOrder = () => {
   const navigate = useNavigate();
@@ -38,24 +39,7 @@ const ReportOrder = () => {
     [dateFrom, dateTo]
   )
 
-  let finances = useAsyncList<iFinance>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/finances/", { headers: headers })
-        .then(response => response.data)
-        .then(data => data)
-        .catch(error => {
-          console.log(error)
-        })
-
-      return { items: res ? res : [] }
-    },
-    getKey: (item: iFinance) => item.id
-  })
+  let finances = useFinanceList()
 
 
   useEffect(() => {

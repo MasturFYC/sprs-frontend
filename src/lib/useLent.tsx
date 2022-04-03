@@ -24,7 +24,7 @@ export function useLentList() {
 				.then(response => response.data)
 				.catch(error => console.log(error))
 				.then(data => {
-					setList(data)
+					setList(data ? data : [])
 					setIsLoading(false)
 				});
 		}
@@ -50,40 +50,41 @@ export function useLentList() {
 
 }
 
+const initLent = {
+	unit: {
+		id: 0,
+		name: '',
+		orderAt: dateParam(null),
+		btFinance: 0,
+		btPercent: 0,
+		btMatel: 0,
+		nopol: '',
+		year: 0,
+		type: '',
+		wheel: '',
+		merk: ''
+	},
+	trxs: [{
+		id: 0,
+		refId: 0,
+		division: 'trx-lent',
+		trxDate: dateParam(null),
+		memo: '',
+		detail: {
+			id: 0,
+			trxId: 0,
+			codeId: 0,
+			debt: 0,
+			cred: 0,
+			saldo: 0
+		}
+	}],
+	orderId: 0,
+	name: ''
+}
 
 export function useLent(orderId: string) {
-	const initLent = {
-		unit: {
-			id: 0,
-			name: '',
-			orderAt: dateParam(null),
-			btFinance: 0,
-			btPercent: 0,
-			btMatel: 0,
-			nopol: '',
-			year: 0,
-			type: '',
-			wheel: '',
-			merk: ''
-		},
-		trxs: [{
-			id: 0,
-			refId: 0,
-			division: 'trx-lent',
-			trxDate: dateParam(null),
-			memo: '',
-			detail: {
-				id: 0,
-				trxId: 0,
-				codeId: 0,
-				debt: 0,
-				cred: 0,
-				saldo: 0
-			}
-		}],
-		orderId: 0,
-		name: ''
-	}
+	
 
 	const [lent, setLent] = useState<tsLentItem>(initLent)
 	const [isLoading, setIsLoading] = useState(false);
@@ -102,38 +103,7 @@ export function useLent(orderId: string) {
 				.catch(error => console.log(error))
 				.then(data => data);
 
-			return res ? res : {
-				unit: {
-					id: 0,
-					name: '',
-					orderAt: dateParam(null),
-					btFinance: 0,
-					btPercent: 0,
-					btMatel: 0,
-					nopol: '',
-					year: 0,
-					type: '',
-					wheel: '',
-					merk: ''
-				},
-				trxs: [{
-					id: 0,
-					refId: 0,
-					division: 'trx-lent',
-					trxDate: dateParam(null),
-					memo: '',
-					detail: {
-						id: 0,
-						trxId: 0,
-						codeId: 0,
-						debt: 0,
-						cred: 0,
-						saldo: 0
-					}
-				}],
-				orderId: 0,
-				name: ''
-			}
+			return res ? res : initLent
 		}
 
 		if (!isLoaded) {

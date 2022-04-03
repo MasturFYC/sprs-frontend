@@ -2,15 +2,16 @@ import React, { FormEvent, useEffect, useState } from "react";
 import {
 	ComboBox, Divider, Flex, Item, ProgressCircle,
 	TextField, Text, View, TextArea, NumberField,
-	useAsyncList, Button
+	Button
 } from "@adobe/react-spectrum";
-import { dateOnly, dateParam, iAccCode, iAccountSpecific, iFinance, iTrxDetail } from "../lib/interfaces";
+import { dateOnly, dateParam, iAccCode,  iFinance, iTrxDetail } from "../lib/interfaces";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../lib/axios-base";
 import TableOrder, { OrderLists } from "./TableOrder";
 import { InvoiceInfo } from "./InvoiceList";
 import { MitraKerja } from "./MitraKerja";
 import { ShowCash } from "./ShowCash";
+import { useAccountCash } from "lib/useAccountCash";
 
 
 const OrderList = React.lazy(() => import('./OrderList'))
@@ -115,25 +116,8 @@ const InvoiceForm = () => {
 		[invoice]
 	)
 
-	let accountCashes = useAsyncList<iAccountSpecific>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/acc-code/spec/1", { headers: headers })
-				.then(response => response.data)
-				.then(data => data)
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res ? res : [] }
-		},
-		getKey: (item: iAccountSpecific) => item.id
-	})
-
+	let accountCashes = useAccountCash()
+	
 	async function loadInvoice(id?: string): Promise<InvoiceById> {
 		const headers = {
 			Accept: 'application/json',

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import axios from '../../lib/axios-base';
-import { iTrx, dateParam, iAccCode, iTrxDetail, iAccountSpecific } from '../../lib/interfaces'
+import axios from 'lib/axios-base';
+import { iTrx, dateParam, iAccCode, iTrxDetail } from 'lib/interfaces'
 import {
   Flex,
-  View, Divider, useAsyncList, ProgressCircle
+  View, Divider, ProgressCircle
 } from '@adobe/react-spectrum';
-// import { createToken } from '../../lib/format';
 import { useNavigate, useParams } from 'react-router-dom';
 import RemainSaldo from '../saldo';
 import TrxAutoDebetForm from './form';
+import { useAccountCash } from 'lib/useAccountCash';
 
 
 interface accountInfo extends iAccCode {
@@ -36,26 +36,7 @@ const TrxAutoDebet = () => {
   const navigate = useNavigate();
 
 
-  let accountCashes = useAsyncList<iAccountSpecific>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/acc-code/spec/1", { headers: headers })
-        .then(response => response.data)
-        .then(data => {
-          return data
-        })
-        .catch(error => {
-          console.log(error)
-        })
-
-      return { items: res }
-    },
-    getKey: (item: iAccountSpecific) => item.id
-  })
+  let accountCashes = useAccountCash();
 
   React.useEffect(() => {
     let isLoaded = false;

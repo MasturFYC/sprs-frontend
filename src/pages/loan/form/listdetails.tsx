@@ -1,4 +1,4 @@
-import React, { FormEvent, useRef, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { dateOnly, dateParam } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { FormatDate, FormatNumber } from "lib/format";
@@ -172,7 +172,6 @@ type FormDetailProps = {
 }
 
 function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
-	const inputRef = useRef<HTMLDivElement>(null);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	let [trx, setTrx] = useState<Trx>(initTrx)
 

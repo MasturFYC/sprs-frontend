@@ -1,9 +1,7 @@
 import React from "react";
 import { ComboBox, Item } from "@react-spectrum/combobox";
 import { Text  } from "@react-spectrum/text";
-import { iBranch } from "../lib/interfaces";
-import axios from "../lib/axios-base";
-import { useAsyncList } from "@react-stately/data";
+import { useBranchList } from "lib/useBranch";
 
 type LabelPosition = 'top' | 'side';
 type Alignment = 'start' | 'end';
@@ -24,24 +22,7 @@ export default function ComboBranch({
   selectedKey
 }: ComboBranchProps) {
 
-  let branch = useAsyncList<iBranch>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/branchs", { headers: headers })
-        .then(response => response.data)
-        .then(data => data)
-        .catch(error => {
-          console.log(error)
-        })
-
-      return { items: res ? res : [] }
-    },
-    getKey: (item: iBranch) => item.id
-  })
+  let branch = useBranchList()
     
  
   return <ComboBox
@@ -49,7 +30,6 @@ export default function ComboBranch({
     width={'auto'}
     label={label}
     aria-label="combo-search"
-    loadingState={branch.loadingState}
     labelAlign={labelAlign}
     labelPosition={labelPosition || 'top'}
     menuTrigger='focus'

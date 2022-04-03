@@ -63,6 +63,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 
 	const isDescriptionsValid = React.useMemo(
 		() => {
+		
 			if (loan.trx.descriptions) {
 				return loan.trx.descriptions.length >= 5
 			}

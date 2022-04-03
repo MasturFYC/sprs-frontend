@@ -1,9 +1,10 @@
 import React, { FormEvent } from 'react';
-import { iType, iUnit, iWarehouse } from '../lib/interfaces'
-import { Button, ComboBox, Flex, Item, NumberField, TextField, useAsyncList, View, Text, ProgressCircle, DialogContainer, ActionButton, Heading, Divider, Form } from '@adobe/react-spectrum';
-import axios from '../lib/axios-base';
+import { iUnit } from 'lib/interfaces'
+import { Button, ComboBox, Flex, Item, NumberField, TextField, View, Text, ProgressCircle, DialogContainer, ActionButton, Heading, Divider, Form } from '@adobe/react-spectrum';
+import axios from 'lib/axios-base';
 import TypeForm, { initVehicle } from '../component/Vehicle/Form';
 import AddIcon from '@spectrum-icons/workflow/Add'
+import { useTypeList, useWarehouseList } from 'lib';
 
 const initUnit: iUnit = {
 	orderId: 0,
@@ -52,49 +53,9 @@ const UnitForm = (props: UnitFormOptions) => {
 		() => data && data.warehouseId > 0,
 		[data]
 	)
-	let types = useAsyncList<iType>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
 
-			let res = await axios
-				.get("/types", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data ? data : []
-				})
-				.catch(error => {
-					console.log(error)
-					return [];
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iType) => item.id
-	})
-
-	let houses = useAsyncList<iWarehouse>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/warehouses/", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data ? data : []
-				})
-				.catch(error => {
-					console.log(error)
-					return [];
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iWarehouse) => item.id
-	})
+	let types = useTypeList()
+ 	let houses = useWarehouseList()
 
 	React.useEffect(() => {
 		let isLoaded = true;

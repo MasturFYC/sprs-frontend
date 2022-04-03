@@ -1,10 +1,11 @@
 import React from 'react'
 import { View } from '@react-spectrum/view'
-import axios from '../lib/axios-base'
-import { dateOnly, dateParam, iAccountSpecific, iFinance, iOrder, iTrx, iTrxDetail } from '../lib/interfaces';
+import axios from 'lib/axios-base'
+import { dateOnly, dateParam, iFinance, iOrder, iTrx, iTrxDetail } from 'lib/interfaces';
 import { ActionButton, Button, ButtonGroup, ComboBox, Content, Dialog, DialogTrigger, Divider, Heading, Item, Text } from '@adobe/react-spectrum';
-import { FormatNumber } from '../lib/format';
+import { FormatNumber } from 'lib/format';
 import MarkIcon from '@spectrum-icons/workflow/Checkmark'
+import { useAccountCash } from 'lib/useAccountCash';
 
 type VerifyOrderProps = {
   order: iOrder,
@@ -14,34 +15,10 @@ type VerifyOrderProps = {
 
 export default function VerifyOrder(props: VerifyOrderProps) {
   const { order, onChange, isDisable } = props;
-  const [accountCashes, setAccountCashes] = React.useState<iAccountSpecific[]>([]);
+  //const [accountCashes, setAccountCashes] = React.useState<iAccountSpecific[]>([]);
   const [cashId, setCashId] = React.useState<number>(0);
 
-  React.useEffect(() => {
-    let isLoaded = false;
-
-    async function loadAccountCash() {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-      await axios
-        .get(`/acc-code/spec/1`, { headers: headers })
-        .then(response => response.data)
-        .then(data => {
-          setAccountCashes(data)
-        })
-        .catch(error => {
-          console.log({ 'Error': error })
-          return []
-        })
-    }
-
-    if (!isLoaded) {
-      loadAccountCash()
-    }
-    return () => { isLoaded = true }
-
-  }, [])
+  let accountCashes = useAccountCash();
 
   return (
     <View flex>
@@ -66,7 +43,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
                   labelPosition={'side'}
                   label={"Akun kas yg terlibat transaksi"}
                   placeholder={"e.g. Kas / bank"}
-                  defaultItems={accountCashes}
+                  defaultItems={accountCashes.items}
                   selectedKey={cashId}
                   onSelectionChange={(e) => setCashId(+e)}
                 >

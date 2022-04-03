@@ -8,6 +8,7 @@ import { initTrx } from './form'
 import { FormatDate, FormatNumber } from "../../lib/format";
 import MonthComponent from "../Bulan";
 import RemainSaldo from '../saldo';
+import { useTransactionList } from "lib/useTransaction";
 
 const TrxForm = React.lazy(() => import('./form'));
 
@@ -61,26 +62,9 @@ const Trx = () => {
   })
 
 
-  let trxs = useAsyncList<iTrx>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
+  let trx = useTransactionList();
 
-      let res = await axios
-        .get("/trx/", { headers: headers })
-        .then(response => response.data)
-        .then(data => data)
-        .catch(error => {
-          console.log(error)
-        })
-
-      return { items: res ? res : [] }
-    },
-    getKey: (item: iTrx) => item.id
-  })
-
-  if (accs.isLoading || groups.isLoading || trxs.isLoading) {
+  if (accs.isLoading || groups.isLoading || trx.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
 
@@ -102,10 +86,10 @@ const Trx = () => {
         //validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
         maxLength={50}
         onClear={() => {
-          loadAllCodes();
+          trx.reload()
         }}
         onSubmit={(e) => {
-          searchTransact(e)
+          trx.search(e)
         }}
         //onChange={(e) => setTxtSearch(e)}
       />
@@ -113,14 +97,14 @@ const Trx = () => {
         onChange={(e) => {
           setBulan(e.id);
           if (e.id > 0) {
-            getTransactionByMonth(e.id)
+            trx.getByMonth(e.id)
           } else {
-            loadAllCodes();
+            trx.reload();
           }
         }} />
 
     </Flex>
-    {trxs.items.map(o => o.id === selectedId ?
+    {trx.items.map(o => o.id === selectedId ?
       <View key={o.id}
         backgroundColor={'gray-100'}
         borderRadius={'medium'}
@@ -204,21 +188,21 @@ const Trx = () => {
       case 'save':
         if (data) {
           if (selectedId === 0) {
-            trxs.update(0, data)
+            trx.update(0, data)
           } else {
-            trxs.update(selectedId, data)
+            trx.update(selectedId, data)
             setSelectedId(-1)
             return;
           }
         }
         break;
       case 'remove':
-        trxs.remove(selectedId);
+        trx.remove(selectedId);
         break;
       case 'cancel':
         //navigate('/trx/-1')
         if (selectedId === 0) {
-          trxs.remove(0)
+          trx.remove(0)
         }
         break;
     }
@@ -227,82 +211,16 @@ const Trx = () => {
   }
 
   function addNewItem() {
-    if (!trxs.getItem(0)) {
-      trxs.insert(0, initTrx);
+    if (!trx.getItem(0)) {
+      trx.insert(initTrx);
     }
     setSelectedId(0)
     //navigate('/trx/0')
   }
-
-  async function searchTransact(e: string) {
-
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    //const txt = e.replace(/ /g, ' | ')
-
-    let res = await axios
-      .post(`/trx/search/`, { txt: e }, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        return data
-      })
-      .catch(error => {
-        console.log(error)
-        return []
-      })
-
-    trxs.setSelectedKeys('all')
-    trxs.removeSelectedItems();
-    res && trxs.append(...res);
-
-  }
-
-  async function getTransactionByMonth(id: number) {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    let res = await axios
-      .get(`/trx/month/${id}/`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        return data
-      })
-      .catch(error => {
-        console.log(error)
-        return []
-      })
-
-    trxs.setSelectedKeys('all')
-    trxs.removeSelectedItems();
-    res && trxs.append(...res);
-  }
-
-  async function loadAllCodes() {
-
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    let res = await axios
-      .get(`/trx/`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        return data
-      })
-      .catch(error => {
-        console.log(error)
-        return []
-      })
-
-    trxs.setSelectedKeys('all')
-    trxs.removeSelectedItems();
-    res && trxs.append(...res);
-  }
-
 }
+
+
+ 
 
 type OrderDetailProp = {
   detail: {

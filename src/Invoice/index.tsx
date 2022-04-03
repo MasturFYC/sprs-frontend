@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import axios from "lib/axios-base";
-import { iFinance } from 'lib/interfaces'
-import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, useAsyncList, View, Divider, NumberField } from "@adobe/react-spectrum";
+import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, View, Divider, NumberField } from "@adobe/react-spectrum";
 import MonthComponent from "component/Bulan";
-import { InvoiceInfo, InvoiceList } from "./InvoiceList";
+import { InvoiceList } from "./InvoiceList";
+import { useFinanceList } from "lib/useFinance";
+import { useInvoiceList } from "lib/useInvoice";
 
 // const OrderForm = React.lazy(() => import('./Form'))
 const defaultYear = new Date().getFullYear()
@@ -14,44 +14,8 @@ const Invoice = () => {
 	const [bulan, setBulan] = useState<number>(0);
 	const [year, setYear] = useState<number>(defaultYear);
 
-
-	let finances = useAsyncList<iFinance>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/finances/", { headers: headers })
-				.then(response => response.data)
-				.then(data => data)
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res ? res : [] }
-		},
-		getKey: (item: iFinance) => item.id
-	})
-
-	let invoices = useAsyncList<InvoiceInfo>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/invoices/", { headers: headers })
-				.then(response => response.data)
-				.then(data => data)
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res ? res : [] }
-		},
-		getKey: (item: InvoiceInfo) => item.id
-	})
+	let finances = useFinanceList()
+	let invoices = useInvoiceList()
 
 	if (invoices.isLoading || finances.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -72,10 +36,10 @@ const Invoice = () => {
 					//validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
 					maxLength={50}
 					onClear={() => {
-						loadAllInvoices();
+						invoices.reload();
 					}}
 					onSubmit={(e) => {
-						searchInvoices(e)
+						invoices.search(e)
 					}}
 					onChange={(e) => setTxtSearch(e)}
 				/>
@@ -88,13 +52,13 @@ const Invoice = () => {
 					defaultValue={year}
 					onChange={(e) => {
 						setYear(e);
-						getOrdersByMonth(bulan, e)
+						invoices.getByMonth(bulan, e)
 					}}
 				/>
 				<MonthComponent width="150px" selectedId={bulan}
 					onChange={(e) => {
 						setBulan(e.id);
-							getOrdersByMonth(e.id, year)
+						invoices.getByMonth(e.id, year)
 					}} />
 				<ComboBox
 					flex={{ base: true, M: false }}
@@ -107,7 +71,7 @@ const Invoice = () => {
 					defaultSelectedKey={financeId}
 					onSelectionChange={(e) => {
 						setFinanceId(+e);
-						getInvoicesByFinance(+e);
+						invoices.getByFinance(+e);
 					}}
 				>
 					{(o) => <Item textValue={o.shortName}>
@@ -120,95 +84,6 @@ const Invoice = () => {
 			{invoices.items.map((e, i) => <InvoiceList key={e.id} invoice={e} />)}
 		</View>
 	)
-
-	
-	async function searchInvoices(e: string) {
-
-		invoices.setSelectedKeys('all')
-		invoices.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		//const txt = e.replace(/ /g, ' | ')
-
-		await axios
-			.post(`/invoices/search/`, { txt: e }, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				invoices.append(...data);
-			})
-			.catch(error => {
-				console.log(error)
-			})
-
-	}
-
-	async function getOrdersByMonth(month: number, year: number) {
-
-		invoices.setSelectedKeys('all')
-		invoices.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.get(`/invoices/month-year/${month}/${year}/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				invoices.append(...data);
-			})
-			.catch(error => {
-				console.log(error)
-			})
-
-	}
-
-	async function getInvoicesByFinance(id: number) {
-
-		invoices.setSelectedKeys('all')
-		invoices.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.get(`/invoices/finance/${id}/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				invoices.append(...data);
-			})
-			.catch(error => {
-				console.log(error)
-			})
-
-	}
-
-	async function loadAllInvoices() {
-
-		invoices.setSelectedKeys('all')
-		invoices.removeSelectedItems();
-
-		const headers = {
-			'Content-Type': 'application/json'
-		}
-
-		await axios
-			.get(`/invoices/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => {
-				invoices.append(...data);
-			})
-			.catch(error => {
-				console.log(error)
-			})
-
-	}
 }
 
 export default Invoice;
-
-

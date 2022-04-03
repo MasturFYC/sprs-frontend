@@ -1,38 +1,19 @@
 import React, { Fragment } from "react";
-import axios from "../../lib/axios-base";
 import { iBranch } from '../../lib/interfaces'
 import BranchForm, { initBranch } from './Form'
 import { View } from "@react-spectrum/view";
-import { Divider, Flex, Link, useAsyncList } from "@adobe/react-spectrum";
+import { Divider, Flex, Link } from "@adobe/react-spectrum";
+import { useBranchList } from "lib/useBranch";
 
 const Branch = () => {
     const [selectedId, setSelectedId] = React.useState<number>(-1);
-    let branchs = useAsyncList<iBranch>({
-        async load({ signal }) {
-            const headers = {
-                'Content-Type': 'application/json'
-            }
-
-            let res = await axios
-                .get("/branchs", { headers: headers })
-                .then(response => response.data)
-                .then(data => {
-                    return data ? data : []
-                })
-                .catch(error => {
-                    console.log(error)
-                })
-
-            return { items: [initBranch, ...res] }
-        },
-        getKey: (item: iBranch) => item.id
-    })
+    let branchs = useBranchList();
 
     return (
         <Fragment>
             <div className="div-h2">Cabang Kantor</div>
             <Divider size={'S'} />
-            {branchs.items.map(o => {
+            {[initBranch,...branchs.items].map(o => {
                 return o.id === selectedId ?
                     <BranchForm key={o.id} branch={o} callback={(e) => formResponse(e)} />
                     :
@@ -67,7 +48,7 @@ const Branch = () => {
 
         if (method === 'save' && data) {
             if (selectedId === 0) {
-                branchs.insert(1, data)
+                branchs.insert(data)
             } else {
                 branchs.update(data.id, data)
             }

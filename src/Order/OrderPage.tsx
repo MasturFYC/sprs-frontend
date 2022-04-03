@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import axios from "../lib/axios-base";
-import { iBranch, iFinance } from '../lib/interfaces'
 import { ProgressCircle } from "@react-spectrum/progress";
 import { Flex } from "@react-spectrum/layout";
 import { View } from "@react-spectrum/view";
-import { useAsyncList } from '@react-stately/data'
+import { useBranchList, useFinanceList } from "lib";
 
 const OrderForm = React.lazy(() => import('./OrderForm'))
 
@@ -16,47 +14,9 @@ const OrderPage = () => {
   const [orderId, setOrderId] = useState(0)
 
 
-  let finances = useAsyncList<iFinance>({
+  let finances = useFinanceList()
 
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/finances/", { headers: headers })
-        .then(response => response.data)
-        .then(data => {
-          return data
-        })
-        .catch(error => {
-          console.log(error)
-        })
-
-      return { items: res ? res : [] }
-    },
-    getKey: (item: iFinance) => item.id
-  })
-
-  let branches = useAsyncList<iBranch>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/branchs", { headers: headers })
-        .then(response => response.data)
-        .then(data => {
-          return data
-        })
-        .catch(error => {
-          console.log(error)
-        })
-      return { items: res ? res : [] }
-    },
-    getKey: (item: iBranch) => item.id
-  })
+  let branches = useBranchList()
 
   useEffect(() => {
     let isLoaded = false

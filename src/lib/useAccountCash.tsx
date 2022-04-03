@@ -4,13 +4,8 @@ import { iAccountSpecific } from 'lib/interfaces';
 
 export function useAccountCash() {
 	const [list, setList] = useState<iAccountSpecific[]>([]);
-//	const [item, setItem] = useState(0);
+	const [isLoading, setIsLoading] = useState(false);
 
-	const getItem = (id:number) => {
-		const test = list.filter(f=>f.id === id)[0]
-		return test;
-	}
-	
 	useEffect(() => {
 		let isLoaded = false;
 		async function load() {
@@ -22,10 +17,14 @@ export function useAccountCash() {
 				.get("/acc-code/spec/1", { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))
-				.then(data => setList(data));
+				.then(data => {
+					setList(data);
+					setIsLoading(false);
+				});
 		}
 
 		if (!isLoaded) {
+			setIsLoading(true)
 			load();
 		}
 
@@ -34,7 +33,8 @@ export function useAccountCash() {
 
 	return {
 		items: list,
-		getItem: (id: number) => getItem(id)
+		isLoading: isLoading,
+		getItem: (id: number) => list.filter(f => f.id === id)[0]
 	};
 
 }

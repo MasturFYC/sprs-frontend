@@ -6,78 +6,24 @@ import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
 import { Button, Flex,
 	//ComboBox, Text,  Item, 
 	Link, ProgressCircle, SearchField, View } from "@adobe/react-spectrum";
-import { useAsyncList } from '@react-stately/data'
 
-import { FormatDate, FormatNumber } from "../lib/format";
+import { FormatDate, FormatNumber } from "lib/format";
 //import MonthComponent from "../component/Bulan";
 import { AxiosRequestConfig } from "axios";
 import './table.css'
 
+import {useFinanceList, useBranchList} from 'lib'
 const OrderForm = React.lazy(() => import('./Form'))
-
 
 const Order = () => {
 	let { s, p } = useParams();
 	const navigate = useNavigate();
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	//const [financeId, setFinanceId] = useState<number>(0);
-	//const [branchId, setBranchId] = useState<number>(0);
 	const [txtSearch, setTxtSearch] = useState<string>('');
-	//const [bulan, setBulan] = useState<number>(0);
-	//const [isSearch, setIsSearch] = useState(false)
-	//const [test, setTest] = useState(false)
-	//const [url, setUrl] = useState("/orders")
 	const [orders, setOrders] = useState<iOrder[]>([])
 
-
-	// const getUrlParameter = (name: string) => {
-	// 	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-	// 	let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-	// 	let results = regex.exec(window.location.search);
-	// 	return results === null ? '/orders' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-	// };
-
-
-	let finances = useAsyncList<iFinance>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/finances/", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res ? res : [] }
-		},
-		getKey: (item: iFinance) => item.id
-	})
-
-	let branchs = useAsyncList<iBranch>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/branchs", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
-			return { items: res ? res : [] }
-		},
-		getKey: (item: iBranch) => item.id
-	})
+	let finances = useFinanceList()
+	let branchs = useBranchList()
 
 	
 	useEffect(() => {

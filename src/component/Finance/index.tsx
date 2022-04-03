@@ -1,34 +1,14 @@
 import React, { Fragment } from "react";
-import axios from "../../lib/axios-base";
 import { iFinance } from '../../lib/interfaces'
 import FinanceForm, { initFinance } from './Form'
 import { View } from "@react-spectrum/view";
-import { Divider, Flex, Link, ProgressCircle, useAsyncList } from "@adobe/react-spectrum";
+import { Divider, Flex, Link, ProgressCircle } from "@adobe/react-spectrum";
+import { useFinanceList } from "lib/useFinance";
 
 const Finance = () => {
     const [selectedId, setSelectedId] = React.useState<number>(-1);
 
-    let finances = useAsyncList<iFinance>({
-        async load({ signal }) {
-            const headers = {
-                'Content-Type': 'application/json'
-            }
-
-            let res = await axios
-                .get("/finances/", { headers: headers })
-                .then(response => response.data)
-                .then(data => {
-                    return data
-                })
-                .catch(error => {
-                    console.log(error)
-                })
-
-            return { items: res ? [initFinance, ...res] : [initFinance] }
-        },
-        getKey: (item: iFinance) => item.id
-    })
-
+    let finances = useFinanceList()
 
     if (finances.isLoading) {
         return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -38,7 +18,7 @@ const Finance = () => {
         <Fragment>
             <h1>Pengelola Keuangan (Finance)</h1>
             <Divider size={'S'} />
-            {finances.items.map(o => {
+            {[initFinance, ...finances.items].map(o => {
                 return o.id === selectedId ?
                     <FinanceForm key={o.id} finance={o} callback={(e) => formResponse(e)} />
                     :
@@ -73,7 +53,7 @@ const Finance = () => {
 
         if (method === 'save' && data) {
             if (selectedId === 0) {
-                finances.insert(1, data)
+                finances.insert(data)
             } else {
                 finances.update(data.id, data)
             }
