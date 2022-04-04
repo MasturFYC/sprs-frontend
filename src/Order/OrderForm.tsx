@@ -69,31 +69,12 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
   const [message, setMessage] = useState<string>('');
   const [newId, setNewId] = useState("");
 
-  const isFinanceValid = React.useMemo(
-    () => order.financeId > 0,
-    [order]
-  )
-  const isNameValid = React.useMemo(
-    () => order.name.length > 5,
-    [order]
-  )
-
-  const isMatrixValid = React.useMemo(
-    () => order.matrix > 0,
-    [order]
-  )
-  const isBranchValid = React.useMemo(
-    () => order.branchId > 0,
-    [order]
-  )
-  const isBtFinanceValid = React.useMemo(
-    () => order.btFinance > 0,
-    [order]
-  )
-  const isBtPercentValid = React.useMemo(
-    () => order.btMatel > 0,
-    [order]
-  )
+  const isFinanceValid = React.useMemo(() => order.financeId > 0, [order])
+  const isNameValid = React.useMemo(() => order.name.length > 5, [order])
+  const isMatrixValid = React.useMemo(() => order.matrix > 0, [order])
+  const isBranchValid = React.useMemo(() => order.branchId > 0, [order])
+  const isBtFinanceValid = React.useMemo(() => order.btFinance > 0, [order])
+  const isBtPercentValid = React.useMemo(() => order.btMatel > 0, [order])
   const isStnkValid = React.useMemo(
     () => {
       if (order) {
@@ -264,7 +245,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
 
                 <Flex flex direction={{ base: 'column', M: 'row' }} columnGap='size-200' rowGap={'size-50'}>
                   <NumberField
-                  flex
+                    flex
                     hideStepper={true}
                     width={{ base: 'auto', L: 'size-1700' }}
                     isReadOnly

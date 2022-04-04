@@ -1,54 +1,21 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../../lib/axios-base";
-import { iAccGroup, iAccType } from '../../lib/interfaces'
+import { iAccType } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, Divider, Flex, Link, useAsyncList } from "@adobe/react-spectrum";
+import { Button, Divider, Flex, Link } from "@adobe/react-spectrum";
 import AccTypeForm, { initAccType } from './Form'
+import { useAccountGroupList } from "lib/useAccountGroup";
+import { useAccountTypeList } from "lib/useAccountType";
 
 const AccType = () => {
 	const navigate  = useNavigate();
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 	const { id: groupId, name: groupName} = useParams()
 
-	let groups = useAsyncList<iAccGroup>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
+	let groups = useAccountGroupList()
 
-			let res = await axios
-				.get("/acc-group", { headers: headers })
-				.then(response => response.data)
-				.then(data => data)
-				.catch(error => {
-					console.log(error)
-					return []
-				})
-
-			return { items: res ?  res : [] }
-		},
-		getKey: (item: iAccGroup) => item.id
-	})
-
-	let accs = useAsyncList<iAccType>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get(`/acc-group/types/${groupId ? groupId : 0}`, { headers: headers })
-				.then(response => response.data)
-				.then(data => data)
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res ? res : [] }
-		},
-		getKey: (item: iAccType) => item.id
-	})
+	let accs = useAccountTypeList(groupId ? +groupId : 0)
 
 	return (
 		<View>
@@ -110,7 +77,7 @@ const AccType = () => {
 
 	function addNewItem() {
 		if (!accs.getItem(0)) {
-			accs.insert(0, { ...initAccType, groupId: groupId ? +groupId : 0});
+			accs.insert({ ...initAccType, groupId: groupId ? +groupId : 0});
 		}
 		setSelectedId(0)
 	}
@@ -147,7 +114,7 @@ const AccType = () => {
 			.post(`/acc-type`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				accs.insert(0, p)
+				accs.insert(p)
 				accs.remove(0)
 				setSelectedId(-1)
 			})

@@ -11,7 +11,8 @@ export interface InvoiceInfo extends iInvoice {
 	account?: iAccCode
 }
 
-type TableProp = { invoice: InvoiceInfo; };
+type TableProp = { invoice: InvoiceInfo };
+
 export function InvoiceList({
 	invoice
 }: TableProp) {
@@ -64,7 +65,7 @@ export function InvoiceList({
 						</Flex>
 					</Flex>
 				</View>
-				<View width={{base: 'auto', L:'size-2400'}}>
+				<View width={{ base: 'auto', L: 'size-2400' }}>
 					<View>Memo:</View>
 					<View marginBottom={'size-200'}>{invoice.memo || '-'}</View>
 					{isDownloading ? <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>

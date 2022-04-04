@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "../../lib/axios-base";
-import { iAccCode, iAccType } from '../../lib/interfaces'
+import { iAccCode } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text, useAsyncList } from "@adobe/react-spectrum";
+import { Button, ComboBox, Divider, Flex, Item, Link, ProgressCircle, SearchField, Text } from "@adobe/react-spectrum";
 import AccCodeForm, { initAccCode } from './form'
 import { useParams } from "react-router-dom";
+import { useAccountTypeList } from "lib/useAccountType";
+import { useAccountCodeList } from "lib/useAccountCode";
 
 
 const AccCode = () => {
@@ -13,49 +15,10 @@ const AccCode = () => {
   const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
 
-  let types = useAsyncList<iAccType>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
+  let types = useAccountTypeList(0)
+  let [items, isLoading, accs, reload] = useAccountCodeList(paramId ? +paramId : 0)
 
-      let res = await axios
-        .get("/acc-type", { headers: headers })
-        .then(response => response.data)
-        .then(data => data)
-        .catch(error => {
-          console.log(error)
-          return []
-        })
-
-      return { items: res || [] }
-    },
-    getKey: (item: iAccType) => item.id
-  })
-
-  let accs = useAsyncList<iAccCode>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get(`/acc-code/group-type/${paramId ? paramId : 0}`, { headers: headers })
-        .then(response => response.data)
-        .then(data => {
-          return data
-        })
-        .catch(error => {
-          console.log(error)
-          return []
-        })
-
-      return { items: res || [] }
-    },
-    getKey: (item: iAccCode) => item.id
-  })
-
-  if (accs.isLoading || types.isLoading) {
+  if (isLoading || types.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
 
@@ -76,10 +39,10 @@ const AccCode = () => {
           //validationState={txtSearch.length > 2 ? 'valid' : 'invalid'}
           maxLength={50}
           onClear={() => {
-            loadAllCodes();
+            reload(o => o+1)
           }}
           onSubmit={(e) => {
-            searchCode(e)
+           accs.search(e)
           }}
           onChange={(e) => setTxtSearch(e)}
         />
@@ -94,7 +57,7 @@ const AccCode = () => {
           selectedKey={typeId}
           onSelectionChange={(e) => {
             setTypeId(+e);
-            (+e === 0) ? loadAllCodes() : searchCodeByType(+e)
+            (+e === 0) ? accs.reload() : accs.getByType(+e)
           }}
         >
           {o => <Item textValue={o.id === 0 ? 'Pilih kode akun' : `${o.id} - ${o.name}`}>
@@ -161,83 +124,17 @@ const AccCode = () => {
   );
 
   function showItems(): iAccCode[] {
-    if (accs.items && accs.items.length > 0) {
-      return accs.items;
+    if (items && items.length > 0) {
+      return items;
     }
     return [];
   }
   function addNewItem() {
     if (!accs.getItem(0)) {
-      accs.insert(0, {...initAccCode, typeId: paramId? +paramId : 0});
+      accs.insert({...initAccCode, typeId: paramId? +paramId : 0});
     }
     setSelectedId(0)
   }
-
-  async function searchCode(e: string) {
-
-    accs.setSelectedKeys('all')
-    accs.removeSelectedItems();
-
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    //const txt = e.replace(/ /g, ' | ')
-
-    await axios
-      .get(`/acc-code/search-name/${e}`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        accs.append(...data);
-      })
-      .catch(error => {
-        console.log(error)
-      })
-
-  }
-
-  async function searchCodeByType(id: number) {
-
-    accs.setSelectedKeys('all')
-    accs.removeSelectedItems();
-
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    await axios
-      .get(`/acc-code/group-type/${id}`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        accs.append(...data);
-      })
-      .catch(error => {
-        console.log(error)
-      })
-
-  }
-
-  async function loadAllCodes() {
-
-    accs.setSelectedKeys('all')
-    accs.removeSelectedItems();
-
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-
-    await axios
-      .get(`/acc-code`, { headers: headers })
-      .then(response => response.data)
-      .then(data => {
-        accs.append(...data);
-      })
-      .catch(error => {
-        console.log(error)
-      })
-
-  }
-
 
   async function updateAccCode(oldId: number, p: iAccCode) {
     const headers = {
@@ -270,7 +167,7 @@ const AccCode = () => {
       .post(`/acc-code`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        accs.insert(0, p)
+        accs.insert(p)
         accs.remove(0)
         setSelectedId(-1)
       })
@@ -297,8 +194,6 @@ const AccCode = () => {
         console.log(error)
       })
   }
-
-
 }
 
 export default AccCode;

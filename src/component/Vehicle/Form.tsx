@@ -1,8 +1,10 @@
 import React, { FormEvent } from 'react';
-import { iType, iWheel, iMerk } from '../../lib/interfaces'
+import { iType, iWheel } from '../../lib/interfaces'
 import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
 import axios from '../../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
+import { useMerkList } from 'lib/useMerk';
+import { useWheelList } from 'lib/useWheel';
 
 export const initVehicle: iType = {
 	id: 0,
@@ -21,58 +23,12 @@ const TypeForm = (props: TypeFormOptions) => {
 	const [data, setData] = React.useState<iType>(initVehicle)
 	const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
-	const isNameValid = React.useMemo(
-		() => data.name.length > 2,
-		[data]
-	)
-	const isWheelValid = React.useMemo(
-		() => data.wheelId > 0,
-		[data]
-	)
-	const isMerkValid = React.useMemo(
-		() => data.merkId > 0,
-		[data]
-	)
+	const isNameValid = React.useMemo(() => data.name.length > 2, [data])
+	const isWheelValid = React.useMemo(() => data.wheelId > 0, [data])
+	const isMerkValid = React.useMemo(() => data.merkId > 0, [data])
 
-	let wheels = useAsyncList<iWheel>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/wheels", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data ? data : []
-				})
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iWheel) => item.id
-	})
-	let merks = useAsyncList<iMerk>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/merks/", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
-			return { items: res }
-		},
-		getKey: (item: iMerk) => item.id
-	})
+	let wheels = useWheelList()
+	let merks = useMerkList()
 
 	React.useEffect(() => {
 		let isLoaded = true;
@@ -89,7 +45,7 @@ const TypeForm = (props: TypeFormOptions) => {
 		<form onSubmit={(e) => handleSubmit(e)}>
 			<View backgroundColor={'gray-100'} padding={{ base: 'size-50', M: 'size-200' }}>
 				<Flex gap='size-200' direction={'column'}>
-				<TextField
+					<TextField
 						flex
 						autoFocus
 						label='Nama tipe kendaraan'
@@ -97,7 +53,7 @@ const TypeForm = (props: TypeFormOptions) => {
 						value={data.name}
 						placeholder={'e.g. NMax 155'}
 						validationState={isNameValid ? "valid" : "invalid"}
-						maxLength={50}						
+						maxLength={50}
 						onChange={(e) => changeData("name", e)}
 					/>
 					<Flex flex direction={{ base: 'column', M: 'row' }} gap='size-200'>
@@ -114,7 +70,7 @@ const TypeForm = (props: TypeFormOptions) => {
 								setData((o) => ({
 									...o,
 									wheelId: +e,
-									wheel: wheels.getItem(e)
+									wheel: wheels.getItem(+e)
 								}))
 							}}
 						>
@@ -133,7 +89,7 @@ const TypeForm = (props: TypeFormOptions) => {
 								setData((o) => ({
 									...o,
 									merkId: +e,
-									merk: merks.getItem(e)
+									merk: merks.getItem(+e)
 								}))
 							}}
 						>

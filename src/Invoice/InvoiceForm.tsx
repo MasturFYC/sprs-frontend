@@ -4,7 +4,7 @@ import {
 	TextField, Text, View, TextArea, NumberField,
 	Button
 } from "@adobe/react-spectrum";
-import { dateOnly, dateParam, iAccCode,  iFinance, iTrxDetail } from "../lib/interfaces";
+import { dateOnly, dateParam, iAccCode, iFinance, iTrxDetail } from "../lib/interfaces";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "../lib/axios-base";
 import TableOrder, { OrderLists } from "./TableOrder";
@@ -65,10 +65,7 @@ const InvoiceForm = () => {
 	const [showOrderList, setShowOrderList] = useState(false)
 	const debtAccount = 4111;
 
-	const isCashValid = React.useMemo(
-		() => invoice.accountId > 0,
-		[invoice]
-	)
+	const isCashValid = React.useMemo(() => invoice.accountId > 0, [invoice])
 
 	const isListValid = React.useMemo(
 		() => {
@@ -80,20 +77,11 @@ const InvoiceForm = () => {
 		[invoice]
 	)
 
-	const isTermValid = React.useMemo(
-		() => invoice.paymentTerm > 0,
-		[invoice]
-	)
+	const isTermValid = React.useMemo(() => invoice.paymentTerm > 0, [invoice])
 
-	const isPpnValid = React.useMemo(
-		() => invoice.ppn >= 0,
-		[invoice]
-	)
+	const isPpnValid = React.useMemo(() => invoice.ppn >= 0, [invoice])
 
-	const isSalesValid = React.useMemo(
-		() => invoice.salesman.length > 0,
-		[invoice]
-	)
+	const isSalesValid = React.useMemo(() => invoice.salesman.length > 0, [invoice])
 
 	const isDueValid = React.useMemo(
 		() => {
@@ -109,7 +97,7 @@ const InvoiceForm = () => {
 		() => {
 			const today = new Date(); //dateParam(null).substring(0, 10))
 			const tomorrow = new Date(today)
-			tomorrow.setDate(tomorrow.getDate()+0.1)
+			tomorrow.setDate(tomorrow.getDate() + 0.1)
 			const invDate = new Date(invoice.invoiceAt)
 			return invDate < tomorrow
 		},
@@ -117,7 +105,7 @@ const InvoiceForm = () => {
 	)
 
 	let accountCashes = useAccountCash()
-	
+
 	async function loadInvoice(id?: string): Promise<InvoiceById> {
 		const headers = {
 			Accept: 'application/json',
@@ -353,10 +341,10 @@ const InvoiceForm = () => {
 
 		const arr = details.filter(f => f.isSelected).map(o => o.id)
 
-		if(invoice.details) {
-			const selecteds = invoice.details.filter(f=>f.isSelected).filter(f=>!arr.includes(f.id))
+		if (invoice.details) {
+			const selecteds = invoice.details.filter(f => f.isSelected).filter(f => !arr.includes(f.id))
 			//for (let c = 0; c < invoice.details.length; c++) {
-				details.push(...selecteds)
+			details.push(...selecteds)
 			//}
 		}
 		setInvoiceDetails(details)
@@ -517,8 +505,8 @@ const InvoiceForm = () => {
 				// 		})
 				// 	}
 				// } else {
-					transact.details[0].cred = inv.total
-					transact.details[1].debt = inv.total
+				transact.details[0].cred = inv.total
+				transact.details[1].debt = inv.total
 				//}
 			}
 			return transact;

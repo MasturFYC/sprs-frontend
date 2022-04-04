@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from 'lib/axios-base';
-import {iWarehouse } from "./interfaces";
+import { iAccType } from "./interfaces";
 
-export function useWarehouseList() {
-  const [list, setList] = useState<iWarehouse[]>([]);
+export function useAccountTypeList(groupId: number) {
+  const [list, setList] = useState<iAccType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export function useWarehouseList() {
       };
 
       await axios
-        .get("/warehouses/", { headers: headers })
+        .get(`/acc-group/types/${groupId}`, { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
         .then(data => {
@@ -36,12 +36,12 @@ export function useWarehouseList() {
     count: () => list.length,
     isLoading: isLoading,
     getItem: (id: number) => list.filter(f => f.id === id)[0],
-    insert: (e: iWarehouse) => {
+    insert: (e: iAccType) => {
       const arr = [...list]
       arr.unshift(e);
       setList(arr)
     },
-    update: (id: number, e: iWarehouse) => {
+    update: (id: number, e: iAccType) => {
       let i = -1;
       for (let c = 0; c < list.length; c++) {
         if (list[c].id === id) {
@@ -70,7 +70,7 @@ export function useWarehouseList() {
         arr.splice(i, 1)
         setList(arr)
       }
-    },    
+    },
   };
 
 }

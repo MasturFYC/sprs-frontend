@@ -1,35 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../lib/axios-base";
 import { iAccGroup } from '../../lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Button, Divider, Flex, Link, useAsyncList } from "@adobe/react-spectrum";
+import { Button, Divider, Flex, Link } from "@adobe/react-spectrum";
 import AccGroupForm, {initAccGrop} from './Form'
+import { useAccountGroupList } from "lib/useAccountGroup";
 
 const AccountType = () => {
 	const navigate = useNavigate();
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 
-	let groups = useAsyncList<iAccGroup>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/acc-group", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data ? data : []
-				})
-				.catch(error => {
-					console.log(error)
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iAccGroup) => item.id
-	})
+	let groups = useAccountGroupList()
 
 	return (
 		<View>
@@ -109,7 +90,7 @@ const AccountType = () => {
 
 	function addNewItem() {
 		if (!groups.getItem(0)) {
-			groups.insert(0, initAccGrop);
+			groups.insert(initAccGrop);
 		}
 		setSelectedId(0)
 	}

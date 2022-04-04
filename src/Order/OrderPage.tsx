@@ -13,9 +13,7 @@ const OrderPage = () => {
   const navigate = useNavigate();
   const [orderId, setOrderId] = useState(0)
 
-
   let finances = useFinanceList()
-
   let branches = useBranchList()
 
   useEffect(() => {

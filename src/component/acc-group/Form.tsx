@@ -146,7 +146,6 @@ const AccGroupForm = (props: AccGroupFormOptions) => {
 			})
 	}
 
-
 	async function deleteGroup(p: iAccGroup) {
 		const headers = {
 			Accept: 'application/json',

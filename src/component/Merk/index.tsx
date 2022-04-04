@@ -1,9 +1,9 @@
 import React, { Fragment } from "react";
-import axios from "../../lib/axios-base";
 import MerkForm from './Form'
-import { iMerk } from '../../lib/interfaces'
+import { iMerk } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
-import { Link, useAsyncList } from "@adobe/react-spectrum";
+import { Link } from "@adobe/react-spectrum";
+import { useMerkList } from "lib/useMerk";
 
 const initMerk: iMerk = {
 	id: 0,
@@ -12,30 +12,12 @@ const initMerk: iMerk = {
 
 const Merk = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	let merks = useAsyncList<iMerk>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get("/merks/", { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data
-				})
-				.catch(error => {
-					console.log(error)
-				})
-			return { items: [initMerk, ...res] }
-		},
-		getKey: (item: iMerk) => item.id
-	})
+	let merks = useMerkList()
 
 	return (
 		<Fragment>
 			<h1>Merk Kendaraan</h1>
-			{merks.items.map(o => {
+			{[initMerk, ...merks.items].map(o => {
 				return o.id === selectedId ?
 					<MerkForm key={o.id} merk={o} callback={(e) => formResponse(e)} />
 					:
@@ -54,7 +36,7 @@ const Merk = () => {
 
 		if (method === 'save' && data) {
 			if (selectedId === 0) {
-				merks.insert(1, data)
+				merks.insert(data)
 			} else {
 				merks.update(data.id, data)
 			}
