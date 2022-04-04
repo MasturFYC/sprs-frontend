@@ -146,3 +146,11 @@ a:hover {
 .bg-green {
   background-color: rgb(102, 167, 5);
 }
+
+.back-orange-600 {
+  background-color: orangered;
+}
+
+.back-green-600 {
+  background-color: green;
+}

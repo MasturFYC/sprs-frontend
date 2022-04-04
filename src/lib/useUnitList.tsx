@@ -23,7 +23,7 @@ export function useUnitList() {
 				.then(response => response.data)
 				.catch(error => console.log(error))
 				.then(data => {
-          setList(data)
+					setList(data ? data : [])
           setIsLoading(false)
         });
 		}

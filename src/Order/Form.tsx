@@ -131,7 +131,7 @@ const OrderForm = (props: OrderFormOptions) => {
 	}, [order])
 
 	return (
-		<View backgroundColor={'gray-100'}
+		<View backgroundColor={'gray-75'}
 			borderColor={'blue-400'}
 			borderRadius={'medium'}
 			borderWidth={'thin'}

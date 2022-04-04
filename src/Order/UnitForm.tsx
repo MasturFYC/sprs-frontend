@@ -4,7 +4,7 @@ import { Button, ComboBox, Flex, Item, NumberField, TextField, View, Text, Progr
 import axios from 'lib/axios-base';
 import TypeForm, { initVehicle } from '../component/Vehicle/Form';
 import AddIcon from '@spectrum-icons/workflow/Add'
-import { useTypeList, useWarehouseList } from 'lib';
+import { useVehicleList, useWarehouseList } from 'lib';
 
 const initUnit: iUnit = {
 	orderId: 0,
@@ -54,7 +54,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		[data]
 	)
 
-	let types = useTypeList()
+	let vehicle = useVehicleList()
  	let houses = useWarehouseList()
 
 	React.useEffect(() => {
@@ -79,7 +79,7 @@ const UnitForm = (props: UnitFormOptions) => {
 							<TypeForm vehicle={initVehicle} callback={(e) => {
 								if (e.method === 'save' && e.data) {
 									const t = e.data
-									types.append(t);
+									vehicle.insert(t);
 									setData(prev => ({ ...prev, type: t, typeId: t.id }))
 									setIsDirty(true)
 								}
@@ -93,7 +93,7 @@ const UnitForm = (props: UnitFormOptions) => {
 
 			<Form onSubmit={(e) => handleSubmit(e)} isReadOnly={isReadOnly}>				
 				<View>
-					{(houses.isLoading || types.isLoading) &&
+					{(houses.isLoading || vehicle.isLoading) &&
 						<Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
 					}
 				</View>
@@ -110,14 +110,14 @@ const UnitForm = (props: UnitFormOptions) => {
 									labelAlign={'end'}
 									label={<View width={{ base: 'size-1600', M: 'size-1000' }}>Tipe</View>}
 									placeholder={"e.g. Vario 125"}
-									defaultItems={types.items}
+									defaultItems={vehicle.items}
 									selectedKey={data.typeId}
 									onSelectionChange={(e) => {
 										setIsDirty(true);
 										setData((o) => ({
 											...o,
 											typeId: +e,
-											type: types.getItem(+e)
+											type: vehicle.getItem(+e)
 										}))
 									}}
 								>

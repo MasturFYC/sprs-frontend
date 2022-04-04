@@ -19,7 +19,7 @@ export default function PageForm() {
 	let [isEdit, setIsEdit] = useState(false)
 
 	let account = useAccountCash();
-	let loan = useLoan(pid ? pid : '0');
+	let loan = useLoan(pid ? +pid : 0);
 
 	if (account.isLoading || loan.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -88,7 +88,7 @@ export default function PageForm() {
 					}}
 					onDelete={() => {
 						setIsEdit(false)
-						navigate(`/loan`)
+						navigate(`/loan/list`)
 					}}
 					onUpdate={(id, data) => {
 						loanSetDefaultTrx(data)

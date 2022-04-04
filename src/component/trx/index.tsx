@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 //import { useNavigate } from 'react-router-dom';
 import axios from "../../lib/axios-base";
-import { iAccCodeType, iTrx, iAccGroup } from '../../lib/interfaces'
+import { iAccCodeType, iTrx, iAccGroup } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, Divider, Flex, Link, ProgressCircle, SearchField, useAsyncList } from "@adobe/react-spectrum";
 import { initTrx } from './form'
-import { FormatDate, FormatNumber } from "../../lib/format";
+import { FormatDate, FormatNumber } from "lib/format";
 import MonthComponent from "../Bulan";
 import RemainSaldo from '../saldo';
-import { useTransactionList } from "lib/useTransaction";
+import { useTransactionList, useAccountGroupList } from "lib";
+import { PrettyPrintJson } from "lib/utils";
 
 const TrxForm = React.lazy(() => import('./form'));
 
@@ -17,6 +18,8 @@ const Trx = () => {
   const [selectedId, setSelectedId] = React.useState<number>(-1);
   //const [txtSearch, setTxtSearch] = useState<string>('');
   const [bulan, setBulan] = useState<number>(0);
+  const [isBottom, setBottom] = useState(false)
+  const [lastPage, setLastPage] = useState(0)
   //const navigate = useNavigate();
 
   let accs = useAsyncList<iAccCodeType>({
@@ -40,29 +43,30 @@ const Trx = () => {
     getKey: (item: iAccCodeType) => item.id
   })
 
-  let groups = useAsyncList<iAccGroup>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/acc-group", { headers: headers })
-        .then(response => response.data)
-        .then(data => {
-          return data
-        })
-        .catch(error => {
-          console.log(error)
-        })
-
-      return { items: res ? res : [] }
-    },
-    getKey: (item: iAccGroup) => item.id
-  })
-
-
+  let groups = useAccountGroupList() 
   let trx = useTransactionList();
+
+  useEffect(() => {
+    const onScroll = function () {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight-1) {
+        console.log("you're at the bottom of the page")
+        setLastPage(prev => (prev + 10))
+        setBottom(false)
+      }
+    }
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    let loadMore = false;
+
+    if(!loadMore) {
+      setBottom(true)
+    }
+
+    return () => {loadMore = true}
+  }, [lastPage])
 
   if (accs.isLoading || groups.isLoading || trx.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -168,6 +172,15 @@ const Trx = () => {
         </View>
       </View>
     )}
+    <View>
+
+      {isBottom &&
+        <ProgressCircle aria-label="Loading…" isIndeterminate />
+      }
+    </View>
+    <View>
+      <PrettyPrintJson data={{data: lastPage}} />
+    </View>
 
   </View>
 );

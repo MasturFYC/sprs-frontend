@@ -139,14 +139,11 @@ const initLoanItem: LoanItem = {
 	trxs: [initTrx],
 }
 
-export function useLoan(loanId: string) {
-
+export function useLoan(loanId: number) {
 	const [loan, setLoan] = useState<LoanItem>(initLoanItem)
 	const [isLoading, setIsLoading] = useState(false);
-
 	useEffect(() => {
 		let isLoaded = false;
-
 		async function load() {
 			const headers = {
 				'Content-Type': 'application/json'
@@ -156,26 +153,21 @@ export function useLoan(loanId: string) {
 				.get(`/loans/${loanId}`, { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))
-				.then(data => data);
+				.then(data => data );
 
-			return res ? res : initLoanItem
+			return res ? res : initLoanItem;
 		}
-
 		if (!isLoaded) {
 			setIsLoading(true)
-			load()
-				.then(data => {
-					setLoan(data)
-					setIsLoading(false)
-				});
+			load().then(data => {
+				setLoan(data)
+				setIsLoading(false)
+			})
 		}
-
 		return () => { isLoaded = true; };
 	}, [loanId]);
-
 	const pokok = () =>  loan.trxs.reduce((t, c) => t + c.detail.cred, 0);
 	const payment = () => loan.trxs.reduce((t, c) => t + c.detail.debt, 0);
-
 	return {
 		item: loan,
 		setItem: setLoan,
@@ -222,7 +214,6 @@ export function useLoan(loanId: string) {
 					break;
 				}
 			}
-
 			if (i !== -1) {
 				trxs.splice(i, 1)
 				setLoan(o => ({ ...o, trxs: trxs }))

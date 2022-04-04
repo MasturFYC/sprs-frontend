@@ -2,7 +2,7 @@ import React from "react";
 
 import { iBranch, iUnit, iOrder } from "../lib/interfaces"
 import { FormatDate, FormatNumber } from "../lib/format";
-import '../Order/table.css'
+import '../Report/report.css'
 
 export interface OrderLists extends iOrder {
   isSelected: boolean,

@@ -1,172 +1,62 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, {useState } from "react";
 import { useNavigate, useParams, useLocation, Link as RouteLink } from 'react-router-dom';
-import axios from "../lib/axios-base";
-import { dateParam, iBranch, iFinance, iOrder } from '../lib/interfaces'
-//import OrderForm, { initOrder } from './Form'
+import { iOrder, dateParam, iFinance, iBranch } from 'lib/interfaces'
 import { Button, Flex,
-	//ComboBox, Text,  Item, 
-	Link, ProgressCircle, SearchField, View } from "@adobe/react-spectrum";
+	Link, ProgressCircle, SearchField, View
+} from "@adobe/react-spectrum";
 
 import { FormatDate, FormatNumber } from "lib/format";
-//import MonthComponent from "../component/Bulan";
-import { AxiosRequestConfig } from "axios";
-import './table.css'
+import '../Report/report.css'
 
-import {useFinanceList, useBranchList} from 'lib'
+import { useFinanceList, useBranchList, useOrderList } from 'lib'
 const OrderForm = React.lazy(() => import('./Form'))
 
 const Order = () => {
 	let { s, p } = useParams();
 	const navigate = useNavigate();
-	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	const [txtSearch, setTxtSearch] = useState<string>('');
-	const [orders, setOrders] = useState<iOrder[]>([])
+	const [selectedId, setSelected] = React.useState<number>(-1);
+	const [txtSearch, setTxtSearch] = useState<string | undefined>(p ? p === '0' ? '' : p : '');
 
 	let finances = useFinanceList()
 	let branchs = useBranchList()
-
-	
-	useEffect(() => {
-		let isLoaded = false
-		async function load (search: string, p: string) {
-
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-	
-			const config: AxiosRequestConfig = search === 'search' ? {
-				method: "post",
-				data: { txt: p },
-			} : {
-				method: "get",
-			}
-	
-			let res = await axios({
-				...config,
-				url: `/orders/${search}/${p}`,
-				headers: headers,
-			}).then(
-				response => response.data
-			).then(
-				data => data
-			).catch(error => console.log(error)
-			)
-			
-			return res ? res : []
-		}
-
-		if (!isLoaded && s && p) {
-			load(s, p).then(res => {
-				setOrders(res)
-			})
-
-			//console.log(p)
-
-			s === 'search' && setTxtSearch(p)
-			//s === 'month' && setBulan(+p)
-			//s === 'finance' && setFinanceId(+p)
-			//s === 'branch' && setBranchId(+p)
-		}
-
-		return () => { isLoaded = true }
-	}, [s,p])
-
-	if (finances.isLoading || branchs.isLoading) {
-		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
-	}
+	let { items: orders, isLoading, getIndex: orderGetIndex,
+		removeItem, getItem: orderGetItem, addNewItem: orderAddNewItem,
+		updateItem: orderUpdateItem } = useOrderList(s, p)
 
 	return (
-		<Fragment>
-			<View marginBottom={'size-200'}><span className="div-h1">Order (SPK)</span></View>
-
-			<Flex direction={{ base: 'column', M: 'row' }} gap='size-100' marginY={'size-200'}>
-				<View flex>
+		<View>
+			<Flex direction={'row'} columnGap={'size-100'} marginY={'size-200'}>
+				<View marginBottom={'size-200'}><span className="div-h1">Order (SPK)</span></View>
+				<View flex alignSelf={'center'}>
+					{(finances.isLoading || branchs.isLoading || isLoading) &&
+						<ProgressCircle aria-label="Loading…" isIndeterminate />
+					}
+				</View>
+			</Flex>
+			<Flex direction={'row'} columnGap={{ base: 'size-200', L: 'size-400' }} marginY={'size-200'}>
+				<View>
 					<Button variant="cta" onPress={() => orderInsertNew()}>Order Baru</Button>
 				</View>
 				<SearchField
+					flex
 					type="search"
 					aria-label="order-search-item"
-					width={{base:'auto', L:'size-3600'}}
+					width={{ base: 'auto', L: 'size-3600' }}
 					value={txtSearch}
 					placeholder={'e.g. yamaha | 2022 | BAF'}
-					maxLength={128}
 					onClear={() => {
 						navigate("/order/month/0")
+						setSelected(-1)
 					}}
 					onSubmit={(e) => {
-						setSelectedId(-1)
+						setSelected(-1)
 						navigate(`/order/search/${e}`)
 					}}
 					onChange={(e) => {
 						setTxtSearch(e)
 					}}
 				/>
-				{/*
-				<MonthComponent width="150px" selectedId={bulan}
-					onChange={(e) => {
-						setBulan(e.id)
-						setSelectedId(-1)
-						navigate(`/order/month/${e.id}`)
-					}} />
-				<ComboBox
-					flex={{ base: true, M: false }}
-					width={{ base: 'auto', M: "150px" }}
-					aria-label="order-search-finance"
-					labelPosition={'side'}
-					menuTrigger='focus'
-					placeholder={"e.g. Adira"}
-					defaultItems={[{ id: 0, shortName: 'Semua finance', name: '', descriptions: '' }, ...finances.items]}
-					selectedKey={financeId}
-					onSelectionChange={(e) => {
-						setFinanceId(+e);
-						setSelectedId(-1)
-						navigate(`/order/finance/${+e}`)
-					}}
-				>
-					{(o) => <Item textValue={o.shortName}>
-						<Text>{o.shortName}</Text>
-						<Text slot='description'>{o.name}</Text>
-					</Item>}
-				</ComboBox>
-				<ComboBox
-					flex
-					width={'auto'}
-					aria-label="order-search-branch"
-					labelPosition={'side'}
-					menuTrigger='focus'
-					placeholder={"e.g. Jatibarang"}
-					defaultItems={[{
-						id: 0,
-						name: 'Semua Cabang',
-						headBranch: ''
-					}, ...branchs.items]}
-					selectedKey={branchId}
-					onSelectionChange={(e) => {
-						setBranchId(+e);
-						setSelectedId(-1)
-						navigate(`/order/branch/${+e}`)
-					}}
-				>
-					{(item) => <Item textValue={item.name}>
-						<Text>{item.name}</Text>
-						<Text slot='description'>
-							{item.id > 0 ?
-								<div>Kepala Cabang: <span style={{ fontWeight: 700 }}>{item.headBranch}</span><br />
-									{item?.street}{item.city ? `, ${item.city}` : ''}
-									{item.zip ? ` - ${item.zip}` : ''}<br />
-									{item.phone ? `Telp. ${item.phone}` : ''}
-									{item.cell && item.phone ? ` / ` : ''}
-									{item.cell && item.phone === '' ? `Cellular: ` : ''}
-									{item.cell ?? ''}<br />{item.email ? `e-mail: ${item.email}` : ''}
-								</div>
-								:
-								<div>{item.headBranch}</div>
-							}
-						</Text>
 
-					</Item>}
-				</ComboBox>
-						*/}
 			</Flex>
 			<TableOrder
 				selectedId={selectedId}
@@ -174,9 +64,9 @@ const Order = () => {
 				finances={finances.items}
 				branchs={branchs.items}
 				formResponse={formResponse}
-				updateChild={updateChild}
-				setSelectedId={setSelectedId} />
-		</Fragment>
+				updateChild={(e) => orderUpdateItem(e.id, e)}
+				setSelectedId={setSelected} />
+		</View>
 	)
 
 	function formResponse(params: { method: string, data?: iOrder }) {
@@ -185,82 +75,27 @@ const Order = () => {
 		if (method === 'save' && data) {
 			if (selectedId === 0) {
 				orderUpdateItem(0, data)
-				//orders.remove(0)
-				setSelectedId(data.id)
+				setSelected(data.id)
 			} else {
 				orderUpdateItem(data.id, data)
-				setSelectedId(-1)
+				setSelected(-1)
 			}
 		}
 		else if (method === 'cancel') {
 			if (selectedId === 0) {
-				orderRemoveItem(0)
+				removeItem(0)
 			}
-			setSelectedId(-1)
+			setSelected(-1)
 		}
 		else if (method === 'remove') {
-
-			const i = orderGetIndex(selectedId)
-
-			const list = [...orders]
-			
-			if(i>=0) {
-				list.splice(i,1)
-				setOrders(list)
-			}
-			//orders.remove(selectedId)
-			setSelectedId(-1)
+			removeItem(selectedId)
+			setSelected(-1)
 		}
-
-
-	}
-
-	function updateChild(data: iOrder) {
-		orderUpdateItem(data.id, data)
-		//orders.update(data.id, data)
-	}
-
-	function orderGetIndex(id: number): number {
-		for(let c=0; c<orders.length;c++) {
-			if(orders[c].id === id) {
-				return c
-			}
-		}
-		return -1;
-	}
-
-	function orderRemoveItem(id: number) {
-		const i = orderGetIndex(id)
-
-		if(i>=0) {
-			const list = [...orders]
-			list.splice(i,1)
-			setOrders(list)
-		}
-	}
-
-	function orderUpdateItem(id: number, data: iOrder) {
-		const i = orderGetIndex(id)
-		
-		if(i>=0) {
-			const list = [...orders]
-			list.splice(i, 1, data)
-			setOrders(list)
-		}
-	}
-
-	function orderGetItem(id: number): iOrder | undefined {
-		const i = orderGetIndex(id);
-		if(i >= 0) {
-			return orders[i]
-		}
-		return undefined
 	}
 
 	function orderInsertNew() {
 		if (!orderGetItem(0)) {
-			const list = [...orders]
-			list.splice(0, 0, {
+			orderAddNewItem({
 				id: 0,
 				name: '',
 				orderAt: dateParam(null),
@@ -276,12 +111,10 @@ const Order = () => {
 				stnkPrice: 0,
 				matrix: 0
 			})
-			setOrders(list)
+			setSelected(0)
 		}
-		setSelectedId(0)
 	}
 }
-
 export default Order;
 
 type TableOrderProp = {
@@ -305,27 +138,27 @@ function TableOrder(props: TableOrderProp) {
 	} = props;
 	const { pathname } = useLocation();
 
-	return <table className="table-small2">
+	return <table className="table-100 table-small collapse-none" cellPadding={4}>
 		<thead>
-			<tr>
+			<tr className={'text-white back-purple-700'}>
 				<th>NO</th>
 				<th>TANGGAL</th>
-				<th align="left" style={{ whiteSpace: 'nowrap' }}>NOMOR (SPK)</th>
-				<th align="left">CABANG</th>
-				<th align="left">FINANCE</th>
-				<th align="left">TYPE</th>
-				<th align="left">MERK</th>
-				<th align="left">NOPOL</th>
-				<th>TAHUN</th>
-				<th align="right" style={{ whiteSpace: 'nowrap' }}>STNK ?</th>
-				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT FINANCE</th>
-				<th align="right" style={{ whiteSpace: 'nowrap' }}>BT MATEL</th>
+				<th className='text-center font-bold text-no-wrap'>NOMOR (SPK)</th>
+				<th className='text-left font-bold'>CABANG</th>
+				<th className='text-left font-bold'>FINANCE</th>
+				<th className='text-left font-bold'>TYPE</th>
+				<th className='text-left font-bold'>MERK</th>
+				<th className='text-left font-bold'>NOPOL</th>
+				<th className='text-center font-bold'>TAHUN</th>
+				<th className='text-right font-bold text-no-wrap'>STNK ?</th>
+				<th className='text-right font-bold text-no-wrap'>BT FINANCE</th>
+				<th className='text-right font-bold text-no-wrap'>BT MATEL</th>
 			</tr>
 		</thead>
 		<tbody style={{ color: selectedId < 0 ? 'black' : '#abc' }}>
 			{orders.map((item, index) => item.id === selectedId ?
-				<tr key={item.id}>
-					<td colSpan={13} style={{ padding: '12px 0', color: selectedId >= 0 ? 'black' : 'auto' }}>
+				<tr key={item.id} className={`back-purple-700'}`}>
+					<td colSpan={13} style={{ color: selectedId >= 0 ? 'black' : 'auto' }}>
 						<React.Suspense fallback={<div>Please wait...</div>}>
 							<OrderForm order={item}
 								branchs={branchs}
@@ -336,43 +169,41 @@ function TableOrder(props: TableOrderProp) {
 					</td>
 				</tr>
 				:
-				<tr key={item.id} style={{ backgroundColor: index % 2 === 1 ? '#f3f3f3' : '#fff' }}
+				<tr key={item.id} className={`border-b-gray-50 ${index % 2 === 1 ? 'tr-bg-green' : 'bg-white'}`}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
-					<td className={selectedId >= 0 ? '' : item.verifiedBy ? 'back-green-700 text-white' : 'back-orange-600 text-white'} align="center">{index + 1}</td>
-					<td align="center" style={{ whiteSpace: 'nowrap' }}>{FormatDate(item.orderAt)}</td>
-					<td>
+					<td className={`text-center ${selectedId >= 0 ? '' : item.verifiedBy ? 'back-green-600 text-white' : 'back-orange-600 text-white'}`}>{index + 1}</td>
+					<td className='text-center text-no-wrap'>{FormatDate(item.orderAt)}</td>
+					<td className='text-center'>
 						{selectedId < 0 ?
 							<Link isQuiet variant="primary" onPress={(e) => {
-									setSelectedId(item.id);
+								setSelectedId(item.id);
 							}}><span className={"font-bold"}>{item.name}</span></Link>
 							:
 							item.name
 						}
 					</td>
-					<td>{item.branch?.name}</td>
-					<td>{item.finance?.shortName}</td>
-					<td style={{ whiteSpace: 'nowrap' }}>{item.unit?.type?.name}</td>
-					<td>{item.unit?.type?.merk?.name}</td>
-					<td>{selectedId >= 0 ? item.unit?.nopol || '---' : <Link isQuiet variant="primary"><RouteLink className="nopol" to={`/order/${item.id}`} state={{ from: pathname }}>{item.unit?.nopol || '---'}</RouteLink></Link>}</td>
-					<td align="center">{item.unit?.year}</td>
-					<td align="right">
+					<td className='text-left'>{item.branch?.name}</td>
+					<td className='text-left'>{item.finance?.shortName}</td>
+					<td className='text-left text-no-wrap'>{item.unit?.type?.name}</td>
+					<td className='text-left'>{item.unit?.type?.merk?.name}</td>
+					<td className='text-left'>{selectedId >= 0 ? item.unit?.nopol || '---' : <Link isQuiet variant="primary"><RouteLink className="nopol" to={`/order/${item.id}`} state={{ from: pathname }}>{item.unit?.nopol || '---'}</RouteLink></Link>}</td>
+					<td className='text-center'>{item.unit?.year}</td>
+					<td className='text-right'>
 						{item.isStnk ? '✔' : ''}{' '}
 						{FormatNumber(item.stnkPrice)}
 					</td>
-					<td align="right">{FormatNumber(item.btFinance)}</td>
-					<td align="right">{FormatNumber(item.btMatel)}</td>
+					<td className='text-right'>{FormatNumber(item.btFinance)}</td>
+					<td className='text-right'>{FormatNumber(item.btMatel)}</td>
 				</tr>
 			)}
 		</tbody>
 		<tfoot>
-			<tr>
-				<th colSpan={9} align="left">Total</th>
-				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
-				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btFinance, 0))}</th>
-				<th align="right">{FormatNumber(orders.reduce((acc, v) => acc + v.btMatel, 0))}</th>
+			<tr className='back-green-600 text-white'>
+				<th className='text-left' colSpan={9} align="left">Total</th>
+				<th className='text-right font-bold'>{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
+				<th className='text-right font-bold'>{FormatNumber(orders.reduce((acc, v) => acc + v.btFinance, 0))}</th>
+				<th className='text-right font-bold'>{FormatNumber(orders.reduce((acc, v) => acc + v.btMatel, 0))}</th>
 			</tr>
 		</tfoot>
 	</table>;
 }
-
-
