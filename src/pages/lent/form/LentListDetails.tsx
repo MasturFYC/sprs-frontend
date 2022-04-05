@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { dateParam } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
 
-import '../style.css'
 
 import {
 	Text, DialogContainer, Divider, Heading, Link, ActionButton,

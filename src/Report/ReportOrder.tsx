@@ -7,7 +7,6 @@ import { dateOnly, dateParam } from '../lib/interfaces';
 import Find from '../find.svg';
 import ComboBranch from '../component/combo-branch';
 import ComboWheel from '../component/combo-wheel';
-import './report.css'
 import { ReportOrderAllWaiting } from './ReportOrderAllWaiting';
 import { tOrderInvoiced } from './interface';
 import { TableContent } from "./TableContent";

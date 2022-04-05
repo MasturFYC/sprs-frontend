@@ -15,6 +15,7 @@ type ActionParam = {
 const Action = (prop: ActionParam) => {
 	const { orderId } = prop;
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
+	
 	let actions = useAsyncList<iAction>({
 		async load({ signal }) {
 			const headers = {
@@ -53,10 +54,10 @@ const Action = (prop: ActionParam) => {
 						<Flex direction={{ base: 'column', M: 'row' }} gap={'size-100'} >
 							<View flex width={{ base: 'auto', M: 'size-3400' }}>
 								<View>
-								<Link isQuiet variant={'primary'}
-									onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
-									{o.id === 0 ? 'Tindakan baru' : `${o.pic}`}
-								</Link>
+									<Link isQuiet variant={'primary'}
+										onPress={() => setSelectedId(selectedId === o.id ? -1 : o.id)}>
+										{o.id === 0 ? 'Tindakan baru' : `${o.pic}`}
+									</Link>
 								</View>
 								{o.id > 0 &&
 									<View>
@@ -67,12 +68,12 @@ const Action = (prop: ActionParam) => {
 							</View>
 							<View>
 								{o.id > 0 &&
-								<SimpleReactFileUpload imageId={o.id}
-									fileName={o.fileName}
-									onSuccess={(e) => {
-										actions.update(o.id, { ...actions.getItem(o.id), fileName: e })
-									}
-									} />
+									<SimpleReactFileUpload imageId={o.id}
+										fileName={o.fileName}
+										onSuccess={(e) => {
+											actions.update(o.id, { ...actions.getItem(o.id), fileName: e })
+										}
+										} />
 								}
 							</View>
 

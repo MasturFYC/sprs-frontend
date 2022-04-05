@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Flex, ProgressCircle, View } from '@adobe/react-spectrum';
 import axios from "../lib/axios-base";
-import './report.css'
 import { tOrderInvoiced } from './interface';
 import { TableContent } from "./TableContent";
 

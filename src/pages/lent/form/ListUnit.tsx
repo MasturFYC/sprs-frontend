@@ -2,7 +2,6 @@ import React from "react";
 import { Flex, View } from "@adobe/react-spectrum"
 import { lentUnit } from '../interfaces';
 import { FormatDate, FormatNumber } from "lib/format";
-import '../style.css'
 import { useUnitList } from "lib/useUnitList";
 
 type ListUnitProps = {

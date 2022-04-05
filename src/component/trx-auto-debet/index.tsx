@@ -79,7 +79,7 @@ const TrxAutoDebet = () => {
           {account.descriptions}
           {'. '}<i>{account.name}</i>
           {' merupakan '}<b>{account.typeName}</b>
-          {' yaitu '}{account.typeDesc},          
+          {' yaitu '}{account.typeDesc},
           {' '}<b>{account.groupName}</b>
           {' adalah '}{account.groupDesc}
         </View>
@@ -100,8 +100,8 @@ const TrxAutoDebet = () => {
         accountCashes={accountCashes.items}
         onCancle={() => navigate('/trx')}
         trx={trx}
-        onSave={(cashId, data) => saveTransaction(cashId, data) }
-        onSaveAndCreate={(id, data) => saveTransaction(id, data, true) }
+        onSave={(cashId, data) => saveTransaction(cashId, data)}
+        onSaveAndCreate={(id, data) => saveTransaction(id, data, true)}
       />
 
     </View >
@@ -112,7 +112,7 @@ const TrxAutoDebet = () => {
     const details = createTransactionDetails(cashId, p);
     const token = createTransactionToken(p);
     insertTrx(p, details, token).then(e => {
-      if(!createNewOne) {
+      if (!createNewOne) {
         navigate('/trx')
       }
     })
@@ -167,7 +167,7 @@ const TrxAutoDebet = () => {
     const index2 = account.option === 3 ? 1 : 2;
     const debt = account.option === 3 ? 0 : p.saldo;
     const cred = account.option === 3 ? p.saldo : 0;
- 
+
     details.push({
       id: index1,
       codeId: cashId, // Bank BCA

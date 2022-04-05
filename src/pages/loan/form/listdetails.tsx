@@ -4,7 +4,6 @@ import { View } from "@react-spectrum/view";
 import { FormatDate, FormatNumber } from "lib/format";
 import axios from 'lib/axios-base';
 
-import 'Report/report.css'
 import {
 	ComboBox, Text, DialogContainer, Divider, Flex, Heading, Item,
 	NumberField, TextField, Button, Link, ActionButton, Form

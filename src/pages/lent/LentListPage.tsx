@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { View } from "@react-spectrum/view";
 import { Flex, ProgressCircle } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "lib/format";
-import './style.css'
 import { useLentList } from "lib/useLent";
 
 
@@ -18,9 +17,9 @@ const LentListPage = () => {
 
   return (
     <View>
-      <table className="table-small width-100-percent collapse-none" cellPadding={4}>
+      <table className="table-small width-100-percent collapse-none" cellPadding={5}>
         <thead>
-          <tr className="border-b-1 border-t-1 bg-green text-white">
+          <tr className="bg-green text-white">
             <th className="text-center">NO</th>
             <th className="text-center text-no-wrap">TANGGAL</th>
             <th className="text-left">NAMA</th>
@@ -33,7 +32,7 @@ const LentListPage = () => {
           </tr>
         </thead>
         <tbody>
-          {lent.items.map((o, i) => <tr key={o.orderId} className="border-b-gray-50">
+          {lent.items.map((o, i) => <tr key={o.orderId}>
             <td className="text-center">{i + 1}</td>
             <td className="text-center text-no-wrap">{FormatDate(o.unit.orderAt)}</td>
             <td className="text-left"><Link to={`/lent/${o.orderId}`} state={{ from: pathname }}>{o.name}</Link></td>
@@ -47,12 +46,12 @@ const LentListPage = () => {
           )}
         </tbody>
         <tfoot>
-          <tr className="border-b-1">
-            <td className="border-t-1" colSpan={5}>Total: {lent.count()} items</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalDebt())}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalPiutang())}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalCred())}</td>
-            <td className="text-right border-t-1 font-bold">{FormatNumber(lent.totalSaldo())}</td>
+          <tr>
+            <th className="text-left" colSpan={5}>Total: {lent.count()} items</th>
+            <th className="text-right font-bold">{FormatNumber(lent.totalDebt())}</th>
+            <th className="text-right font-bold">{FormatNumber(lent.totalPiutang())}</th>
+            <th className="text-right font-bold">{FormatNumber(lent.totalCred())}</th>
+            <th className="text-right font-bold">{FormatNumber(lent.totalSaldo())}</th>
           </tr>
         </tfoot>
       </table>

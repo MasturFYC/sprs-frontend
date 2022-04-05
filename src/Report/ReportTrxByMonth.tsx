@@ -3,7 +3,6 @@ import React, { Fragment, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { FormatDate, FormatNumber } from '../lib/format';
-import './report.css'
 import MonthComponent from "../component/Bulan";
 import SearchIcon from '@spectrum-icons/workflow/Search'
 

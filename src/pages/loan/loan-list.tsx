@@ -2,13 +2,10 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { View } from "@react-spectrum/view";
 import { Flex, ProgressCircle } from "@adobe/react-spectrum";
-//import { useParams } from "react-router-dom";
 import { FormatDate, FormatNumber } from "lib/format";
 import { iLoan } from "lib/interfaces";
 
-import 'Report/report.css'
 import { useLoanList } from "lib/useLoan";
-// import { PrettyPrintJson } from "lib/utils";
 
 export interface LoanAll extends iLoan {
   trxID: number

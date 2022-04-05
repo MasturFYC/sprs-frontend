@@ -103,15 +103,15 @@ td {
 .text-white {
   color: #fff;
 }
-.back-orange-700 {
+.bg-orange-600 {
   background-color: orangered;
 }
 
-.back-purple-700 {
+.bg-purple-700 {
   background-color: rebeccapurple;
 }
 
-.back-indigo-700 {
+.bg-indigo-700 {
   background-color: rgb(0, 111, 130);
 }
 a {
@@ -147,7 +147,7 @@ a:hover {
   background-color: rgb(102, 167, 5);
 }
 
-.back-orange-600 {
+.bg-orange-600 {
   background-color: orangered;
 }
 

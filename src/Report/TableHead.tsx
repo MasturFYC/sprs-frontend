@@ -4,7 +4,7 @@ type TableHeadProps = {
   status: number;
 };
 export function TableHead({ status }: TableHeadProps) {
-  const backColor = ['back-orange-700', 'back-green-700', 'back-purple-700', 'back-indigo-700'];
+  const backColor = ['bg-orange-600', 'back-green-700', 'bg-purple-700', 'bg-indigo-700'];
   return (
     <thead>
       <tr className={`text-white ${backColor[status]}`}>

@@ -6,7 +6,6 @@ import { Button, Flex,
 } from "@adobe/react-spectrum";
 
 import { FormatDate, FormatNumber } from "lib/format";
-import '../Report/report.css'
 
 import { useFinanceList, useBranchList, useOrderList } from 'lib'
 const OrderForm = React.lazy(() => import('./Form'))
@@ -19,8 +18,7 @@ const Order = () => {
 
 	let finances = useFinanceList()
 	let branchs = useBranchList()
-	let { items: orders, isLoading, getIndex: orderGetIndex,
-		removeItem, getItem: orderGetItem, addNewItem: orderAddNewItem,
+	let { items: orders, isLoading,	removeItem, getItem: orderGetItem, addNewItem: orderAddNewItem,
 		updateItem: orderUpdateItem } = useOrderList(s, p)
 
 	return (
@@ -140,7 +138,7 @@ function TableOrder(props: TableOrderProp) {
 
 	return <table className="table-100 table-small collapse-none" cellPadding={4}>
 		<thead>
-			<tr className={'text-white back-purple-700'}>
+			<tr className={'text-white bg-purple-700'}>
 				<th>NO</th>
 				<th>TANGGAL</th>
 				<th className='text-center font-bold text-no-wrap'>NOMOR (SPK)</th>
@@ -157,7 +155,7 @@ function TableOrder(props: TableOrderProp) {
 		</thead>
 		<tbody style={{ color: selectedId < 0 ? 'black' : '#abc' }}>
 			{orders.map((item, index) => item.id === selectedId ?
-				<tr key={item.id} className={`back-purple-700'}`}>
+				<tr key={item.id} className={`bg-purple-700'}`}>
 					<td colSpan={13} style={{ color: selectedId >= 0 ? 'black' : 'auto' }}>
 						<React.Suspense fallback={<div>Please wait...</div>}>
 							<OrderForm order={item}
@@ -171,7 +169,7 @@ function TableOrder(props: TableOrderProp) {
 				:
 				<tr key={item.id} className={`border-b-gray-50 ${index % 2 === 1 ? 'tr-bg-green' : 'bg-white'}`}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
-					<td className={`text-center ${selectedId >= 0 ? '' : item.verifiedBy ? 'back-green-600 text-white' : 'back-orange-600 text-white'}`}>{index + 1}</td>
+					<td className={`text-center ${selectedId >= 0 ? '' : item.verifiedBy ? 'back-green-600 text-white' : 'bg-orange-600 text-white'}`}>{index + 1}</td>
 					<td className='text-center text-no-wrap'>{FormatDate(item.orderAt)}</td>
 					<td className='text-center'>
 						{selectedId < 0 ?
