@@ -41,7 +41,9 @@
   font-weight: 700;
 }
 
-
+.font-italic {
+  font-style: italic;
+}
 .text-right {
   text-align: right;
 }
@@ -112,6 +114,14 @@
   width: 100px;
 }
 
+.width-200 {
+  width: 200px;
+}
+
+.width-150 {
+  width: 150px;
+}
+
 .color-green {
   color: green;
 }
@@ -165,7 +175,7 @@ td {
   vertical-align: middle;
 }
 
-.tr-bg-green{
+.bg-green-50 {
   background-color: rgb(244, 255, 228);
  }
 
@@ -200,18 +210,18 @@ td {
   white-space: nowrap;
 }
 
+.table-small2 {
+  font-size: 85%;
+}
+
 .table-small {
   font-size: 85%;
   border: 1px solid #ececec;
 }
+
 .table-small td {
   border-left: 1px solid #ececec;
 }
-
-.tr-hover:hover {
-  background-color: rgb(102, 167, 5);
-}
-
 
 .padding-x-6 {
   padding-left: 3px;
@@ -235,18 +245,8 @@ td {
 a {
   text-decoration: none;
 }
-
 a:hover {
   text-decoration: underline;
-}
-
-.tr-hover:hover {
-  color: #fff;
-}
-
-
-.tr-hover:hover a {
-  color: #fff;
 }
 
 .width-100-percent {
@@ -309,12 +309,27 @@ td {
   vertical-align: middle;
 }
 
-.tr-bg-green{
+.bg-white {
+  background-color: #fff;
+}
+
+.bg-green-50{
   background-color: rgb(244, 255, 228);
  }
 
-.bg-white {
+ .bg-white {
   background-color: #fff;
+}
+
+.bg-hover:hover {
+  color: #fff;
+  background-color: rgb(102, 167, 5) !important;
+}
+
+
+.bg-hover:hover .spectrum-Link--primary,
+.bg-hover:hover a {
+  color:#fff !important;
 }
 
 .border-b-gray-50 {
@@ -407,14 +422,6 @@ td {
 }
 
 
-/* table green */
-
-
-.tr-hover:hover {
-  background-color: rgb(102, 167, 5);
-}
-
-
 .padding-x-6 {
   padding-left: 3px;
   padding-right: 3px;
@@ -436,23 +443,6 @@ td {
   background-color: rgb(0, 111, 130);
 }
 
-/* a {
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-} */
-
-.tr-hover:hover {
-  color: #fff;
-}
-
-
-.tr-hover:hover a {
-  color: #fff;
-}
-
 .width-100-percent {
   width: 100%;
 }
@@ -465,7 +455,7 @@ a:hover {
   width: 80px;
 }
 
-.bg-green {
+.bg-green-600 {
   background-color: rgb(102, 167, 5);
 }
 
@@ -473,6 +463,10 @@ a:hover {
   background-color: orangered;
 }
 
-.back-green-600 {
+.bg-green-700 {
   background-color: green;
+}
+
+.color-gray-700 {
+  color: #777;
 }

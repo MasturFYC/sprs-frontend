@@ -44,7 +44,7 @@ export function useAccountCodeList(typeId: number): [
     }
 
     return () => { isLoaded = true; };
-  }, [count]);
+  }, [count, typeId]);
 
   return [list,
     isLoading,

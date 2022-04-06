@@ -15,7 +15,7 @@ export function TableContent(status: number, orders: tOrderInvoiced[]): JSX.Elem
     <table className={'table-100 table-small collapse-none'} cellPadding={4}>
       <TableHead status={status} />
       <tbody>
-        {orders.filter(f => f.status === status).map((o, i) => <tr key={o.id} className={`tr-hover border-b-gray-50 ${i % 2 === 1 ? 'tr-bg-green' : 'bg-white'}`}>
+        {orders.filter(f => f.status === status).map((o, i) => <tr key={o.id} className={`border-b-gray-50 ${i % 2 === 1 ? 'bg-green-50' : 'bg-white'} bg-hover`}>
           <td className='text-center'>{i + 1}</td>
           <td className='text-center'>{FormatDate(o.orderAt, '2-digit')}</td>
           <td className='text-no-wrap'><Link to={`/order/${o.id}`} state={{ from: pathname }}>{o.name}</Link></td>

@@ -29,7 +29,7 @@ export function useAccountTypeList(groupId: number) {
     }
 
     return () => { isLoaded = true; };
-  }, []);
+  }, [groupId]);
 
   return {
     items: list,

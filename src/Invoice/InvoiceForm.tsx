@@ -95,11 +95,9 @@ const InvoiceForm = () => {
 
 	const isDateValid = React.useMemo(
 		() => {
-			const today = new Date(); //dateParam(null).substring(0, 10))
-			const tomorrow = new Date(today)
-			tomorrow.setDate(tomorrow.getDate() + 0.1)
-			const invDate = new Date(invoice.invoiceAt)
-			return invDate < tomorrow
+			const startDate = new Date(invoice.invoiceAt)
+			const endDate = new Date(invoice.dueAt)
+			return endDate >= startDate
 		},
 		[invoice]
 	)

@@ -39,11 +39,11 @@ export function useLentList() {
 
 	return {
 		items: list,
-		count: () => list.length,
-		totalDebt: () => list.reduce((t, c) => t + c.payment.debt, 0),
-		totalPiutang: () => list.reduce((t, c) => t + c.payment.piutang, 0),
-		totalCred: () => list.reduce((t, c) => t + c.payment.cred, 0),
-		totalSaldo: () => list.reduce((t, c) => t + c.payment.saldo, 0),
+		count: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').length,
+		totalDebt: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.debt, 0),
+		totalPiutang: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.piutang, 0),
+		totalCred: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.cred, 0),
+		totalSaldo: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.saldo, 0),
 		isLoading: isLoading,
 		getItem: (id: number) => getItem(id)
 	};

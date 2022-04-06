@@ -82,7 +82,7 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 
 			<table className="table-small collapse-none" cellPadding={5}>
 				<thead>
-					<tr className="border-b-1 border-t-1 bg-green text-white">
+					<tr className="border-b-1 border-t-1 bg-green-600 text-white">
 						<th className="text-center">NO</th>
 						<th className="text-center">TANGGAL</th>
 						<th className="text-left">DESKRIPSI</th>

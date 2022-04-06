@@ -1,6 +1,6 @@
 import React, { FormEvent } from 'react';
-import { iType, iWheel } from '../../lib/interfaces'
-import { Button, Flex, Picker, TextField, useAsyncList, View } from '@adobe/react-spectrum';
+import { iType } from '../../lib/interfaces'
+import { Button, Flex, Picker, TextField, View } from '@adobe/react-spectrum';
 import axios from '../../lib/axios-base';
 import { Item } from "@react-spectrum/combobox";
 import { useMerkList } from 'lib/useMerk';

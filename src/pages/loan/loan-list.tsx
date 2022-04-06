@@ -36,7 +36,7 @@ const LoanListPage = () => {
     <View>
       <table className="table-small width-100-percent collapse-none" cellPadding={4}>
         <thead>
-          <tr className="border-b-1 border-t-1 bg-green text-white">
+          <tr className="border-b-1 border-t-1 bg-green-600 text-white">
             <th className="text-center">NO</th>
             <th className="text-center text-no-wrap">TANGGAL</th>
             <th className="text-left">NAMA</th>

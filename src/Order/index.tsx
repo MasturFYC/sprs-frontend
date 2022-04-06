@@ -167,9 +167,9 @@ function TableOrder(props: TableOrderProp) {
 					</td>
 				</tr>
 				:
-				<tr key={item.id} className={`border-b-gray-50 ${index % 2 === 1 ? 'tr-bg-green' : 'bg-white'}`}
+				<tr key={item.id} className={`border-b-gray-50 ${index % 2 === 1 ? 'bg-green-50' : 'bg-white'} bg-hover`}
 					title={`${item.unit?.warehouse?.name} - ${item.branch?.name} `}>
-					<td className={`text-center ${selectedId >= 0 ? '' : item.verifiedBy ? 'back-green-600 text-white' : 'bg-orange-600 text-white'}`}>{index + 1}</td>
+					<td className={`text-center ${selectedId >= 0 ? '' : item.verifiedBy ? 'bg-green-700 text-white' : 'bg-orange-600 text-white'}`}>{index + 1}</td>
 					<td className='text-center text-no-wrap'>{FormatDate(item.orderAt)}</td>
 					<td className='text-center'>
 						{selectedId < 0 ?
@@ -196,7 +196,7 @@ function TableOrder(props: TableOrderProp) {
 			)}
 		</tbody>
 		<tfoot>
-			<tr className='back-green-600 text-white'>
+			<tr className='bg-green-700 text-white'>
 				<th className='text-left' colSpan={9} align="left">Total</th>
 				<th className='text-right font-bold'>{FormatNumber(orders.reduce((acc, v) => acc + v.stnkPrice, 0))}</th>
 				<th className='text-right font-bold'>{FormatNumber(orders.reduce((acc, v) => acc + v.btFinance, 0))}</th>

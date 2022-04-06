@@ -35,7 +35,7 @@ const ListUnit = ({ onSelectionChange }: ListUnitProps): JSX.Element => {
       <Flex direction={'column'}>
         <table cellPadding={4} className="table-small width-100-percent collapse-none">
           <thead>
-            <tr className="border-b-1 border-t-1 bg-green text-white">{cols.map(c => <th key={c.id} className={c.className}>{c.name}</th>)}
+            <tr className="border-b-1 border-t-1 bg-green-600 text-white">{cols.map(c => <th key={c.id} className={c.className}>{c.name}</th>)}
             </tr>
           </thead>
           <tbody>

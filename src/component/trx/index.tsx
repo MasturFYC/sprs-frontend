@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 //import { useNavigate } from 'react-router-dom';
 import axios from "../../lib/axios-base";
-import { iAccCodeType, iTrx, iAccGroup } from 'lib/interfaces'
+import { iAccCodeType, iTrx } from 'lib/interfaces'
 import { View } from "@react-spectrum/view";
 import { Button, Divider, Flex, Link, ProgressCircle, SearchField, useAsyncList } from "@adobe/react-spectrum";
 import { initTrx } from './form'
