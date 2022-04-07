@@ -100,7 +100,7 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 		const xData = JSON.stringify(warehouse)
 
 		await axios
-			.put(`/warehouses/${warehouse.id}/`, xData, { headers: headers })
+			.put(`/warehouse/${warehouse.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: warehouse })
@@ -119,7 +119,7 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 		const xData = JSON.stringify(warehouse)
 
 		await axios
-			.post(`/warehouses/`, xData, { headers: headers })
+			.post(`/warehouse`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: data })
@@ -137,7 +137,7 @@ const WarehouseForm = (props: WarehouseFormOptions) => {
 		}
 
 		await axios
-			.delete(`/warehouses/${warehouse.id}/`, { headers: headers })
+			.delete(`/warehouse/${warehouse.id}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove', data: warehouse })

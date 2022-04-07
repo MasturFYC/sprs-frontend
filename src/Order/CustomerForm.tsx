@@ -43,7 +43,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 			}
 
 			let res = await axios
-				.get(`/customers/${id}`, { headers: headers })
+				.get(`/customer/${id}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
@@ -53,9 +53,11 @@ const CustomerForm = (props: CustomerFormOptions) => {
 			return res ? res : initCustomer
 		}
 
-		if (!isLoaded && orderId > 0) {
+		if (orderId > 0) {
 			load(orderId).then(res => {
-				setData(res)
+				if (!isLoaded) {
+					setData(res)
+				}
 			})
 		}
 
@@ -153,7 +155,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.put(`/customers/${p.orderId}`, xData, { headers: headers })
+			.put(`/customer/${p.orderId}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
@@ -173,7 +175,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.post(`/customers`, xData, { headers: headers })
+			.post(`/customer`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				changeData("orderId", orderId)
@@ -193,7 +195,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		}
 
 		await axios
-			.delete(`/customers/${p.orderId}`, { headers: headers })
+			.delete(`/customer/${p.orderId}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)

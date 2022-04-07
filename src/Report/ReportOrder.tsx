@@ -63,24 +63,26 @@ const ReportOrder = () => {
       return res ? res : []
     }
 
-    if (!isLoaded) {
-      const month = pmonth ? +pmonth : new Date().getMonth() + 1
-      const year = pyear ? +pyear : new Date().getFullYear()
-      //setIsOrderLoading(true)
-      setMonthId(month)
-      setYearId(year)
-      setFinanceId(pfinance ? +pfinance : 0)
-      setBranchId(pbranch ? +pbranch : 0)
-      setTypeId(ptype ? +ptype : 0)
 
-      if (pmonth && pyear && pbranch && ptype) {
-        load().then(data => {
+    const month = pmonth ? +pmonth : new Date().getMonth() + 1
+    const year = pyear ? +pyear : new Date().getFullYear()
+    //setIsOrderLoading(true)
+    setMonthId(month)
+    setYearId(year)
+    setFinanceId(pfinance ? +pfinance : 0)
+    setBranchId(pbranch ? +pbranch : 0)
+    setTypeId(ptype ? +ptype : 0)
+
+    if (pmonth && pyear && pbranch && ptype) {
+      load().then(data => {
+        if (!isLoaded) {
           setOrders(data)
           //setIsOrderLoading(false)
           setIsDirty(false)
-        })
-      }
+        }
+      })
     }
+
 
     return () => { isLoaded = true }
 

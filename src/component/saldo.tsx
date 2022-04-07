@@ -18,7 +18,7 @@ function RemainSaldo() {
 	const [showDetail, setShowDetail] = useState<boolean>(false);
 	const [isInterval, setIsInterval] = useState<boolean>(true);
 	//const sortType: number[] = [3, 1, 2];
-	const { data, error } = useSWR<iSaldo[]>('/saldo/', fetcher, {
+	const { data, error } = useSWR<iSaldo[]>('/saldo', fetcher, {
 		refreshInterval: 0, //isInterval ? 3000 : 0,
 		revalidateOnFocus: isInterval ? false : true,
 		revalidateOnMount: isInterval ? true : false,

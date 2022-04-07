@@ -287,7 +287,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		console.log(p)
 
 		await axios
-			.put(`/units/${p.orderId}/`, xData, { headers: headers })
+			.put(`/unit/${p.orderId}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', dataUnit: p })
@@ -308,7 +308,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		const xData = JSON.stringify(p)
 
 		await axios
-			.post(`/units/`, xData, { headers: headers })
+			.post(`/unit`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', dataUnit: p })
@@ -327,7 +327,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		}
 
 		await axios
-			.delete(`/units/${p.orderId}/`, { headers: headers })
+			.delete(`/unit/${p.orderId}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove' })

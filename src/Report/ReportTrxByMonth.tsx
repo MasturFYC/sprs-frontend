@@ -56,8 +56,7 @@ const ReportTrxtByMonth = () => {
 				'Content-Type': 'application/json'
 			}
 			const res = await axios
-				.get(`/report/trx/month/${month}/${year}/`, { headers: headers })
-				//.get(`/report/trx/month/${month}/${month2}/${year}/`, { headers: headers })
+				.get(`/report/trx/month/${month}/${year}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
@@ -65,24 +64,18 @@ const ReportTrxtByMonth = () => {
 				})
 
 
-			setTrxs(res ? res : []);
-			setLoaded(true);
-			setMonthId(month)
-			setYearId(year)
-
+			return res
 
 		}
 
-		if (!isLoaded && m && y) {
-			if (+m === 0 || +y === 0) {
-				const t = new Date();
-				const m = t.getMonth() + 1;
-				const y = t.getFullYear();
-				loadData(m, y);
-			} else {
-				loadData(+m, +y);
+		loadData(m ? +m : new Date().getMonth() + 1, y ? +y : new Date().getFullYear()).then(res => {
+			if (!isLoaded) {
+				setTrxs(res ? res : []);
+				setLoaded(true);
+				setMonthId(m ? +m : new Date().getMonth() + 1)
+				setYearId(y ? +y : new Date().getFullYear())
 			}
-		}
+		});
 
 		return () => { isLoaded = true }
 
@@ -112,9 +105,6 @@ const ReportTrxtByMonth = () => {
 					}}
 				/>
 				<ActionButton width={'size-1200'} onPress={() => {
-					//setLoaded(false)
-					//setTrxs([])
-					//navigate(`/report/trx/${monthId}/${monthTo}/${yearId}`, {replace: true})
 					navigate(`/report/trx/${monthId}/${yearId}`)
 				}}>
 					<SearchIcon size="S" />
@@ -185,7 +175,7 @@ function RowDetail(props: RowDetailProps) {
 			{isSelected &&
 				<tr className='border-t-gray-50'>
 					<td>{' '}</td>
-					<td colSpan={4} style={{paddingLeft: 0, paddingRight: 0}}>
+					<td colSpan={4} style={{ paddingLeft: 0, paddingRight: 0 }}>
 						<DetailByType types={data.types} />
 					</td>
 				</tr>}

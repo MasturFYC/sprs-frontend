@@ -28,21 +28,22 @@ export function useAccountCodeList(typeId: number): [
         'Content-Type': 'application/json'
       };
 
-      await axios
+     let res = await axios
         .get(`/acc-code/group-type/${typeId}`, { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
-        .then(data => {
-          setList(data ? data : [])
-          setIsLoading(false)
-        });
-    }
+        .then(data => data);
 
-    if (!isLoaded) {
-      setIsLoading(true)
-      load();
+      return res ? res : [];
     }
-
+    setIsLoading(true)
+    load().then(data => {
+      if (!isLoaded) {
+        setList(data)
+        setIsLoading(false)
+      }
+    });
+    
     return () => { isLoaded = true; };
   }, [count, typeId]);
 

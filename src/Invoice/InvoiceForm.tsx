@@ -104,27 +104,27 @@ const InvoiceForm = () => {
 
 	let accountCashes = useAccountCash()
 
-	async function loadInvoice(id?: string): Promise<InvoiceById> {
-		const headers = {
-			Accept: 'application/json',
-			'Content-Type': 'application/json'
-		}
-
-		let res = await axios
-			.get(`/invoices/${id}/`, { headers: headers })
-			.then(response => response.data)
-			.then(data => data)
-			.catch(error => {
-				console.log(error)
-			})
-
-		return res;
-	}
-
-
+	
 	useEffect(() => {
 		let isLoaded = false;
 
+		async function loadInvoice(id?: string): Promise<InvoiceById> {
+			const headers = {
+				Accept: 'application/json',
+				'Content-Type': 'application/json'
+			}
+
+			let res = await axios
+				.get(`/invoice/item/${id}`, { headers: headers })
+				.then(response => response.data)
+				.then(data => data)
+				.catch(error => {
+					console.log(error)
+				})
+
+			return res ? res : { ...initInvoice, financeId: financeId ? +financeId : 0 };
+		}
+		
 		async function getFinance(id?: string): Promise<iFinance> {
 			const headers = {
 				Accept: 'application/json',
@@ -132,30 +132,32 @@ const InvoiceForm = () => {
 			}
 
 			let res = await axios
-				.get(`/finances/${id}/`, { headers: headers })
+				.get(`/finance/${id}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
 					console.log(error)
 				})
 
-			return res;
+			return res ? res : {};
 		}
 
-		if (!isLoaded) {
 			setShowOrderList(false)
 			getFinance(financeId).then(e => {
-				setFinance(e)
+				if (!isLoaded) {
+					setFinance(e)
+				}
 			})
+
 			if (invoiceId && invoiceId !== '0') {
 				loadInvoice(invoiceId).then(data => {
+					if (!isLoaded) {
 					setInvoice(data)
+					}
 				})
-			} else {
-				setInvoice({ ...initInvoice, financeId: financeId ? +financeId : 0 })
 			}
 
-		}
+		
 
 		return () => { isLoaded = true }
 	}, [financeId, invoiceId])
@@ -383,7 +385,7 @@ const InvoiceForm = () => {
 		}
 
 		const res = await axios
-			.delete(`/invoices/${id}/`, { headers: headers })
+			.delete(`/invoice/${id}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => data ? true : false)
 			.catch(error => {
@@ -603,7 +605,7 @@ const InvoiceForm = () => {
 		const data = createInvoice(p)
 
 		const res = await axios
-			.post(`/invoices/`, data, { headers: headers })
+			.post(`/invoice`, data, { headers: headers })
 			.then(response => response.data)
 			.then(data => data ? true : false)
 			.catch(error => {
@@ -622,7 +624,7 @@ const InvoiceForm = () => {
 		const data = createInvoice(p)
 
 		const res = await axios
-			.put(`/invoices/${id}/`, data, { headers: headers })
+			.put(`/invoice/${id}`, data, { headers: headers })
 			.then(response => response.data)
 			.then(data => data ? true : false)
 			.catch(error => {

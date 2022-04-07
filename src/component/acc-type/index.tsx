@@ -114,8 +114,9 @@ const AccType = () => {
 			.post(`/acc-type`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
-				accs.insert(p)
-				accs.remove(0)
+				//accs.insert(p)
+				accs.update(0, p)
+				//accs.remove(0)
 				setSelectedId(-1)
 			})
 			.catch(error => {

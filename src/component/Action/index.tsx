@@ -23,7 +23,7 @@ const Action = (prop: ActionParam) => {
 			}
 
 			let res = await axios
-				.get(`/actions/${orderId}/`, { headers: headers })
+				.get(`/action/order/${orderId}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => {
 					return data ? data : []

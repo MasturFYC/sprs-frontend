@@ -20,7 +20,7 @@ export function useLentList() {
 			};
 
 			await axios
-				.get("/lents", { headers: headers })
+				.get("/lent", { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))
 				.then(data => {
@@ -98,7 +98,7 @@ export function useLent(orderId: string) {
 			};
 
 			let res = await axios
-				.get(`/lents/${orderId}`, { headers: headers })
+				.get(`/lent/item/${orderId}`, { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))
 				.then(data => data);
@@ -106,14 +106,14 @@ export function useLent(orderId: string) {
 			return res ? res : initLent
 		}
 
-		if (!isLoaded) {
 			setIsLoading(true)
 			load()
 				.then(data => {
+					if(!isLoaded) {
 					setLent(data)
 					setIsLoading(false)
+					}
 				});
-		}
 
 		return () => { isLoaded = true; };
 	}, [orderId]);

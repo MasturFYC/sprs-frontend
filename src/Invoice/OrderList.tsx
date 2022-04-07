@@ -18,7 +18,7 @@ const OrderList = ({ financeId, onFinish, onCancel, invoiceId }: OrderListProps)
       }
 
       let res = await axios
-        .get(`/invoices/${financeId}/${invoiceId}/`, { headers: headers })
+        .get(`/invoice/order/${financeId}/${invoiceId}`, { headers: headers })
         .then(response => response.data)
         .then(data => {
           return data

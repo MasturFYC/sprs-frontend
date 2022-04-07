@@ -180,7 +180,7 @@ export function FormPayment({ name, trxData, onCancel, onUpdate, onInsert, onDel
 		});
 
 		await axios
-			.post(`/lents/payment/${trx.id}`, xData, { headers: headers })
+			.post(`/lent/payment/${trx.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false);

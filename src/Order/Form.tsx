@@ -106,7 +106,7 @@ const OrderForm = (props: OrderFormOptions) => {
 			}
 
 			let res = await axios
-				.get(`/orders/name/seq`, { headers: headers })
+				.get(`/order/name/seq`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
 				.catch(error => {
@@ -116,14 +116,17 @@ const OrderForm = (props: OrderFormOptions) => {
 			return await res;
 		}
 
+		if (order.id === 0) {
+			getOrderName().then(data => {
+				if (isLoaded) {
+				const nm = ('' + data.id).padStart(9, "0")
+				setData({ ...order, name: nm });
+				}
+			})
+		}
+
 		if (isLoaded) {
 			setData(order);
-			if (order.id === 0) {
-				getOrderName().then(data => {
-					const nm = ('' + data.id).padStart(9, "0")
-					setData({ ...order, name: nm });
-				})
-			}
 		}
 
 		return () => { isLoaded = false }
@@ -511,7 +514,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		//console.log(p)
 
 		await axios
-			.put(`/orders/${p.id}`, xData, { headers: headers })
+			.put(`/order/${p.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: p })
@@ -533,7 +536,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		//console.log(p)
 
 		await axios
-			.post(`/orders`, xData, { headers: headers })
+			.post(`/order`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setData(data)
@@ -554,7 +557,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		}
 
 		await axios
-			.delete(`/orders/${p}`, { headers: headers })
+			.delete(`/order/${p}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove' })

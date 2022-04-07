@@ -57,7 +57,7 @@ const TaskForm = (props: TaskFormOptions) => {
       }
 
       let res = await axios
-        .get(`/tasks/${id}`, { headers: headers })
+        .get(`/task/${id}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
         .catch(error => {
@@ -66,12 +66,13 @@ const TaskForm = (props: TaskFormOptions) => {
 
       return res ? res : initTask
     }
-    if (!isLoaded) {
-      load(orderId).then(res => {
+
+    load(orderId).then(res => {
+      if (!isLoaded) {
         setData(res)
         setOldData(res)
-      })
-    }
+      }
+    })
 
     return () => { isLoaded = true }
 
@@ -211,7 +212,7 @@ const TaskForm = (props: TaskFormOptions) => {
     const xData = JSON.stringify(p)
 
     await axios
-      .put(`/tasks/${p.orderId}`, xData, { headers: headers })
+      .put(`/task/${p.orderId}`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         //callback({ method: 'save', task: p })
@@ -232,7 +233,7 @@ const TaskForm = (props: TaskFormOptions) => {
     const xData = JSON.stringify(p)
 
     await axios
-      .post(`/tasks`, xData, { headers: headers })
+      .post(`/task`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         //callback({ method: 'save', task: p })
@@ -253,7 +254,7 @@ const TaskForm = (props: TaskFormOptions) => {
     }
 
     await axios
-      .delete(`/tasks/${p.orderId}`, { headers: headers })
+      .delete(`/task/${p.orderId}`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         //callback({ method: 'remove' })

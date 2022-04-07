@@ -18,6 +18,17 @@ interface accountInfo extends iAccCode {
   groupDesc?: string
 }
 
+const initAccountInfo: accountInfo = {
+  typeName: '',
+  groupName: '',
+  id: 0,
+  name: '',
+  typeId: 0,
+  isActive: false,
+  isAutoDebet: false,
+  option: 0
+}
+
 export const initTrx: iTrx = {
   id: 0,
   refId: 0,
@@ -45,20 +56,23 @@ const TrxAutoDebet = () => {
       const headers = {
         'Content-Type': 'application/json'
       }
-      await axios
-        .get(`/acc-code/${id}`, { headers: headers })
+      let res = await axios
+        .get(`/acc-code/item/${id}`, { headers: headers })
         .then(response => response.data)
-        .then(data => {
-          setAccount(data)
-        })
+        .then(data => data)
         .catch(error => {
           console.log(error)
-          return []
         })
+
+      return res ? res : initAccountInfo
     }
 
-    if (!isLoaded && trxId) {
-      loadAccount(trxId)
+    if (trxId) {
+      loadAccount(trxId).then(data => {
+        if (!isLoaded) {
+          setAccount(data)
+        }
+      })
     }
     return () => { isLoaded = true }
   }, [trxId])
@@ -144,8 +158,9 @@ const TrxAutoDebet = () => {
       token: token
     })
 
+
     let res = await axios
-      .post(`/trx/`, xData, { headers: headers })
+      .post(`/trx`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         if (data) {

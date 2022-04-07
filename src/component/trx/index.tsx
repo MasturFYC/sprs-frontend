@@ -49,7 +49,7 @@ const Trx = () => {
   useEffect(() => {
     const onScroll = function () {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight-1) {
-        console.log("you're at the bottom of the page")
+        //console.log("you're at the bottom of the page")
         setLastPage(prev => (prev + 10))
         setBottom(false)
       }
@@ -195,7 +195,6 @@ const Trx = () => {
 
   function formResponse(params: { method: string, data?: iTrx }) {
     const { method, data } = params
-    //navigate('/trx')
 
     switch (method) {
       case 'save':
@@ -213,7 +212,6 @@ const Trx = () => {
         trx.remove(selectedId);
         break;
       case 'cancel':
-        //navigate('/trx/-1')
         if (selectedId === 0) {
           trx.remove(0)
         }
@@ -228,7 +226,6 @@ const Trx = () => {
       trx.insert(initTrx);
     }
     setSelectedId(0)
-    //navigate('/trx/0')
   }
 }
 

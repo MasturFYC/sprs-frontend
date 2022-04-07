@@ -80,7 +80,7 @@ const MerkForm = (props: MerkFormOptions) => {
         const xData = JSON.stringify(merk)
 
         await axios
-            .put(`/merks/${merk.id}/`, xData, { headers: headers })
+            .put(`/merk/${merk.id}`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 callback({ method: 'save', data: merk })
@@ -99,7 +99,7 @@ const MerkForm = (props: MerkFormOptions) => {
         const xData = JSON.stringify(merk)
 
         await axios
-            .post(`/merks/`, xData, { headers: headers })
+            .post(`/merk`, xData, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 callback({ method: 'save', data: data })
@@ -117,7 +117,7 @@ const MerkForm = (props: MerkFormOptions) => {
         }
 
         await axios
-            .delete(`/merks/${merk.id}/`, { headers: headers })
+            .delete(`/merk/${merk.id}`, { headers: headers })
             .then(response => response.data)
             .then(data => {
                 callback({ method: 'remove', data: data })

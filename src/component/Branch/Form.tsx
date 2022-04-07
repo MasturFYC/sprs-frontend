@@ -172,7 +172,7 @@ const BranchForm = (props: BranchFormOptions) => {
 		const xData = JSON.stringify(branch)
 
 		await axios
-			.put(`/branchs/${branch.id}`, xData, { headers: headers })
+			.put(`/branch/${branch.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: branch })
@@ -197,7 +197,7 @@ const BranchForm = (props: BranchFormOptions) => {
 		const xData = JSON.stringify(branch)
 
 		await axios
-			.post(`/branchs`, xData, { headers: headers })
+			.post(`/branch`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: data })
@@ -215,7 +215,7 @@ const BranchForm = (props: BranchFormOptions) => {
 		}
 
 		await axios
-			.delete(`/branchs/${branch.id}`, { headers: headers })
+			.delete(`/branch/${branch.id}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove', data: branch })

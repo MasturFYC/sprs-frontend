@@ -163,7 +163,7 @@ const TrxForm = (props: TrxFormOptions) => {
     });
 
     await axios
-      .put(`/trx/${trx.id}/`, xData, { headers: headers })
+      .put(`/trx/${trx.id}`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
 
@@ -197,7 +197,7 @@ const TrxForm = (props: TrxFormOptions) => {
     });
 
     await axios
-      .post(`/trx/`, xData, { headers: headers })
+      .post(`/trx`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         setData(o => ({ ...o, id: data.id }))
@@ -223,7 +223,7 @@ const TrxForm = (props: TrxFormOptions) => {
     }
 
     await axios
-      .delete(`/trx/${p.id}/`, { headers: headers })
+      .delete(`/trx/${p.id}`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         callback({ method: 'remove', data: p })

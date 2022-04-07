@@ -140,7 +140,7 @@ const TypeForm = (props: TypeFormOptions) => {
 		const xData = JSON.stringify(vehicle)
 
 		await axios
-			.put(`/types/${vehicle.id}`, xData, { headers: headers })
+			.put(`/type/${vehicle.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: vehicle })
@@ -159,7 +159,7 @@ const TypeForm = (props: TypeFormOptions) => {
 		const xData = JSON.stringify(vehicel)
 
 		await axios
-			.post(`/types`, xData, { headers: headers })
+			.post(`/type`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: data })
@@ -177,7 +177,7 @@ const TypeForm = (props: TypeFormOptions) => {
 		}
 
 		await axios
-			.delete(`/types/${vehicel.id}`, { headers: headers })
+			.delete(`/type/${vehicel.id}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove', data: data })

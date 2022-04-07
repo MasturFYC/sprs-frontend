@@ -374,7 +374,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 
 
 		await axios
-			.put(`/loans/${p.id}`, xData, { headers: headers })
+			.put(`/loan/${p.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
@@ -434,7 +434,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 		})
 
 		await axios
-			.post(`/loans`, xData, { headers: headers })
+			.post(`/loan`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
@@ -462,7 +462,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 		}
 
 		await axios
-			.delete(`/loans/${p}`, { headers: headers })
+			.delete(`/loan/${p}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)

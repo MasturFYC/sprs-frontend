@@ -1,8 +1,6 @@
 import React from "react";
 import { ComboBox, Item } from "@react-spectrum/combobox";
-import { iWheel } from "../lib/interfaces";
-import axios from "../lib/axios-base";
-import { useAsyncList } from "@react-stately/data";
+import { useWheelList } from "lib/useWheel";
 
 type LabelPosition = 'top' | 'side';
 type Alignment = 'start' | 'end';
@@ -23,26 +21,7 @@ export default function ComboWheel({
   labelAlign
 }: ComboWheelProps) {
 
-  let wheel = useAsyncList<iWheel>({
-    async load({ signal }) {
-      const headers = {
-        'Content-Type': 'application/json'
-      }
-
-      let res = await axios
-        .get("/wheels", { headers: headers })
-        .then(response => response.data)
-        .then(data => {
-          return data ? data : []
-        })
-        .catch(error => {
-          console.log(error)
-        })
-
-      return { items: res }
-    },
-    getKey: (item: iWheel) => item.id
-  })
+  let wheel = useWheelList();
 
   return <ComboBox
     flex
@@ -50,7 +29,6 @@ export default function ComboWheel({
     label={label}
     minWidth={'size-1000'}
     aria-label="combo-wheel"
-    loadingState={wheel.loadingState}    
     labelPosition={labelPosition || 'top'}
     labelAlign={labelAlign}
     menuTrigger='focus'

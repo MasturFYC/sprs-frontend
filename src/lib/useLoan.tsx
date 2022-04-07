@@ -55,7 +55,7 @@ export function useLoanList() {
 			};
 
 			await axios
-				.get("/loans", { headers: headers })
+				.get("/loan", { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))
 				.then(data => {
@@ -150,23 +150,26 @@ export function useLoan(loanId: number) {
 			};
 
 			let res = await axios
-				.get(`/loans/${loanId}`, { headers: headers })
+				.get(`/loan/${loanId}`, { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))
-				.then(data => data );
+				.then(data => data);
 
 			return res ? res : initLoanItem;
 		}
-		if (!isLoaded) {
-			setIsLoading(true)
-			load().then(data => {
+
+		setIsLoading(true)
+
+		load().then(data => {
+			if (!isLoaded) {
 				setLoan(data)
 				setIsLoading(false)
-			})
-		}
+			}
+		});
+
 		return () => { isLoaded = true; };
 	}, [loanId]);
-	const pokok = () =>  loan.trxs.reduce((t, c) => t + c.detail.cred, 0);
+	const pokok = () => loan.trxs.reduce((t, c) => t + c.detail.cred, 0);
 	const payment = () => loan.trxs.reduce((t, c) => t + c.detail.debt, 0);
 	return {
 		item: loan,

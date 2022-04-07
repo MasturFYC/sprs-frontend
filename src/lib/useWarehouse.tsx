@@ -13,20 +13,21 @@ export function useWarehouseList() {
         'Content-Type': 'application/json'
       };
 
-      await axios
-        .get("/warehouses/", { headers: headers })
+      let res = await axios
+        .get("/warehouse", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
-        .then(data => {
-          setList(data ? data : [])
-          setIsLoading(false)
-        });
-    }
+        .then(data => data);
 
-    if (!isLoaded) {
-      setIsLoading(true)
-      load();
+        return res ? res : [];
     }
+    setIsLoading(true)
+    load().then(data => {
+      if (!isLoaded) {
+        setList(data)
+        setIsLoading(false)
+      }
+    });
 
     return () => { isLoaded = true; };
   }, []);

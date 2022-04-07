@@ -42,11 +42,13 @@ const AddressForm = (props: AddressFormOptions) => {
 
 			return res ? res : initAddress
 		}
-		if (!isLoaded) {
-			load(orderId).then(res => {
+
+		load(orderId).then(res => {
+			if (!isLoaded) {
 				setData(res)
-			})
-		}
+			}
+		})
+
 
 		return () => { isLoaded = true }
 
@@ -114,7 +116,7 @@ const AddressForm = (props: AddressFormOptions) => {
 						<Flex direction={'row'} gap='size-100' marginTop={'size-200'}>
 							<Flex flex direction={'row'} columnGap={'size-100'}>
 								<Button type='submit' variant='secondary' isDisabled={!isDirty}>Update</Button>
-								<Button type='button' variant='primary'									
+								<Button type='button' variant='primary'
 									onPress={() => {
 										setShowForm(!showForm)
 									}}>
@@ -160,7 +162,7 @@ const AddressForm = (props: AddressFormOptions) => {
 		e.preventDefault()
 
 		if (data.orderId === 0) {
-			await inserData({...data, orderId: orderId});
+			await inserData({ ...data, orderId: orderId });
 		} else {
 			await updateData(data);
 		}
@@ -221,7 +223,7 @@ const AddressForm = (props: AddressFormOptions) => {
 			.then(response => response.data)
 			.then(data => {
 				//callback({ method: 'remove' })
-				setShowForm(!showForm)				
+				setShowForm(!showForm)
 			})
 			.catch(error => {
 				console.log(error)

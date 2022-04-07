@@ -30,7 +30,7 @@ const SimpleReactFileUpload: React.FC<SimpleReactFileUploadProps> = ({ imageId, 
   }
 
   async function fileUpload(file: File) {
-    const url = `/actions/upload-file/${imageId}/`;
+    const url = `/action/upload-file/${imageId}`;
     const formData = new FormData();
     formData.append('file', file)
     const config = {
@@ -62,8 +62,8 @@ const SimpleReactFileUpload: React.FC<SimpleReactFileUploadProps> = ({ imageId, 
     <View>
       <View>
         {imgFile &&
-          <a href={`${process.env.REACT_APP_API_URL}/actions/file/${imgFile}`}>
-            <img width={64} alt=" Document " src={`${process.env.REACT_APP_API_URL}/actions/preview/${imgFile}`} />
+          <a href={`${process.env.REACT_APP_API_URL}/action/file/${imgFile}`}>
+            <img width={64} alt=" Document " src={`${process.env.REACT_APP_API_URL}/action/preview/${imgFile}`} />
           </a>
         }
       </View>

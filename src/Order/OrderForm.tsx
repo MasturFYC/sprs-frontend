@@ -98,7 +98,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
       }
 
       let res = await axios
-        .get(`/orders/name/seq`, { headers: headers })
+        .get(`/order/name/seq`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
         .catch(error => {
@@ -115,7 +115,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
       }
 
       let res = await axios
-        .get(`/orders/${orderId}`, { headers: headers })
+        .get(`/order/item/${orderId}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
         .catch(error => {
@@ -125,15 +125,21 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
       return res;
     }
 
-    if (!isLoaded) {
-      if (orderId === 0) {
-        getOrderName().then(data => {
+    if (orderId === 0) {
+      getOrderName().then(data => {
+        if (!isLoaded) {
           const nm = ('' + data.id).padStart(9, "0")
           setNewId(nm)
-        })
-      } else {
-        load().then(data => setOrder(data))
-      }
+        }
+      })
+    }
+
+    if (orderId > 0) {
+      load().then(data => {
+        if (!isLoaded) {
+          setOrder(data)
+        }
+      })
     }
 
     return () => { isLoaded = true }
@@ -485,7 +491,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
     //console.log(p)
 
     await axios
-      .put(`/orders/${p.id}`, xData, { headers: headers })
+      .put(`/order/${p.id}`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         setIsDirty(false)
@@ -507,7 +513,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
     //console.log(p)
 
     await axios
-      .post(`/orders`, xData, { headers: headers })
+      .post(`/order`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         setOrder(data)
@@ -528,7 +534,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
     }
 
     await axios
-      .delete(`/orders/${p}`, { headers: headers })
+      .delete(`/order/${p}`, { headers: headers })
       .then(response => response.data)
       .then(data => {
         setIsDirty(false)

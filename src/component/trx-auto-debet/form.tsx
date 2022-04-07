@@ -5,6 +5,8 @@ import {
   NumberField, Item, Text,
   TextArea, TextField, View
 } from '@adobe/react-spectrum';
+
+import TextFieldRef from '@react-types/textfield'
 // import { createToken } from '../../lib/format';
 
 
@@ -26,7 +28,7 @@ const TrxAutoDebetForm = ({
   const [cashId, setCashId] = useState<number>(0)
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [data, setData] = useState<iTrx>(trx)
-  const inputRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<TextFieldRef.TextFieldRef>(null)
 
 
   const isDescriptionsValid = React.useMemo(
@@ -57,17 +59,17 @@ const TrxAutoDebetForm = ({
   return (
     <form onSubmit={(e) => handleSubmit(e)}>
       <Flex rowGap='size-50' direction={'column'}>
-        <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'}>          
+        <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'}>
           <TextField
             type={'date'}
             label='Tanggal transaksi'
-            width={{ base: 'auto', M: 'size-2000' }}
+            width={{ base: 'auto', M: 'size-2000', L: 'size-2000' }}
             value={dateOnly(data.trxDate)}
             maxLength={10}
             onChange={(e) => handleChange("trxDate", e)}
           />
-          <div ref={inputRef} style={{display: 'flex', width: '100%'}}>
           <TextField
+            ref={inputRef}
             flex
             label='Keterangan'
             autoFocus
@@ -78,13 +80,12 @@ const TrxAutoDebetForm = ({
             maxLength={128}
             onChange={(e) => handleChange("descriptions", e)}
           />
-          </div>
         </Flex>
         <Flex direction={{ base: 'column', M: 'row' }} columnGap={'size-200'}>
 
           <NumberField
             hideStepper={true}
-            width={{ base: 'auto', M: 'size-2000' }}
+            width={{ base: 'auto', M: 'size-2000', L: 'size-2000' }}
             validationState={isSaldoValid ? 'valid' : 'invalid'}
             label={"Jumlah transaksi"}
             onChange={(e) => handleChange("saldo", e)}
@@ -140,11 +141,8 @@ const TrxAutoDebetForm = ({
                   details: []
                 })
                 setCashId(0)
-                if (inputRef.current) {
-                  const inp = inputRef.current.getElementsByTagName("input")
-                  if(inp[0]) {
-                    inp[0].focus()
-                  }
+                if (inputRef && inputRef.current) {
+                  inputRef.current.getInputElement().focus()
                 }
               }
             }}

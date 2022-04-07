@@ -89,7 +89,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
 
 
     await axios
-      .post(`/trx/`, xData, { headers: headers })
+      .post("/trx", xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
         if (data) {

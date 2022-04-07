@@ -102,7 +102,7 @@ export function InvoiceList({
 	}
 
 	async function downloadInvoice(id: number) {
-		const url = `/invoices/download/${invoice.finance?.groupId}/${id}`;
+		const url = `/invoice/download/${invoice.finance?.groupId}/${id}`;
 		let res = await axios.get(url, {
 			responseType: 'arraybuffer',
 			headers: {

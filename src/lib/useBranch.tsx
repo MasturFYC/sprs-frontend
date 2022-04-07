@@ -7,28 +7,32 @@ export function useBranchList() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    let isLoaded = false;
+    let isLoaded = true;
     async function load() {
       const headers = {
         'Content-Type': 'application/json'
       };
 
-      await axios
-        .get("/branchs", { headers: headers })
+      let res = await axios
+        .get("/branch", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
-        .then(data => {
-          setList(data ? data : [])
-          setIsLoading(false)
-        });
+        .then(data => data)
+
+        return res ?  res : [];
     }
 
-    if (!isLoaded) {
+    //if (isLoaded) {
       setIsLoading(true)
-      load();
-    }
+      load().then(data => {
+        if ( isLoaded ) {
+          setList(data)
+          setIsLoading(false)
+        } 
+      });
+    //}
 
-    return () => { isLoaded = true; };
+    return () => { isLoaded = false; };
   }, []);
 
   return {

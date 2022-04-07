@@ -20,20 +20,21 @@ export function useInvoiceList() {
         'Content-Type': 'application/json'
       };
 
-      await axios
-        .get("/invoices/", { headers: headers })
+      let res = await axios
+        .get("/invoice", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
-        .then(data => {
-          setList(data ? data : [])
-          setIsLoading(false)
-        });
-    }
+        .then(data => data);
 
-    if (!isLoaded) {
-      setIsLoading(true)
-      load();
+      return res ? res : [];
     }
+    setIsLoading(true)
+    load().then(data => {
+      if (!isLoaded) {
+        setList(data)
+        setIsLoading(false)
+      }
+    });
 
     return () => { isLoaded = true; };
   }, [count]);
@@ -49,7 +50,7 @@ export function useInvoiceList() {
         'Content-Type': 'application/json'
       }
       await axios
-        .post(`/invoices/search/`, { txt: e }, { headers: headers })
+        .post(`/invoice/search`, { txt: e }, { headers: headers })
         .then(response => response.data)
         .then(data => setList(data))
         .catch(error => {
@@ -64,7 +65,7 @@ export function useInvoiceList() {
       }
 
       await axios
-        .get(`/invoices/month-year/${month}/${year}/`, { headers: headers })
+        .get(`/invoice/month-year/${month}/${year}`, { headers: headers })
         .then(response => response.data)
         .then(data => setList(data))
         .catch(error => console.log(error))
@@ -78,13 +79,13 @@ export function useInvoiceList() {
       }
 
       await axios
-        .get(`/invoices/finance/${id}/`, { headers: headers })
+        .get(`/invoice/finance/${id}`, { headers: headers })
         .then(response => response.data)
         .then(data => setList(data))
         .catch(error => console.log(error))
     },
     reload: () => {
-      setCount(count+1);
+      setCount(count + 1);
     },
   };
 

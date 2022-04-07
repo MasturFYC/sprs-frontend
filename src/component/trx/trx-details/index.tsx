@@ -26,7 +26,7 @@ const TrxDetails = (props: TrxDetailsParam) => {
       }
 
       let res = await axios
-        .get(`/trx-detail/${trxId}/`, { headers: headers })
+        .get(`/trx-detail/${trxId}`, { headers: headers })
         .then(response => response.data)
         .then(data => {
           return data ? data : []

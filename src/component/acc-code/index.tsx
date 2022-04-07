@@ -167,8 +167,9 @@ const AccCode = () => {
       .post(`/acc-code`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {
-        accs.insert(p)
-        accs.remove(0)
+        accs.update(0, p)
+        // accs.insert(p)
+       // accs.remove(0)
         setSelectedId(-1)
       })
       .catch(error => {

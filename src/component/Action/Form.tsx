@@ -143,7 +143,7 @@ const ActionForm = (props: ActionFormOptions) => {
     const xData = JSON.stringify(p);
 
     await axios
-      .put(`/actions/${p.id}/`, xData, { headers: headers })
+      .put(`/action/${p.id}`, xData, { headers: headers })
       .then((response) => response.data)
       .then((data) => {
         callback({ method: 'save', data: p });
@@ -163,7 +163,7 @@ const ActionForm = (props: ActionFormOptions) => {
     const xData = JSON.stringify(p);
 
     await axios
-      .post(`/actions/`, xData, { headers: headers })
+      .post(`/action`, xData, { headers: headers })
       .then((response) => response.data)
       .then((data) => {
         callback({ method: 'save', data: data });
@@ -181,7 +181,7 @@ const ActionForm = (props: ActionFormOptions) => {
     };
 
     await axios
-      .delete(`/actions/${p.id}/`, { headers: headers })
+      .delete(`/action/${p.id}`, { headers: headers })
       .then((response) => response.data)
       .then((data) => {
         callback({ method: 'remove', data: p });

@@ -39,13 +39,14 @@ export function ReportOrderAllWaiting({
       return res ? res : []
     }
 
-    if (!isLoaded) {
-      setIsLoading(true)
-      load().then(data => {
+
+    setIsLoading(true)
+    load().then(data => {
+      if (!isLoaded) {
         setOrders(data)
         setIsLoading(false)
-      })
-    }
+      }
+    })
 
     return () => { isLoaded = true }
 

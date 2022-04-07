@@ -185,27 +185,24 @@ function AutoMenu() {
       const headers = {
         'Content-Type': 'application/json'
       }
-      await axios
+      let res = await axios
         .get(`/acc-group/all-accounts`, { headers: headers })
         .then(response => response.data)
-        .then(data => {
-          setTypes(data.filter((c: iAccountInfo) => c.isType));
-          setAccounts(data.filter((c: iAccountInfo) => c.isAutoDebet && c.isActive && c.isAccount));
-          SetMenuLoaded(true)
-        })
+        .then(data => data)
         .catch(error => {
           console.log(error)
         })
-
+        return res ? res : []
     }
 
-    if (!isLoaded || !show) {
-      loadAccounts();
-    }
-
-    return () => {
-      isLoaded = true
-    }
+    loadAccounts().then(data=> {
+      if (!isLoaded || !show) {
+        setTypes(data.filter((c: iAccountInfo) => c.isType));
+        setAccounts(data.filter((c: iAccountInfo) => c.isAutoDebet && c.isActive && c.isAccount));
+        SetMenuLoaded(true)
+      }
+    });
+    return () => { isLoaded = true }
   }, [isMenuLoaded, show])
 
   if (!isMenuLoaded) {

@@ -22,23 +22,24 @@ export function useOrderList(search: string | undefined, filter: string | undefi
         method: "get",
       }
 
-      await axios({
+    let res = await axios({
         ...config,
-        url: `/orders/${search}/${filter}`,
+        url: `/order/${search}/${filter}`,
         headers: headers,
       })
         .then(response => response.data)
         .catch(error => console.log(error))
-        .then(data => setList(data ? data : []))
-        .finally(() => {
-          setLoading(false)
-        })
-    }
+        .then(data => data);
 
-    if (!isLoaded && search && filter) {
-      setLoading(true);
-      load();
+      return res ? res : [];
     }
+    setLoading(true)
+    load().then(data => {
+      if (!isLoaded) {
+        setList(data)
+        setLoading(false)
+      }
+    });
 
     return () => { isLoaded = true; };
   }, [search, filter]);

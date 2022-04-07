@@ -13,20 +13,24 @@ export function useWheelList() {
         'Content-Type': 'application/json'
       };
 
-      await axios
-        .get("/wheels", { headers: headers })
+      let res = await axios
+        .get("/wheel", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
-        .then(data => {
-          setList(data ? data : [])
-          setIsLoading(false)
-        });
+        .then(data => data);
+
+      return res ? res : []
     }
 
-    if (!isLoaded) {
-      setIsLoading(true)
-      load();
-    }
+    //if (!isLoaded) {
+    setIsLoading(true)
+    load().then(data => {
+      if (!isLoaded) {
+        setList(data)
+        setIsLoading(false)
+      }
+    });
+    //}
 
     return () => { isLoaded = true; };
   }, []);

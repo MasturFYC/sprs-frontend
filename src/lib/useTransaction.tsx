@@ -14,20 +14,21 @@ export function useTransactionList() {
         'Content-Type': 'application/json'
       };
 
-      await axios
-        .get("/trx/", { headers: headers })
+      let res = await axios
+        .get("/trx", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
-        .then(data => {
-          setList(data ? data : [])
-          setIsLoading(false)
-        });
-    }
+        .then(data => data);
 
-    if (!isLoaded) {
-      setIsLoading(true)
-      load();
+      return res ? res : [];
     }
+    setIsLoading(true)
+    load().then(data => {
+      if (!isLoaded) {
+        setList(data)
+        setIsLoading(false)
+      }
+    });
 
     return () => { isLoaded = true; };
   }, [count]);
@@ -78,7 +79,7 @@ export function useTransactionList() {
         'Content-Type': 'application/json'
       }
       await axios
-        .post(`/trx/search/`, { txt: e }, { headers: headers })
+        .post(`/trx/search`, { txt: e }, { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
         .then(data => data && setList(data || []))
@@ -90,7 +91,7 @@ export function useTransactionList() {
       }
 
       await axios
-        .get(`/trx/month/${id}/`, { headers: headers })
+        .get(`/trx/month/${id}`, { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))
         .then(data => setList(data ? data : []))

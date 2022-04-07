@@ -314,7 +314,7 @@ function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onD
 		})
 
 		await axios
-			.post(`/loans/payment/${trx.id}`, xData, { headers: headers })
+			.post(`/loan/payment/${trx.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)

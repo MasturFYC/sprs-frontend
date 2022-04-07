@@ -274,7 +274,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 		const xData = JSON.stringify(finance)
 
 		await axios
-			.put(`/finances/${finance.id}/`, xData, { headers: headers })
+			.put(`/finance/${finance.id}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: finance })
@@ -293,7 +293,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 		const xData = JSON.stringify(finance)
 
 		await axios
-			.post(`/finances/`, xData, { headers: headers })
+			.post(`/finance`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'save', data: data })
@@ -311,7 +311,7 @@ const FinanceForm = (props: FinanceFormOptions) => {
 		}
 
 		await axios
-			.delete(`/finances/${finance.id}/`, { headers: headers })
+			.delete(`/finance/${finance.id}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				callback({ method: 'remove', data: data })

@@ -274,7 +274,7 @@ const LentForm = ({ data, onInsert, onUpdate, onDelete, onCancel }: LentFormProp
 		const xData = JSON.stringify(t_lent)
 
 		await axios
-			.put(`/lents/${lent.orderId}`, xData, { headers: headers })
+			.put(`/lent/${lent.orderId}`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
@@ -334,7 +334,7 @@ const LentForm = ({ data, onInsert, onUpdate, onDelete, onCancel }: LentFormProp
 		})
 
 		await axios
-			.post(`/lents`, xData, { headers: headers })
+			.post(`/lent`, xData, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
@@ -353,7 +353,7 @@ const LentForm = ({ data, onInsert, onUpdate, onDelete, onCancel }: LentFormProp
 		}
 
 		await axios
-			.delete(`/lents/${p}`, { headers: headers })
+			.delete(`/lent/${p}`, { headers: headers })
 			.then(response => response.data)
 			.then(data => {
 				setIsDirty(false)
