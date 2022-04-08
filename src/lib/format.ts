@@ -16,8 +16,12 @@ export const FormatDate = (e: string, options: "numeric" | "2-digit" | "long" | 
 	return dateFormat(options).format(new Date(e));
 }
 
-export const FormatNumber = (e: number) => {
-	return numberFormat.format(e);
+export const FormatNumber = (e: number, minimumFractionDigits: number = 0) => {
+	return new Intl.NumberFormat("id-ID", {
+		useGrouping: true,
+		minimumFractionDigits: minimumFractionDigits,
+		maximumFractionDigits: 2
+	}).format(e);
 }
 
 export function createToken(p: iTrx, accs: iAccCodeType[], ids: number[]): string {

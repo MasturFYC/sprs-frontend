@@ -31,6 +31,9 @@ const LentPage = React.lazy(() => import('../pages/lent'));
 const LentListPage = React.lazy(() => import('../pages/lent/LentListPage'));
 const LentPageForm = React.lazy(() => import('../pages/lent/form'));
 
+const LabaRugiPage = React.lazy(() => import('../pages/laba-rugi'));
+const LabaRugiTanggal = React.lazy(() => import('../pages/laba-rugi/tanggal'));
+
 const Main = () => {
   return (
     <Routes>
@@ -54,8 +57,8 @@ const Main = () => {
         <Route path=":financeId/:invoiceId" element={<React.Suspense fallback={<div>Please wait...</div>}><InvoiceForm /></React.Suspense>} />
       </Route>
       <Route path="/loan" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPage /></React.Suspense>}>
-        <Route path="list" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanListPage /></React.Suspense>} />        
-        <Route path=":pid" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPageForm /></React.Suspense>} />        
+        <Route path="list" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanListPage /></React.Suspense>} />
+        <Route path=":pid" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPageForm /></React.Suspense>} />
       </Route>
       <Route path="/lent" element={<React.Suspense fallback={<div>Please wait...</div>}><LentPage /></React.Suspense>}>
         <Route path="list" element={<React.Suspense fallback={<div>Please wait...</div>}><LentListPage /></React.Suspense>} />        
@@ -87,6 +90,11 @@ const Main = () => {
           <Route path=":m/:y/:f/:b/:t/:tf/:to" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>} />
         </Route>
       </Route>
+      <Route path="/labarugi" element={<React.Suspense fallback={<div>Please wait...</div>}><LabaRugiPage /></React.Suspense>}>
+        <Route path="tanggal/:dari/:ke" element={<React.Suspense fallback={<div>Please wait...</div>}><LabaRugiTanggal /></React.Suspense>} />
+        {/* <Route path="akun" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPageForm /></React.Suspense>} /> */}
+      </Route>
+
     </Routes>
   );
 }

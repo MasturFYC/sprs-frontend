@@ -86,7 +86,7 @@ const Aside = () => {
             <RouterLink to={`/report/order-status/${new Date().getMonth() + 1}/${new Date().getFullYear()}/0/0/0/-/-`}>Status Order</RouterLink>
           </Link>
           <Link isQuiet variant='primary'>
-            <RouterLink to="/report/trx/profit">Laporan Laba Rugi</RouterLink>
+            <RouterLink to="/labarugi">Laporan Keuangan</RouterLink>
           </Link>
         </Flex>
       </MasterMenu>

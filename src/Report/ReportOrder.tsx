@@ -33,7 +33,10 @@ const ReportOrder = () => {
 
   const isFromValid = useMemo(
     () => {
-      return dateFrom <= dateTo
+      const d = new Date(dateFrom);
+      const t = new Date(dateTo);
+
+      return d <= t
     },
     [dateFrom, dateTo]
   )
