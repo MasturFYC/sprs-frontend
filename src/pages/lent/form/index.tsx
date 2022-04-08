@@ -27,7 +27,6 @@ const initTrx: lentTrx = {
 	}
 }
 
-
 export default function LentPageForm() {
 	const { pid } = useParams()
 	const navigate = useNavigate();
@@ -81,49 +80,47 @@ export default function LentPageForm() {
 			</React.Suspense>
 				:
 				<View>
-
 					<Flex direction={{ base: 'column', L: 'row' }} rowGap={'size-50'} columnGap={'size-200'}>
 						<View flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
+							<Flex direction={'row'} columnGap={'size-200'}>
 								<View width={'size-1250'}>Nama</View>
 								<View flex><div className='font-bold'>{lent.item.name}</div></View>
 							</Flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
+							<Flex direction={'row'} columnGap={'size-200'}>
 								<View width={'size-1250'}>Tanggal</View>
 								<View flex>{FormatDate(getTrxInfo().trxDate)}</View>
 							</Flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
+							<Flex direction={'row'} columnGap={'size-200'}>
 								<View width={'size-1250'}>Alamat</View>
 								<View flex>{lent.item.street} - {lent.item.city}, {lent.item.zip}</View>
 							</Flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
+							<Flex direction={'row'} columnGap={'size-200'}>
 								<View width={'size-1250'}>Keterangan</View>
 								<View flex>{getTrxInfo().descriptions}</View>
 							</Flex>
 						</View>
 						<View flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
-								<View width={'size-1250'}>Pokok</View>
-								<View flex>{FormatNumber(lent.item.unit.btMatel)}</View>
+							<Flex direction={'row'} columnGap={'size-200'}>
+								<View flex>Pokok</View>
+								<View>{FormatNumber(lent.item.unit.btMatel)}</View>
 							</Flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
-								<View width={'size-1250'}>Pinjaman</View>
-								<View flex>{FormatNumber(lent.item.unit.btFinance)}</View>
+							<Flex direction={'row'} columnGap={'size-200'}>
+								<View flex>Pinjaman</View>
+								<View>{FormatNumber(lent.item.unit.btFinance)}</View>
 							</Flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
-								<View width={'size-1250'}>Cicilan</View>
-								<View flex>{FormatNumber(lent.item.trxs.reduce((t, c) => t + c.detail.debt, 0))}</View>
+							<Flex direction={'row'} columnGap={'size-200'}>
+								<View flex>Cicilan</View>
+								<View>{FormatNumber(lent.item.trxs.reduce((t, c) => t + c.detail.debt, 0))}</View>
 							</Flex>
-							<Flex direction={'row' } columnGap={'size-200'}>
-								<View width={'size-1250'}>Sisa Bayar</View>
-								<View flex>{FormatNumber(getSisaPiutang())}</View>
+							<Flex direction={'row'} columnGap={'size-200'}>
+								<View flex>Sisa Bayar</View>
+								<View>{FormatNumber(getSisaPiutang())}</View>
 							</Flex>
 						</View>
+						<View flex>{' '}</View>
 					</Flex>
-
 				</View>
 			}
-
 
 			<Divider size={'S'} marginTop={'size-200'} />
 
@@ -143,9 +140,7 @@ export default function LentPageForm() {
 						trxs={lent.item.trxs.filter(x => x.division === 'trx-cicilan')} />
 				}
 			</View>
-		</View>
-
-	);
+		</View>);
 
 	function getTrxInfo(): lentTrx {
 		if (lent.item.trxs.length > 0) {
@@ -183,7 +178,6 @@ export default function LentPageForm() {
 		}
 		return data;
 	}
-
 
 	function deleteTrx(id: number) {
 		const trxs = lent.item.trxs;

@@ -20,7 +20,7 @@ const LentListPage = () => {
       {lent.items.filter(f => f.unit.wheel === r).length > 0 &&
         <Fragment>
           <View marginTop={'size-200'} marginBottom={'size-100'}><span className={'div-h2 font-bold'}>{r}</span></View>
-          <table className="table-small table-100 collapse-none" cellPadding={5}>
+          <table className="table-small table-100 collapse-none" cellPadding={6}>
             <thead>
               <tr className="bg-green-600 text-white">
                 <th className="text-center">NO</th>

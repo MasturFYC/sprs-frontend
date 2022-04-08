@@ -28,15 +28,10 @@ const TrxDetails = (props: TrxDetailsParam) => {
       let res = await axios
         .get(`/trx-detail/${trxId}`, { headers: headers })
         .then(response => response.data)
-        .then(data => {
-          return data ? data : []
-        })
-        .catch(error => {
-          console.log(error)
-          return []
-        })
+        .then(data => data)
+        .catch(error => console.log(error))
 
-      return { items: res }
+      return { items: res ? res : [] }
     },
     getKey: (item: iTrxDetail) => item.id
   })
@@ -47,16 +42,16 @@ const TrxDetails = (props: TrxDetailsParam) => {
       {[...details.items].map((o, i) => {
         return o.id === selectedId ?
           <React.Suspense key={`${o.id + i}`} fallback={<div>Please wait...</div>}>
-            <TrxDetailForm              
+            <TrxDetailForm
               accs={accs.filter(o => o.isActive)}
               data={detail}
               updateData={(m, e) => saveDetail(m, e)}
             >
               <View paddingTop={'size-50'}>
                 <ActionButton isQuiet height={'size-200'}
-                  marginStart={'size-100'}                  
+                  marginStart={'size-100'}
                   onPress={() => {
-                    if(o.debt === 0 && o.cred === 0) {
+                    if (o.debt === 0 && o.cred === 0) {
                       saveDetail('remove', details.getItem(o.id))
                     }
                     setSelectedId(0)
@@ -75,11 +70,11 @@ const TrxDetails = (props: TrxDetailsParam) => {
             <View>
               <ActionButton isQuiet
                 onPress={() => saveDetail('remove', details.getItem(o.id))}
-                  // deleteDetail(trxId, o.id).then(res => {
-                  //   if(res) {
-                    // saveDetail('remove', details.getItem(o.id))
-                    // }
-                  // })
+                // deleteDetail(trxId, o.id).then(res => {
+                //   if(res) {
+                // saveDetail('remove', details.getItem(o.id))
+                // }
+                // })
                 // }}
                 height={'size-200'}
               >
@@ -124,9 +119,7 @@ const TrxDetails = (props: TrxDetailsParam) => {
     const cred = test.reduce((a, b) => a + b.cred, 0);
     detailCallback(debt, cred, test);
 
-
     setSelectedId(0);
-
   }
 
   function addNewItem() {

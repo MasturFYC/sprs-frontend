@@ -5,7 +5,7 @@ import { FormatDate, FormatNumber } from "lib/format";
 import axios from 'lib/axios-base';
 
 import {
-	ComboBox, Text, DialogContainer, Divider, Flex, Heading, Item,
+	ComboBox, Text, DialogContainer, Divider, Flex, Item,
 	NumberField, TextField, Button, Link, ActionButton, Form
 } from "@adobe/react-spectrum";
 import AddToSelection from "@spectrum-icons/workflow/AddToSelection";
@@ -57,9 +57,9 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 			<DialogContainer type={'modal'} onDismiss={() => setOpen(false)} isDismissable>
 				{open &&
 					<View>
-						<Heading marginStart={'size-200'}>Angsuran</Heading>
+						<View marginX={'size-200'} marginY={'size-100'}><span className={'div-h2 font-bold'}>Angsuran</span></View>
 						<Divider size='S' />
-						<View marginX={'size-200'} marginTop={'size-100'}>
+						<View marginX={'size-200'}>
 							<FormDetail name={name} loanId={loanId} editedTrx={trx}
 								onDelete={(id) => {
 									onDelete && onDelete(id)
@@ -80,7 +80,7 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 					</View>}
 			</DialogContainer>
 
-			<table className="table-small collapse-none" cellPadding={5}>
+			<table className="table-small collapse-none" cellPadding={6}>
 				<thead>
 					<tr className="border-b-1 border-t-1 bg-green-600 text-white">
 						<th className="text-center">NO</th>

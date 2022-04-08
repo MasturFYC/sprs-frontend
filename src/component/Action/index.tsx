@@ -1,12 +1,12 @@
 import React from "react";
-import axios from "../../lib/axios-base";
 import { iAction } from '../../lib/interfaces'
 import ActionForm, { initAction } from './Form'
 import { View } from "@react-spectrum/view";
-import { Divider, Flex, Link, ProgressCircle, useAsyncList } from "@adobe/react-spectrum";
-import { FormatDate } from "../../lib/format";
+import { Divider, Flex, Link, ProgressCircle } from "@adobe/react-spectrum";
+import { FormatDate } from "lib/format";
 
-import SimpleReactFileUpload from "../../lib/SimpleReactFileUpload";
+import SimpleReactFileUpload from "lib/SimpleReactFileUpload";
+import { useActionList } from "lib/useAction";
 
 type ActionParam = {
 	orderId: number
@@ -16,28 +16,7 @@ const Action = (prop: ActionParam) => {
 	const { orderId } = prop;
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 	
-	let actions = useAsyncList<iAction>({
-		async load({ signal }) {
-			const headers = {
-				'Content-Type': 'application/json'
-			}
-
-			let res = await axios
-				.get(`/action/order/${orderId}`, { headers: headers })
-				.then(response => response.data)
-				.then(data => {
-					return data ? data : []
-				})
-				.catch(error => {
-					console.log(error)
-					return []
-				})
-
-			return { items: res }
-		},
-		getKey: (item: iAction) => item.id
-	})
-
+	let actions = useActionList(orderId)
 
 	return (
 		<View>
@@ -89,7 +68,7 @@ const Action = (prop: ActionParam) => {
 
 		if (method === 'save' && data) {
 			if (selectedId === 0) {
-				actions.insert(1, data)
+				actions.insert(data)
 			} else {
 				actions.update(data.id, data)
 			}

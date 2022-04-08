@@ -52,7 +52,7 @@ const LentListDetails = ({ trxs, onChange, onDelete, name, lentId }: lentListDet
 				</View>}
 			</DialogContainer>
 
-			<table className="table-small collapse-none" cellPadding={5}>
+			<table className="table-small collapse-none" cellPadding={6}>
 				<thead>
 					<tr className="border-b-1 border-t-1 bg-green-600 text-white">
 						<th className="text-center">NO</th>
