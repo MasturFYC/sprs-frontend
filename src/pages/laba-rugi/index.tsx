@@ -9,7 +9,7 @@ import { dateParam, dateOnly } from "lib/interfaces";
 const LabaRugiPage = () => {
 
   return (
-    <View marginX={'size-400'}>
+    <View>
       <View><span className="div-h1">Laporan Keuangan</span></View>
       <Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
         <Link isQuiet variant="primary"><RouteLink to={`/labarugi/tanggal/${dateOnly(dateParam(null))}/${dateOnly(dateParam(null))}`}>Laba Rugi per Tanggal</RouteLink></Link>

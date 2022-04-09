@@ -169,7 +169,7 @@ const LabaRugiTanggal = () => {
           mulai dari {FormatDate(dari ? dari : dateParam(null))} sampai {FormatDate(ke ? ke : dateParam(null))}{' '}
           bisa dilihat pada tabel berikut:
         </View>
-        <Flex direction={{ base: 'column', L: 'row' }} columnGap={'size-200'}>
+        <Flex direction={{ base: 'column', L: 'row' }} rowGap={'size-100'} columnGap={'size-200'}>
           <View flex>
             <table className="table-small table-100 collapse-none" cellPadding={6}>
               <thead>
@@ -203,14 +203,14 @@ const LabaRugiTanggal = () => {
           </View>
           <View>
             <View><b>Rumus Cicilan Unit</b></View>
-            <code>
+            <pre style={{fontSize: '0.8rem'}}>
               Keuntungan = Prosentase x Penerimaan<br />
-              Modal = Penerimaan - Keuntungan<br /><br />
+              Modal      = Penerimaan - Keuntungan<br /><br />
 
               dik:<br />
               Prosentase = (BT-Finance - BT-Matel) / BT-Finance<br />
               Penerimaan = Pendapatan
-            </code>
+            </pre>
           </View>
           <View>
 
@@ -220,16 +220,16 @@ const LabaRugiTanggal = () => {
       <View marginY={'size-400'}>
         <View><span className={'div-h2'}>3) Beban</span></View>
         <View marginY={'size-200'}>
-          Yaitu biaya yang dikeluarkan karena adanya kegiatan usaha, mulai dari{' '}
+          Yaitu kewajiban yang dikeluarkan karena adanya kegiatan usaha, mulai dari{' '}
           {FormatDate(dari ? dari : dateParam(null))} sampai{' '}
           {FormatDate(ke ? ke : dateParam(null))}{' '}
-          biaya yang dikeluarkan perusahaan sebesar yang tertera pada tabel di bawah ini:
+          beban yang dikeluarkan perusahaan sebesar yang tertera pada tabel di bawah ini:
         </View>
         <table className="table-small collapse-none" cellPadding={6}>
           <thead>
             <tr className="border-b-1 border-t-1 bg-green-600 text-white">
-              <th className="text-left">Jenis Biaya</th>
-              <th className="text-right">Jumlah Biaya</th>
+              <th className="text-left">Jenis Beban</th>
+              <th className="text-right">Jumlah Beban</th>
             </tr>
           </thead>
           <tbody>
