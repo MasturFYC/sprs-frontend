@@ -268,10 +268,10 @@ const LentForm = ({ data, onInsert, onUpdate, onDelete, onCancel }: LentFormProp
 			city: lent.city,
 			phone: lent.phone,
 			cell: lent.cell,
-			zip: lent.zip
+			zip: lent.zip			
 		}
 
-		const xData = JSON.stringify(t_lent)
+		const xData = JSON.stringify({...t_lent, descriptions: lent.trx.descriptions})
 
 		await axios
 			.put(`/lent/${lent.orderId}`, xData, { headers: headers })

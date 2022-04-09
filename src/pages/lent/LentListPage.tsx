@@ -65,6 +65,7 @@ const LentListPage = () => {
     }
     <View marginTop={'size-400'}><span className={'font-bold font-italic'}>Summary:</span></View>
     <table className={'table-small2'}>
+      <tbody>
       <tr>
         <td>Item</td>
         <td className="width-50 text-right">:</td>
@@ -95,6 +96,7 @@ const LentListPage = () => {
         <td className="width-50 text-right">:</td>
         <td className={'text-right'}><span className={'font-bold'}>{FormatNumber(lent.totalDebt() - lent.totalCred())}</span></td>
       </tr>
+      </tbody>
     </table>
   </View >);
 }

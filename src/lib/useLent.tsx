@@ -85,9 +85,9 @@ const initLent = {
 
 export function useLent(orderId: string) {
 	
-
 	const [lent, setLent] = useState<tsLentItem>(initLent)
 	const [isLoading, setIsLoading] = useState(false);
+	const [count, setCount] = useState(0)
 
 	useEffect(() => {
 		let isLoaded = false;
@@ -116,12 +116,13 @@ export function useLent(orderId: string) {
 				});
 
 		return () => { isLoaded = true; };
-	}, [orderId]);
+	}, [orderId, count]);
 
 	return {
 		item: lent,
 		setLent: setLent,
 		isLoading: isLoading,
+		reload: () => setCount(count + 1)
 	};
 
 }

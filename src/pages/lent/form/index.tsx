@@ -69,7 +69,8 @@ export default function LentPageForm() {
 						navigate(`/lent/list`)
 					}}
 					onUpdate={(id, data) => {
-						loanSetDefaultTrx(data)
+						lent.reload()
+						//loanSetDefaultTrx(data)
 						setIsEdit(false)
 					}}
 					onInsert={(data) => {
@@ -159,7 +160,7 @@ export default function LentPageForm() {
 			city: p.city,
 			phone: p.phone,
 			cell: p.cell,
-			zip: p.zip,
+			zip: p.zip
 		}))
 
 	}
