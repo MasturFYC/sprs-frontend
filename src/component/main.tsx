@@ -35,6 +35,7 @@ const LabaRugiPage = React.lazy(() => import('../pages/laba-rugi'));
 const LabaRugiTanggal = React.lazy(() => import('../pages/laba-rugi/tanggal'));
 
 const Main = () => {
+ 
   return (
     <Routes>
       <Route path="/" element={<ShowFirstPage />} />

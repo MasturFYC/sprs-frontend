@@ -9,12 +9,9 @@ export function useAccountGroupList() {
   useEffect(() => {
     let isLoaded = false;
     async function load() {
-      const headers = {
-        'Content-Type': 'application/json'
-      };
 
       let res = await axios
-        .get("/acc-group", { headers: headers })
+        .get("/acc-group")
         .then(response => response.data)
         .catch(error => console.log(error))
         .then(data => data);
