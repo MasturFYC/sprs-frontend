@@ -5,21 +5,25 @@ import { View } from "@react-spectrum/view";
 import { Flex } from "@react-spectrum/layout";
 //import { Footer } from "@react-spectrum/view";
 
-import logo from '../../logo.svg';
 import Aside from "../sides";
 import Main from "../main";
 import useAuthService from "lib/auth-service";
-
-export const siteTitle = "SPRS";
+import { ActionButton, Item, Menu, MenuTrigger, Text } from "@adobe/react-spectrum";
+import UserLock from '../../user.svg';
+import logo from '../../logo.svg';
 
 // type LayoutProps = {
 //   children: React.ReactNode;
 // };
 
+export const siteTitle = "SPRS";
 
 const Layout = () => {
   //const navigate = useNavigate()
+
   const auth = useAuthService();
+  const user = auth.getCurrentUser();
+
   // let titleStyle = {
   //   fontSize: "110%",
   //   fontWeight: 700,
@@ -36,7 +40,7 @@ const Layout = () => {
           M: ["header  sidebar", "content content", "footer  footer"],
           L: ["header  header", "sidebar content", "footer  footer"],
         }}
-        columns={{base:["3fr"], L:["1fr", "4fr"]}}
+        columns={{ base: ["3fr"], L: ["1fr", "4fr"] }}
         rows={["size-1250", "auto", "size-1000"]}
         minHeight={"100vh"}
       >
@@ -47,22 +51,30 @@ const Layout = () => {
           borderBottomColor={"gray-200"}
           paddingX={{ base: "size-50", M: "size-200" }}
         >
-          <Flex direction={{base: 'column', L:"row"}} columnGap={"size-100"}>
-            <View isHidden={{base: true, L:false}} width={{ base: 64, M: 90 }} alignSelf={"center"}
-              marginTop={{ base: "size-10", L: "size-25" }}>
-              <img src={logo} alt="logo" style={{ width: "32px" }} onClick={() => {
-                  
-                  auth.logout()
-                  //window.location.href = "/"
-                  window.location.reload();
-                  //navigate("/")
-
-              }} />
+          <Flex direction={'row'} columnGap={"size-100"} alignItems={'center'} justifyContent={'center'}>
+            <View isHidden={{ base: true, L: false }} width={{ base: 64, M: 90 }}>
+              <img src={logo} alt="logo" style={{ width: "32px" }} />
             </View>
-            <View flex alignSelf={"center"} padding={'size-100'}>
-              <View UNSAFE_className="h2-orange font-bold font-title">PT. SARANA PADMA RIDHO SEPUH</View>
+            <View>
+              <View><span className={'h2-orange font-bold font-title'}>PT. SARANA PADMA RIDHO SEPUH</span></View>
               <View>GENERAL SUPPLIER, CONTRACTOR, COLLECTION</View>
               <View>Jl. Gator Subroto Villa Gatsu No. 01 - Indramayu</View>
+            </View>
+            <View flex>
+              <View justifySelf={'self-end'}>
+                <MenuTrigger>
+                  <ActionButton><UserLock /><Text>{user && user.userName}</Text></ActionButton>
+                  <Menu onAction={(e) => {
+                    if (e === 'logout') {
+                      auth.logout();
+                      window.location.reload();
+                    }
+                  }}>
+                    <Item key='logout' textValue={`Logout ${user && user.userName}`}><span className={'text-no-wrap'}>Logout {user && user.userName}</span></Item>
+                    <Item key='profile' textValue={'Profile'}>Profile</Item>
+                  </Menu>
+                </MenuTrigger>
+              </View>
             </View>
           </Flex>
         </View>

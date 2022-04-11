@@ -1,7 +1,7 @@
 import axios from 'lib/axios-base';
 
 export type User = {
-  name: string,
+  userName: string,
   email: string,
   accessToken?: string
 }
@@ -17,7 +17,7 @@ const useAuthService = () => {
         .then(response => {
           if (response.data.accessToken) {
             localStorage.setItem("user", JSON.stringify(response.data));
-            console.log(response.data)
+            //console.log(response.data)
           }
           return response.data;
         });
@@ -35,7 +35,7 @@ const useAuthService = () => {
         return response.data;
       });
     },
-    getCurrentUser: () => {
+    getCurrentUser: (): User | undefined => {
       const user = localStorage.getItem('user')
       if(user) {
         return JSON.parse(user) as User;

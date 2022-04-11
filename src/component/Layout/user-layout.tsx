@@ -14,7 +14,7 @@ const UserLayout = () => {
 				backgroundAttachment: 'fixed',
 				backgroundPosition: 'top left',
 				backgroundSize: 'cover',
-				backgroundImage: `url(${process.env.REACT_APP_API_URL}/action/file/login-back.jpg)`}}>
+				backgroundImage: `url(${process.env.REACT_APP_API_URL}/common/file/login-back.jpg)`}}>
 			<Flex direction={'column'} alignContent='center' rowGap={'size-100'} minHeight={"100vh"}>
 				
 				<View marginTop={'size-200'} alignSelf={'center'}>

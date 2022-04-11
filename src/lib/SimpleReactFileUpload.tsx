@@ -62,8 +62,8 @@ const SimpleReactFileUpload: React.FC<SimpleReactFileUploadProps> = ({ imageId, 
     <View>
       <View>
         {imgFile &&
-          <a href={`${process.env.REACT_APP_API_URL}/action/file/${imgFile}`}>
-            <img width={64} alt=" Document " src={`${process.env.REACT_APP_API_URL}/action/preview/${imgFile}`} />
+          <a href={`${process.env.REACT_APP_API_URL}/common/file/${imgFile}`}>
+            <img width={64} alt=" Document " src={`${process.env.REACT_APP_API_URL}/common/preview/${imgFile}`} />
           </a>
         }
       </View>
