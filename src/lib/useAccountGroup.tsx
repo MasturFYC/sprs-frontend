@@ -5,13 +5,13 @@ import { iAccGroup } from "./interfaces";
 export function useAccountGroupList() {
   const [list, setList] = useState<iAccGroup[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  
   useEffect(() => {
     let isLoaded = false;
     async function load() {
 
       let res = await axios
-        .get("/acc-group")
+        .get("/acc-group" )
         .then(response => response.data)
         .catch(error => console.log(error))
         .then(data => data);

@@ -7,54 +7,51 @@ import { TextField } from '@react-spectrum/textfield'
 import { ButtonGroup } from '@react-spectrum/buttongroup'
 import { Button } from '@react-spectrum/button'
 import useAuthService from 'lib/auth-service'
+import { Link } from 'react-router-dom'
 
 function SignInForm() {
   const navigate = useNavigate();
   const [username, setUserName] = React.useState("")
-  // const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [message, setMessage] = React.useState("")
   const auth = useAuthService();
 
   const isNameValid = React.useMemo(
-    () => username.length >= 5,
+    () => username.length >= 3,
     [username]
   )
-  const isPassowrdValid = React.useMemo(
-    () => password.length >= 8,
-    [password]
-  )
-  // const isEmailValid = React.useMemo(
-  //   // eslint-disable-next-line no-useless-escape
-  //   () => /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-  //     email
-  //   ),
-  //   [email]
-  // )
 
   return (
-    <View maxWidth={'size-3600'} alignSelf='center' justifySelf='center'>
+    <View
+    width={{base:'auto', L: 'size-3600'}}
+    padding={{base:'size-100', L:'size-200'}}
+    backgroundColor={'gray-75'}
+    borderRadius={'large'}
+    borderColor={'gray-100'}
+    borderWidth={'thick'}
+    alignSelf={{base: 'center', L: 'end'}}
+    justifySelf='center'
+    marginY={{base: 'size-100', L: 'size-400'}}
+    marginEnd={{base: 'size-0', L: 'size-400'}}
+    >
+      <View marginBottom={'size-200'}><span className={'div-h1'}>Login</span></View>
       <Form onSubmit={handleLogin}>
-        <View marginBottom={'size-200'}><span className={'div-h2'}>Signin</span></View>
         <Flex direction={'column'} rowGap={'size-400'}>
           <TextField
             label="Username"
+            autoFocus
+            width={'auto'}
             validationState={isNameValid ? "valid" : "invalid"}
             maxLength={50}
             value={username}
+            placeholder={'e.g. username'}
             onChange={(e) => setUserName(e)}
           />
-          {/* <TextField
-            label="email"
-            validationState={isEmailValid ? "valid" : "invalid"}
-            maxLength={128}
-            value={email}
-            onChange={(e) => setEmail(e)}
-          /> */}
           <TextField
             type={'password'}
+            width={'auto'}
+            autoComplete={'current-password'}
             label="Password"
-            validationState={isPassowrdValid ? "valid" : "invalid"}
             maxLength={50}
             value={password}
             onChange={(e) => setPassword(e)}
@@ -64,12 +61,15 @@ function SignInForm() {
           </View>
           <ButtonGroup>
             <Button type='submit' variant={'cta'}
-              isDisabled={!(isNameValid && isPassowrdValid)}              
+              isDisabled={!(isNameValid)}              
             >Signin</Button>
           <Button variant={'primary'}
             onPress={() => navigate("/")}
           >Cancel</Button>
         </ButtonGroup>
+        <View>
+          Belum punya akun? Silahkan <Link to='/auth/register'>Register</Link>.
+        </View>
       </Flex>
     </Form>
     </View >
@@ -79,7 +79,8 @@ function SignInForm() {
   function handleLogin(e: FormEvent) {
     e.preventDefault();
     auth.login(username,password).then(data => {
-      navigate("/profile")
+      navigate("/")
+      window.location.reload();
     }).catch(error => {
       setMessage(error.message)
     });

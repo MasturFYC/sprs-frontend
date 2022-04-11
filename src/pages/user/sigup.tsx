@@ -17,7 +17,7 @@ function SignUpForm() {
   const auth = useAuthService();
 
   const isNameValid = React.useMemo(
-    () => username.length >= 5,
+    () => username.length >= 3,
     [username]
   )
   const isPassowrdValid = React.useMemo(
@@ -33,27 +33,44 @@ function SignUpForm() {
   )
 
   return (
-    <View maxWidth={'size-3600'} alignSelf='center' justifySelf='center'>
+    <View
+      width={{ base: 'auto', L: 'size-3600' }}
+      padding={{ base: 'size-100', L: 'size-200' }}
+      backgroundColor={'indigo-700'}
+      borderRadius={'large'}
+      borderColor={'gray-100'}
+      borderWidth={'thick'}
+      alignSelf={{ base: 'center', L: 'end' }}
+      justifySelf='center'
+      marginY={{ base: 'size-100', L: 'size-400' }}
+      marginEnd={{ base: 'size-0', L: 'size-400' }}
+    >
+      <View marginBottom={'size-200'}><span className={'div-h1 text-white'}>Register</span></View>
       <Form onSubmit={handleLogin}>
-        <View marginBottom={'size-200'}><span className={'div-h2'}>Signin</span></View>
         <Flex direction={'column'} rowGap={'size-400'}>
           <TextField
-            label="Username"
+            label={<div className='text-white' >Username</div>}
+            autoFocus
+            width={'auto'}
             validationState={isNameValid ? "valid" : "invalid"}
             maxLength={50}
             value={username}
+            placeholder={'e.g. username'}
             onChange={(e) => setUserName(e)}
           />
           <TextField
-            label="email"
+            label={<div className='text-white' >E-mail</div>}
+            width={'auto'}
             validationState={isEmailValid ? "valid" : "invalid"}
             maxLength={128}
             value={email}
+            placeholder={'e.g. username@fyc.com'}
             onChange={(e) => setEmail(e)}
           />
           <TextField
             type={'password'}
-            label="Password"
+            label={<div className='text-white'>Password</div>}
+            width={'auto'}
             validationState={isPassowrdValid ? "valid" : "invalid"}
             maxLength={50}
             value={password}
@@ -64,21 +81,21 @@ function SignUpForm() {
           </View>
           <ButtonGroup>
             <Button type='submit' variant={'cta'}
-              isDisabled={!(isNameValid && isPassowrdValid)}              
-            >Signin</Button>
-          <Button variant={'primary'}
-            onPress={() => navigate("/")}
-          >Cancel</Button>
-        </ButtonGroup>
-      </Flex>
-    </Form>
+              isDisabled={!(isNameValid && isPassowrdValid)}
+            >Register now</Button>
+            <Button variant={'overBackground'}
+              onPress={() => navigate("/")}
+            >Cancel</Button>
+          </ButtonGroup>
+        </Flex>
+      </Form>
     </View >
   );
 
 
   function handleLogin(e: FormEvent) {
     e.preventDefault();
-    auth.register(username,email,password).then(data => {
+    auth.register(username, email, password).then(data => {
       navigate("/profile")
     }).catch(error => {
       setMessage(error.message)

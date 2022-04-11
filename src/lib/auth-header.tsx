@@ -1,4 +1,4 @@
-export default function useAuthHeader() {
+export default function authHeader() {
   const user = localStorage.getItem('user');
   if (user) {
     const accessUser = JSON.parse(user)

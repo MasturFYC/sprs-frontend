@@ -5,9 +5,10 @@ import { View } from "@react-spectrum/view";
 import { Flex } from "@react-spectrum/layout";
 //import { Footer } from "@react-spectrum/view";
 
-import logo from '../logo.svg';
-import Aside from "./sides";
-import Main from "./main";
+import logo from '../../logo.svg';
+import Aside from "../sides";
+import Main from "../main";
+import useAuthService from "lib/auth-service";
 
 export const siteTitle = "SPRS";
 
@@ -17,7 +18,8 @@ export const siteTitle = "SPRS";
 
 
 const Layout = () => {
-
+  //const navigate = useNavigate()
+  const auth = useAuthService();
   // let titleStyle = {
   //   fontSize: "110%",
   //   fontWeight: 700,
@@ -48,7 +50,14 @@ const Layout = () => {
           <Flex direction={{base: 'column', L:"row"}} columnGap={"size-100"}>
             <View isHidden={{base: true, L:false}} width={{ base: 64, M: 90 }} alignSelf={"center"}
               marginTop={{ base: "size-10", L: "size-25" }}>
-              <img src={logo} alt="logo" style={{ width: "32px" }} />
+              <img src={logo} alt="logo" style={{ width: "32px" }} onClick={() => {
+                  
+                  auth.logout()
+                  //window.location.href = "/"
+                  window.location.reload();
+                  //navigate("/")
+
+              }} />
             </View>
             <View flex alignSelf={"center"} padding={'size-100'}>
               <View UNSAFE_className="h2-orange font-bold font-title">PT. SARANA PADMA RIDHO SEPUH</View>

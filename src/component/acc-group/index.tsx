@@ -9,6 +9,7 @@ import { useAccountGroupList } from "lib/useAccountGroup";
 const AccountType = () => {
 	const navigate = useNavigate();
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
+	
 
 	let groups = useAccountGroupList()
 
