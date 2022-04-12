@@ -19,7 +19,7 @@ const UserLayout = () => {
 				
 				<View marginTop={'size-200'} alignSelf={'center'}>
 					<Link isQuiet variant="primary">
-						<RouterLink to='/auth/login'>Login</RouterLink>
+							<RouterLink to='/auth/login'><span className={'text-white font-bold'}>Login</span></RouterLink>
 					</Link>
 				</View>
 

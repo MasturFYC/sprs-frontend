@@ -8,6 +8,7 @@ export function useFinanceList() {
 
   useEffect(() => {
     let isLoaded = true;
+    
     async function load() {
       const headers = {
         'Content-Type': 'application/json'

@@ -3,7 +3,8 @@ import axios from 'lib/axios-base';
 export type User = {
   userName: string,
   email: string,
-  accessToken?: string
+  role:string,
+  accessToken?: string,
 }
 
 const useAuthService = () => {

@@ -68,6 +68,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
   const [newId, setNewId] = useState("");
+  const [isLoading, setLoading] = useState(false)
 
   const isFinanceValid = React.useMemo(() => order.financeId > 0, [order])
   const isNameValid = React.useMemo(() => order.name.length > 5, [order])
@@ -134,10 +135,13 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
       })
     }
 
+    setLoading(true)
+
     if (orderId > 0) {
       load().then(data => {
         if (!isLoaded) {
           setOrder(data)
+          setLoading(false)
         }
       })
     }
@@ -331,7 +335,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
           <Tabs
             aria-label="Tab-Order"
             density='compact'
-            onSelectionChange={(e) => setTabId(+e)}>
+              onSelectionChange={(e) => !isLoading && setTabId(+e)}>
             <TabList aria-label="Tab-Order-List">
               <Item key={'0'} textValue={'Data Asset'}><span style={{ fontWeight: 700, color: 'orangered' }}>Data Asset</span></Item>
               <Item key={'1'} textValue={'Data Konsumen'}><span style={{ fontWeight: 700, color: 'green' }}>Data Konsumen</span></Item>

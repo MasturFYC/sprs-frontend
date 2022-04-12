@@ -65,20 +65,19 @@ const ReportOrder = () => {
     }
 
 
-    const month = pmonth ? +pmonth : new Date().getMonth() + 1
-    const year = pyear ? +pyear : new Date().getFullYear()
     setLoading(true)
-    setFinanceId(pfinance ? +pfinance : 0)
-    setBranchId(pbranch ? +pbranch : 0)
-    setTypeId(ptype ? +ptype : 0)
-
-    if (pmonth && pyear && pbranch && ptype) {
-      setMonthId(month)
-      setYearId(year)
-    }
 
     load().then(data => {
       if (isLoaded) {
+        const month = pmonth ? +pmonth : new Date().getMonth() + 1
+        const year = pyear ? +pyear : new Date().getFullYear()
+        if (pmonth && pyear && pbranch && ptype) {
+          setMonthId(month)
+          setYearId(year)
+        }
+        setFinanceId(pfinance ? +pfinance : 0)
+        setBranchId(pbranch ? +pbranch : 0)
+        setTypeId(ptype ? +ptype : 0)
         setOrders(data)
         setLoading(false)
         setIsDirty(false)
@@ -211,9 +210,13 @@ const ReportOrder = () => {
       <View>
         <Tabs
           aria-label="Tab-Order"
-          defaultSelectedKey={tabId}
+          defaultSelectedKey={'0'}
           density='compact'
-          onSelectionChange={(e) => setTabId(+e)}
+          onSelectionChange={(e) => {
+            if (!finances.isLoading || !isLoading) {
+              setTabId(+e)
+            }
+          }}
         >
           <TabList aria-label="Tab-Order-List">
             <Item key={'0'}>All</Item>

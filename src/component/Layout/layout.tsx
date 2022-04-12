@@ -38,8 +38,6 @@ export const siteTitle = "SPRS";
 
 const Layout = () => {
 
-  const auth = useAuthService();
-  const user = auth.getCurrentUser();
 
   // let titleStyle = {
   //   fontSize: "110%",
@@ -66,8 +64,8 @@ const Layout = () => {
           backgroundColor={"gray-100"}
           borderBottomWidth={"thin"}
           borderBottomColor={"gray-200"}
-          paddingX={{base:'size-100', M:'size-200'}}
-          paddingY={{base:'size-200', M:'size-50'}}
+          paddingX={{ base: 'size-100', M: 'size-200' }}
+          paddingY={{ base: 'size-200', M: 'size-50' }}
         >
           <Flex direction={'row'} flex columnGap={"size-100"} alignItems={'center'}>
             <View isHidden={{ base: true, M: false }} width={{ base: 64, M: 90 }} marginX={'size-100'}>
@@ -86,24 +84,7 @@ const Layout = () => {
                 <MenuMaster />
                 <MenuCoa />
                 <MenuReport />
-                <MenuTrigger>
-                  <ActionButton isQuiet><UserProfile /><Text>{user && user.userName}</Text></ActionButton>
-                  <Menu
-                    items={[
-                      { id: "logout", name: "Logout " + (user && user.userName) },
-                      { id: "profile", name: "Profile" }
-                    ]}
-                    onAction={(e) => {
-                      if (e === 'logout') {
-                        auth.logout();
-                        window.location.reload();
-                      }
-                    }}>
-                    {item => <Item key={item.id} textValue={item.name}>
-                      {item.id === 'logout' ? <LogOut /> : <User />}
-                      <Text>{item.name}</Text></Item>}
-                  </Menu>
-                </MenuTrigger>
+                <MenuUser />
               </View>
             </View>
           </Flex>
@@ -141,6 +122,36 @@ const Layout = () => {
 
 export default Layout;
 
+const MenuUser = () => {
+  const navigate = useNavigate();
+  const auth = useAuthService();
+  const user = auth.getCurrentUser();
+  const items = [
+    { id: "logout", name: "Logout " + (user && user.userName), icon: <LogOut />, action: logOut },
+    { id: "profile", name: "Profile", icon: <User />, action: gotoProfile }
+  ]
+
+  return (<MenuTrigger>
+    <ActionButton isQuiet><UserProfile /><Text>{user && user.userName}</Text></ActionButton>
+    <Menu
+      items={items}
+      onAction={(e) => items.filter(f=>f.id===e)[0].action()}>
+      {item => <Item key={item.id} textValue={item.name}>
+        {item.icon}
+        <Text>{item.name}</Text></Item>}
+    </Menu>
+  </MenuTrigger>)
+
+  function logOut () {
+    auth.logout();
+    navigate("/")
+    window.location.reload();
+  }
+
+  function gotoProfile() {
+    navigate("/profile")
+  }
+}
 
 const MenuCoa = () => {
   const navigate = useNavigate()
@@ -176,7 +187,7 @@ const MenuReport = () => {
   return <MenuTrigger>
     <ActionButton isQuiet><JourneyReports /><Text>Laporan</Text></ActionButton>
     <Menu items={items} onAction={(e) => {
-      navigate(items.filter(f => f.id===e)[0].link)
+      navigate(items.filter(f => f.id === e)[0].link)
     }}>
       {item => <Item key={item.id} textValue={item.name}>
         {item.icon}
