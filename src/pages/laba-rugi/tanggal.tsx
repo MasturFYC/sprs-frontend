@@ -9,7 +9,7 @@ import { TextField } from "@react-spectrum/textfield";
 import { Button } from "@react-spectrum/button";
 import { dateParam, dateOnly } from "lib/interfaces";
 import { FormatNumber, FormatDate } from "lib/format";
-import Find from '../../find.svg';
+import Find from "@spectrum-icons/workflow/Search"
 
 type labaRugi = {
   index: number,
@@ -64,9 +64,7 @@ const LabaRugiTanggal = () => {
         .get(`/labarugi/bydate/${d}/${k}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
-        .catch(error => {
-          console.log(error)
-        })
+        .catch(error => {console.log(error)})
 
       return res
     }
@@ -122,7 +120,7 @@ const LabaRugiTanggal = () => {
           navigate(`/labarugi/tanggal/${dateFrom}/${dateTo}`)
           setDirty(false)
         }}>
-          <img src={Find} alt="logo" style={{ width: "32px" }} />
+          <Find />
           <Text>Load</Text>
         </Button>        
       </Flex>

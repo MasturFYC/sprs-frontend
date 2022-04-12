@@ -4,7 +4,7 @@ import { TextField, Form, Checkbox, ComboBox, Flex, Item, NumberField, ProgressC
 import axios from "lib/axios-base";
 import MonthComponent from "component/Bulan";
 import { dateOnly, dateParam } from 'lib/interfaces';
-import Find from '../find.svg';
+import Find from "@spectrum-icons/workflow/Search"
 import ComboBranch from 'component/combo-branch';
 import ComboWheel from 'component/combo-wheel';
 import { ReportOrderAllWaiting } from './ReportOrderAllWaiting';
@@ -20,7 +20,7 @@ const ReportOrder = () => {
   const [financeId, setFinanceId] = useState<number>(0);
   const [branchId, setBranchId] = useState<number>(0);
   const [orders, setOrders] = useState<tOrderInvoiced[]>([])
-  //const [isOrderLoading, setIsOrderLoading] = useState<boolean>(false)
+  const [isLoading, setLoading] = useState<boolean>(false)
   const [isDirty, setIsDirty] = useState<boolean>(false)
   const [isDate, setIsDate] = useState(false)
   const [typeId, setTypeId] = useState(0)
@@ -29,6 +29,7 @@ const ReportOrder = () => {
   const [tabId, setTabId] = useState(0)
 
   const status: string[] = ['Not verified', 'Invoiced', 'Waiting', 'Installment']
+  let finances = useFinanceList()
 
 
   const isFromValid = useMemo(
@@ -41,11 +42,8 @@ const ReportOrder = () => {
     [dateFrom, dateTo]
   )
 
-  let finances = useFinanceList()
-
-
   useEffect(() => {
-    let isLoaded = false
+    let isLoaded = true
 
     const load = async () => {
       const headers = {
@@ -69,29 +67,30 @@ const ReportOrder = () => {
 
     const month = pmonth ? +pmonth : new Date().getMonth() + 1
     const year = pyear ? +pyear : new Date().getFullYear()
-    //setIsOrderLoading(true)
-    setMonthId(month)
-    setYearId(year)
+    setLoading(true)
     setFinanceId(pfinance ? +pfinance : 0)
     setBranchId(pbranch ? +pbranch : 0)
     setTypeId(ptype ? +ptype : 0)
 
     if (pmonth && pyear && pbranch && ptype) {
-      load().then(data => {
-        if (!isLoaded) {
-          setOrders(data)
-          //setIsOrderLoading(false)
-          setIsDirty(false)
-        }
-      })
+      setMonthId(month)
+      setYearId(year)
     }
 
+    load().then(data => {
+      if (isLoaded) {
+        setOrders(data)
+        setLoading(false)
+        setIsDirty(false)
+      }
+    })
 
-    return () => { isLoaded = true }
+
+    return () => { isLoaded = false }
 
   }, [pmonth, pyear, pfinance, pbranch, ptype, pfrom, pto])
 
-  if (finances.isLoading) {
+  if (finances.isLoading || isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
   }
 
@@ -200,7 +199,7 @@ const ReportOrder = () => {
               }} labelPosition={'side'} selectedKey={typeId} />
 
             <Button type="submit" variant="cta">
-              <img src={Find} alt="logo" style={{ width: "32px" }} />
+              <Find />
               <Text>Load</Text>
             </Button>
           </Flex>
@@ -212,9 +211,10 @@ const ReportOrder = () => {
       <View>
         <Tabs
           aria-label="Tab-Order"
-          defaultSelectedKey={0}
+          defaultSelectedKey={tabId}
           density='compact'
-          onSelectionChange={(e) => setTabId(+e)}>
+          onSelectionChange={(e) => setTabId(+e)}
+        >
           <TabList aria-label="Tab-Order-List">
             <Item key={'0'}>All</Item>
             <Item key={'2'}>Invoiced</Item>

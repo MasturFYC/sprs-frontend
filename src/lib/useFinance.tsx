@@ -7,7 +7,7 @@ export function useFinanceList() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    let isLoaded = false;
+    let isLoaded = true;
     async function load() {
       const headers = {
         'Content-Type': 'application/json'
@@ -21,15 +21,17 @@ export function useFinanceList() {
 
       return res ? res : [];
     }
-    setIsLoading(true)
+
+    setIsLoading(true);
+    
     load().then(data => {
-      if (!isLoaded) {
-        setList(data)
+      if (isLoaded) {
         setIsLoading(false)
+        setList(data)
       }
     });
 
-    return () => { isLoaded = true; };
+    return () => { isLoaded = false }
   }, []);
 
   return {

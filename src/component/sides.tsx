@@ -1,10 +1,13 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ActionButton, Flex, ProgressCircle, useAsyncList, View } from '@adobe/react-spectrum';
+import { ActionButton,Text, Flex, ProgressCircle, useAsyncList, View,  } from '@adobe/react-spectrum';
 import { Link } from '@adobe/react-spectrum';
 import { Link as RouterLink } from 'react-router-dom';
 import { iAccountInfo } from '../lib/interfaces';
 import axios from "../lib/axios-base";
 import RefreshIcon from '@spectrum-icons/workflow/DocumentRefresh'
+import Home from '@spectrum-icons/workflow/Home';
+import CalendarAdd from '@spectrum-icons/workflow/CalendarAdd';
+import TransferToPlatform from '@spectrum-icons/workflow/TransferToPlatform';
 
 type financeList = {
   id: number
@@ -26,8 +29,8 @@ const Aside = () => {
   }
   return (
     <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginX={'size-100'}>
-      <View><Link isQuiet variant='primary' UNSAFE_className='font-bold'><RouterLink to="/">Home</RouterLink></Link></View>
-
+      <View><Link isQuiet variant='primary'><RouterLink to="/"><span className='font-bold'><Home size={'S'} marginEnd={'size-100'} /><Text>Home</Text></span></RouterLink></Link></View>
+{/* 
       <MasterMenu title={'Master'}>
 
         <Flex direction={'column'} rowGap='size-100'>
@@ -50,16 +53,16 @@ const Aside = () => {
             <RouterLink to="/finance">Pengelola Keuangan (Finance)</RouterLink>
           </Link>
         </Flex>
-      </MasterMenu>
+      </MasterMenu> */}
 
       <View>
-        <Link isQuiet variant='primary' UNSAFE_className='font-bold'>
-          <RouterLink to={`/order/search/${getToday()}`}>Order (SPK)</RouterLink>
+        <Link isQuiet variant='primary'>
+          <RouterLink to={`/order/search/${getToday()}`}><span className='font-bold'><CalendarAdd size='S' marginEnd={'size-100'} />Order (SPK)</span></RouterLink>
         </Link>
       </View>
 
       <FinanceMenu />
-
+{/* 
       <MasterMenu title={'COA (Chart of Accounts)'}>
 
         <Flex direction={'column'} rowGap='size-100'>
@@ -73,10 +76,10 @@ const Aside = () => {
             <RouterLink to="/acc-code">Kode Akun</RouterLink>
           </Link>
         </Flex>
-      </MasterMenu>
+      </MasterMenu> */}
 
       <AutoMenu />
-
+{/* 
       <MasterMenu title={'Laporan'}>
         <Flex direction={'column'} rowGap='size-100'>
           <Link isQuiet variant='primary'>
@@ -89,7 +92,8 @@ const Aside = () => {
             <RouterLink to="/labarugi">Laporan Keuangan</RouterLink>
           </Link>
         </Flex>
-      </MasterMenu>
+      </MasterMenu> */}
+
     </Flex>
   )
 }
@@ -136,7 +140,7 @@ function FinanceMenu() {
           console.log(error)
         })
 
-      return { items: res }
+      return { items: res ? res : [] }
     },
     getKey: (item: financeGroupMenu) => item.id
   })
@@ -210,7 +214,7 @@ function AutoMenu() {
   }
 
   return (
-    <MasterMenu title={'Transaksi'} onLinkPress={(e) => setShow(!show)}>
+    <MasterMenu title={<div><TransferToPlatform  size='S' marginEnd={'size-100'}/>Transaksi</div>} onLinkPress={(e) => setShow(!show)}>
       <Flex direction={'column'} rowGap={'size-100'}>
         <Link isQuiet variant='primary'>
           <RouterLink to="/trx"><b>Ledger (Buku Besar)</b></RouterLink>
