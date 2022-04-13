@@ -160,7 +160,9 @@ const MenuCoa = () => {
 
   return <MenuTrigger>
     <ActionButton isQuiet><Book /><Text>COA</Text></ActionButton>
-    <Menu items={items} onAction={(e) => {
+    <Menu items={items} 
+      shouldFocusWrap={true}
+      onAction={(e) => {
       navigate("/acc-" + e)
     }}>
       {item => <Item key={item.id} textValue={item.name}>
@@ -182,7 +184,9 @@ const MenuReport = () => {
 
   return <MenuTrigger>
     <ActionButton isQuiet><JourneyReports /><Text>Laporan</Text></ActionButton>
-    <Menu items={items} onAction={(e) => {
+    <Menu 
+      shouldFocusWrap={true}
+      items={items} onAction={(e) => {
       navigate(items.filter(f => f.id === e)[0].link)
     }}>
       {item => <Item key={item.id} textValue={item.name}>
@@ -208,7 +212,9 @@ const MenuMaster = () => {
 
   return <MenuTrigger>
     <ActionButton isQuiet><DividePath /><Text>Master</Text></ActionButton>
-    <Menu items={items} onAction={(e) => {
+    <Menu items={items}
+      shouldFocusWrap={true}
+      onAction={(e) => {
       navigate("/" + e)
     }}>
       {item => <Item key={item.id} textValue={item.name}>
