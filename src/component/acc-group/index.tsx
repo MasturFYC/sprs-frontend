@@ -15,7 +15,7 @@ const AccountType = () => {
 
 	return (
 		<View>
-			<h1>Group Akun</h1>
+			<div className="div-h1">Group Akun</div>
 
 			<View marginY={'size-200'}>
 				<Button variant="cta" onPress={() => addNewItem()}>Group Akun Baru</Button>

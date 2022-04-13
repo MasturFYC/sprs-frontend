@@ -19,7 +19,7 @@ const Finance = () => {
 
 	return (
 		<Fragment>
-			<h1>Pengelola Keuangan (Finance)</h1>
+			<div className="div-h1">Pengelola Keuangan (Finance)</div>
 			<Divider size={'S'} />
 			{[initFinance, ...fin.items].map(o => {
 				return o.id === selectedId ?

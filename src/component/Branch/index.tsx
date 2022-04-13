@@ -10,8 +10,8 @@ const Branch = () => {
     let branchs = useBranchList();
 
     return (
-        <Fragment>
-            <div className="div-h2">Cabang Kantor</div>
+        <View>
+            <div className="div-h1">Cabang Kantor</div>
             <Divider size={'S'} />
             {[initBranch,...branchs.items].map(o => {
                 return o.id === selectedId ?
@@ -40,7 +40,7 @@ const Branch = () => {
                     <Divider size={'S'} />
                     </View>
             })}
-        </Fragment>
+        </View>
     );
 
     function formResponse(params: { method: string, data?: iBranch }) {

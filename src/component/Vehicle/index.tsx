@@ -11,7 +11,7 @@ const Vehicle = () => {
 
 	return (
 		<Fragment>
-			<h1>Tipe Kendaraan</h1>
+			<div className="div-h1">Tipe Kendaraan</div>
 			{[initVehicle, ...vehicles.items].map(o => {
 				return o.id === selectedId ?
 					<TypeForm key={o.id} vehicle={o} callback={(e) => formResponse(e)} />

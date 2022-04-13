@@ -88,11 +88,14 @@
 }
 
 .div-h1 {
+  font-family: adobe-clean-serif;
+  font-weight: 700;
   font-size: calc(100% + 16px);
   color: indigo
 }
 
 .div-h2 {
+  font-family: adobe-clean-serif;
   font-size: calc(100% + 2px);
   color: indigo
 }
@@ -211,7 +214,7 @@ td {
 }
 
 .table-small2 {
-  font-size: 0.8rem;
+  font-size: 1.25rem;
 }
 
 
@@ -356,7 +359,7 @@ td {
 }
 
 .table-small {
-  font-size: 0.8rem;
+  font-size: 1.25rem;
   border: none;
 }
 

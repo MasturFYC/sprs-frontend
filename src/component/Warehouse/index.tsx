@@ -11,7 +11,7 @@ const Wheel = () => {
 
 	return (
 		<Fragment>
-			<h1>Gudang</h1>
+			<div className="div-h1">Gudang</div>
 			{[initWarehouse, ...warehouses.items].map(o => {
 				return o.id === selectedId ?
 					<WheelForm key={o.id} warehouse={o} callback={(e) => formResponse(e)} />

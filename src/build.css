@@ -1,21 +1,36 @@
-@import './font.css';
+@import './font-serif.css';
+@import './font-clean.css';
 
 @import '../node_modules/@spectrum-css/vars/dist/spectrum-global.css';
-@import '../node_modules/@spectrum-css/vars/dist/spectrum-medium.css';
+@import '../node_modules/@spectrum-css/vars/dist/spectrum-dark.css';
 @import '../node_modules/@spectrum-css/vars/dist/spectrum-light.css';
+@import '../node_modules/@spectrum-css/vars/css/scales/spectrum-medium.css';
+@import '../node_modules/@spectrum-css/page/dist/index-vars.css';
 @import '../node_modules/@spectrum-css/typography/dist/index-vars.css';
-@import '../node_modules/@spectrum-css/icon/dist/vars.css';
+/* @import '@spectrum-css/icon/dist/vars.css'; */
 /* @import '../node_modules/@spectrum-css/page/dist/index-vars.css'; */
 /* @import '../node_modules/@spectrum-css/button/dist/index-vars.css'; */
-
+html {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-size: 62.5% !important;
+  font-kerning: normal !important;
+  font-variant-ligatures: common-ligatures !important;
+  font-variant-numeric: oldstyle-nums proportional-nums !important;
+}
 body {
   margin: 0;
-  font-family: 'adobe-clean',
+  padding: 0;
+  font-family: adobe-clean, adobe-clean-serif,
      -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-rendering: optimizeLegibility;
+  text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
+  
 }
 
 code {

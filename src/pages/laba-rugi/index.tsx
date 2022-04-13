@@ -13,7 +13,7 @@ const LabaRugiPage = () => {
 
   return (
     <View>
-      <div className="spectrum-Typography spectrum-Heading spectrum-Heading--sizeXL">Laporan Keuangan</div>
+      <div className="div-h1">Laporan Keuangan</div>
       <Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
         <Flex direction={'row'} columnGap={'size-75'}>
           <Histogram size="S" />
