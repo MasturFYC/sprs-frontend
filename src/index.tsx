@@ -8,7 +8,7 @@ import { I18nProvider } from '@react-aria/i18n';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Provider theme={defaultTheme} colorScheme={'light'}>
+    <Provider theme={defaultTheme} colorScheme={'light'} scale={'medium'}>
     <I18nProvider locale="id-ID">
       <App />
       </I18nProvider>

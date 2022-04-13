@@ -7,7 +7,7 @@ import User from '@spectrum-icons/workflow/User';
 import UserProfile from '@spectrum-icons/workflow/RealTimeCustomerProfile';
 import LogOut from '@spectrum-icons/workflow/LogOut';
 import AssetsLinkedPublished from "@spectrum-icons/workflow/AssetsLinkedPublished";
-
+import { defaultTheme, Provider } from '@adobe/react-spectrum';
 //import { Footer } from "@react-spectrum/view";
 
 import Aside from "../sides";
@@ -56,39 +56,35 @@ const Layout = () => {
           L: ["header  header", "sidebar content", "footer  footer"],
         }}
         columns={{ base: ["3fr"], L: ["1fr", "4fr"] }}
-        rows={["size-1000", "auto", "size-1000"]}
+        rows={["size-800", "auto", "size-1000"]}
         minHeight={"100vh"}
       >
-        <View
-          gridArea="header"
-          backgroundColor={"gray-100"}
-          borderBottomWidth={"thin"}
-          borderBottomColor={"gray-200"}
-          paddingX={{ base: 'size-100', M: 'size-200' }}
-          paddingY={{ base: 'size-200', M: 'size-50' }}
-        >
-          <Flex direction={'row'} flex columnGap={"size-100"} alignItems={'center'}>
-            <View isHidden={{ base: true, M: false }} width={{ base: 64, M: 90 }} marginX={'size-100'}>
-              <AssetsLinkedPublished color={'positive'} size={'L'} />
-            </View>
-            <View flex>
-              <View isHidden={{ base: true, M: false }}>
-                <View><span className={'h2-orange font-bold font-title'}>PT. SARANA PADMA RIDHO SEPUH</span></View>
+
+        <View gridArea={'header'}>
+          <Provider theme={defaultTheme} colorScheme="dark">
+            <Flex  direction={'row'} height={{ base: 'size-800', M: 'size-800' }} flex columnGap={{ base: "size-50", M: "size-400" }} alignItems={'center'}>
+              <View marginStart={{base:'size-50',M:'size-400'}}>
+                <AssetsLinkedPublished size={'L'} justifySelf='center' alignSelf={'center'} />
+              </View>
+              <View flex>
+                {/* <View height={'size-800'} isHidden={{ base: true, M: false }}>
+                <div className="spectrum-Heading spectrum-Heading--sizeL">SPRS</div> */}
+                {/* <View><span className={'h2-orange font-bold font-title'}>PT. SARANA PADMA RIDHO SEPUH</span></View>
                 <View>GENERAL SUPPLIER, CONTRACTOR, COLLECTION</View>
-                <View>Jl. Gator Subroto Villa Gatsu No. 01 - Indramayu</View>
+                <View>Jl. Gator Subroto Villa Gatsu No. 01 - Indramayu</View> */}
+                {/* </View> */}
+                <View margin={'size-50'} isHidden={{ base: true, M: false }}><span className={"div-h2 text-white font-bold"}>SPRS</span></View>
               </View>
-              <View margin={'size-50'} isHidden={{ base: false, M: true }}><span className={"div-h2 font-bold"}>SPRS</span></View>
-            </View>
-            <View>
-              <View>
-                <MenuMaster />
-                <MenuCoa />
-                <MenuReport />
-                <MenuUser />
+              <View marginEnd={{base:'size-50',M:'size-400'}}>
+                  <MenuMaster />
+                  <MenuCoa />
+                  <MenuReport />
+                  <MenuUser />
               </View>
-            </View>
-          </Flex>
+            </Flex>
+          </Provider>
         </View>
+
         <View
           isHidden={{ base: true, L: false }}
           gridArea="sidebar"
@@ -135,14 +131,14 @@ const MenuUser = () => {
     <ActionButton isQuiet><UserProfile /><Text>{user && user.userName}</Text></ActionButton>
     <Menu
       items={items}
-      onAction={(e) => items.filter(f=>f.id===e)[0].action()}>
+      onAction={(e) => items.filter(f => f.id === e)[0].action()}>
       {item => <Item key={item.id} textValue={item.name}>
         {item.icon}
         <Text>{item.name}</Text></Item>}
     </Menu>
   </MenuTrigger>)
 
-  function logOut () {
+  function logOut() {
     auth.logout();
     navigate("/")
     window.location.reload();

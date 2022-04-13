@@ -86,14 +86,14 @@ const LabaRugiTanggal = () => {
   return (
     <View>
       <Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
-        <View><span className="div-h2 font-bold">Laporan Laba Rugi</span></View>
+       <View><span className="div-h2 font-bold">Laporan Laba Rugi</span></View>
         {isLoading && <View><ProgressCircle aria-label="Loading…" isIndeterminate /></View>}
       </Flex>
-      <Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
+      <Flex direction={{base:'column', M: 'row'}} rowGap={'size-75'} columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
         <TextField
           type={'date'}
           labelAlign={'end'}
-          label='Dari tanggal'
+          label={<View width={{base: '88px', M:'auto'}}>Dari tanggal</View>}
           labelPosition={'side'}
           validationState={isFromValid ? 'valid' : 'invalid'}
           width={'auto'}
@@ -108,7 +108,7 @@ const LabaRugiTanggal = () => {
           labelAlign={'end'}
           labelPosition={'side'}
           validationState={isFromValid ? 'valid' : 'invalid'}
-          label='Sampai'
+          label={<View width={{base: '88px', M:'auto'}}>Sampai</View>}
           width={'auto'}
           value={dateTo}
           onChange={(e) => {

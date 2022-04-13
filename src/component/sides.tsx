@@ -28,7 +28,7 @@ const Aside = () => {
     return '' + d.getDate() + '-' + d.toLocaleString("id-ID", { month: "short" }).toLowerCase() + '-' + d.getFullYear()
   }
   return (
-    <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginX={'size-100'}>
+    <Flex rowGap={'size-200'} direction='column' marginTop={'size-200'} marginEnd={'size-100'} marginStart={'size-400'}>
       <View><Link isQuiet variant='primary'><RouterLink to="/"><span className='font-bold'><Home size={'S'} marginEnd={'size-100'} /><Text>Home</Text></span></RouterLink></Link></View>
 {/* 
       <MasterMenu title={'Master'}>

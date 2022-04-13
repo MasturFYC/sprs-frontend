@@ -211,13 +211,9 @@ td {
 }
 
 .table-small2 {
-  font-size: 85%;
+  font-size: 0.85rem;
 }
 
-.table-small {
-  font-size: 85%;
-  border: 1px solid #ececec;
-}
 
 .table-small td {
   border-left: 1px solid #ececec;
@@ -360,28 +356,26 @@ td {
 }
 
 .table-small {
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   border: none;
 }
 
 /* table green */
 
-.table-small thead tr {
-  border: solid 1px #66a705;
-}
-
+/* 
 .table-small thead tr th {
   border-left: solid 1px #7dc215;
+} */
+
+.table-small thead tr th {
+  border-left: solid 1px #ececec;
 }
 
 .table-small thead tr th:first-child {
-  border: none;
+  border-left: none;
 }
 
 
-.table-small td {
-  border-left: solid 1px #ececec;
-}
 
 .table-small tbody tr td:last-child {
   border-right: solid 1px rgb(102, 167, 5);
@@ -403,6 +397,11 @@ td {
 .table-small tbody tr:last-child {
   border-bottom: none; /*solid 1px rgb(102, 167, 5); */
 }
+
+.table-small thead tr {
+  border: solid 1px #66a705;
+}
+
 
 
 .table-small tfoot th,

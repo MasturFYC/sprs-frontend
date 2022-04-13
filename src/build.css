@@ -1,0 +1,24 @@
+@import './font.css';
+
+@import '../node_modules/@spectrum-css/vars/dist/spectrum-global.css';
+@import '../node_modules/@spectrum-css/vars/dist/spectrum-medium.css';
+@import '../node_modules/@spectrum-css/vars/dist/spectrum-light.css';
+@import '../node_modules/@spectrum-css/typography/dist/index-vars.css';
+@import '../node_modules/@spectrum-css/icon/dist/vars.css';
+/* @import '../node_modules/@spectrum-css/page/dist/index-vars.css'; */
+/* @import '../node_modules/@spectrum-css/button/dist/index-vars.css'; */
+
+body {
+  margin: 0;
+  font-family: 'adobe-clean',
+     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
