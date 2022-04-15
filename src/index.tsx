@@ -1,20 +1,21 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { defaultTheme, Provider } from '@adobe/react-spectrum';
 import { I18nProvider } from '@react-aria/i18n';
 
-ReactDOM.render(
-  <React.StrictMode>
+const root = createRoot(document.getElementById('root') as HTMLElement);
+
+root.render(
+  // <React.StrictMode>
     <Provider theme={defaultTheme} colorScheme={'light'} scale={'medium'}>
     <I18nProvider locale="id-ID">
       <App />
       </I18nProvider>
     </Provider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

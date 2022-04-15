@@ -7,13 +7,17 @@ import { Text } from '@react-spectrum/text'
 import { Flex } from "@react-spectrum/layout";
 import { TextField } from "@react-spectrum/textfield";
 import { Button } from "@react-spectrum/button";
-import { dateParam, dateOnly } from "lib/interfaces";
+import { dateParam, dateOnly, iBranch } from "lib/interfaces";
 import { FormatNumber, FormatDate } from "lib/format";
 import Find from "@spectrum-icons/workflow/Search"
+import { useBranchList } from "lib/useBranch";
+import { Item, TabList, Tabs } from "@react-spectrum/tabs";
 
 type labaRugi = {
+  id: number,
   index: number,
   title: string,
+  branch: number,
   division: string,
   debt: number,
   cred: number,
@@ -28,6 +32,7 @@ const LabaRugiTanggal = () => {
   let [isDirty, setDirty] = React.useState(false)
   let [dateFrom, setDateFrom] = React.useState(dateOnly(dateParam(null)))
   let [dateTo, setDateTo] = React.useState(dateOnly(dateParam(null)))
+  let [tab, setTab] = React.useState(0)
   let info = [
     { id: 1, group: 1, title: 'Biaya Order', division: 'trx-order' },
     { id: 2, group: 1, title: 'Biaya Pinjaman Unit', division: 'trx-lent' },
@@ -38,6 +43,7 @@ const LabaRugiTanggal = () => {
     { id: 7, group: 3, title: 'Beban', division: 'trx-auto' },
   ]
 
+  const {items: tabs, isLoading: branchIsLoading} = useBranchList();
 
   const isFromValid = React.useMemo(
     () => {
@@ -83,11 +89,15 @@ const LabaRugiTanggal = () => {
 
   }, [dari, ke])
 
+  function getData() {
+    return tab === 0 ? data : data.filter(f => f.branch === tab);
+  }
+
   return (
     <View>
       <Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
        <View><span className="div-h2 font-bold">Laporan Laba Rugi</span></View>
-        {isLoading && <View><ProgressCircle aria-label="Loading…" isIndeterminate /></View>}
+        {(isLoading || branchIsLoading) && <View><ProgressCircle aria-label="Loading…" isIndeterminate /></View>}
       </Flex>
       <Flex direction={{base:'column', M: 'row'}} rowGap={'size-75'} columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
         <TextField
@@ -125,6 +135,22 @@ const LabaRugiTanggal = () => {
         </Button>        
       </Flex>
       <View>
+        <Tabs
+          aria-label="Tab-Order"
+          density='compact'
+          items={[{ id: 0, name: "All", headBranch: "" },...tabs]}
+          defaultSelectedKey={tab}
+          onSelectionChange={(e) => {
+            if(!branchIsLoading || !isLoading) {
+              setTab(+e)
+            }
+          }}>
+          <TabList aria-label="Tab-Order-List">
+            {(item: iBranch) => <Item key={item.id}>{item.name}</Item>}
+          </TabList>
+        </Tabs>
+      </View>
+      <View>
         <View><span className={'div-h2'}>1) Biaya yang dikeluarkan</span></View>
         <View marginY={'size-200'}>
           Yaitu biaya-biaya yang dikeluarkan untuk <i>Biaya Tarik Matel</i>
@@ -141,9 +167,12 @@ const LabaRugiTanggal = () => {
           </thead>
           <tbody>
             {
-              data.filter(f => f.index === 1).map((item) => (
-                <tr key={item.division} className="border-b-gray-50">
-                  <td>{info.filter(f => f.division === item.division)[0].title}</td>
+              getData().filter(f => f.index === 1).map((item) => (
+                <tr key={item.id} className="border-b-gray-50">
+                  <td>
+                    {info.filter(f => f.division === item.division)[0].title}
+                    {tab === 0 ? ` (${tabs.filter(f => f.id === item.branch)[0].name})` : ''}
+                  </td>
                   <td className="text-right">{FormatNumber(item.debt, 2)}</td>
                 </tr>
               ))}
@@ -151,7 +180,7 @@ const LabaRugiTanggal = () => {
           <tfoot>
             <tr className="border-b-1">
               <th>Total</th>
-              <th className="text-right">{FormatNumber(data.filter(f => f.index === 1).reduce((t, c) => t + c.debt, 0), 2)}</th>
+              <th className="text-right">{FormatNumber(getData().filter(f => f.index === 1).reduce((t, c) => t + c.debt, 0), 2)}</th>
             </tr>
           </tfoot>
         </table>
@@ -167,7 +196,7 @@ const LabaRugiTanggal = () => {
           mulai dari {FormatDate(dari ? dari : dateParam(null))} sampai {FormatDate(ke ? ke : dateParam(null))}{' '}
           bisa dilihat pada tabel berikut:
         </View>
-        <Flex direction={{ base: 'column', L: 'row' }} rowGap={'size-100'} columnGap={'size-200'}>
+        <Flex direction={{ base: 'column', L: 'column' }} rowGap={'size-100'} columnGap={'size-200'}>
           <View flex>
             <table className="table-small table-100 collapse-none" cellPadding={6}>
               <thead>
@@ -180,9 +209,12 @@ const LabaRugiTanggal = () => {
               </thead>
               <tbody>
                 {
-                  data.filter(f => f.index === 2).map((item) => (
-                    <tr key={item.division} className="border-b-gray-50">
-                      <td>{info.filter(f => f.division === item.division)[0].title}</td>
+                  getData().filter(f => f.index === 2).map((item) => (
+                    <tr key={item.id} className="border-b-gray-50">
+                      <td>
+                        {info.filter(f => f.division === item.division)[0].title}
+                        {tab === 0 ? ` (${tabs.filter(f => f.id === item.branch)[0].name})` : ''}
+                      </td>
                       <td className="text-right">{FormatNumber(item.cred, 2)}</td>
                       <td className="text-right">{FormatNumber(item.debt, 2)}</td>
                       <td className="text-right">{FormatNumber(item.profit, 2)}</td>
@@ -192,9 +224,9 @@ const LabaRugiTanggal = () => {
               <tfoot>
                 <tr className="border-b-1">
                   <th>Total</th>
-                  <th className="text-right">{FormatNumber(data.filter(f => f.index === 2).reduce((t, c) => t + c.cred, 0), 2)}</th>
-                  <th className="text-right">{FormatNumber(data.filter(f => f.index === 2).reduce((t, c) => t + c.debt, 0), 2)}</th>
-                  <th className="text-right">{FormatNumber(data.filter(f => f.index === 2).reduce((t, c) => t + c.profit, 0), 2)}</th>
+                  <th className="text-right">{FormatNumber(getData().filter(f => f.index === 2).reduce((t, c) => t + c.cred, 0), 2)}</th>
+                  <th className="text-right">{FormatNumber(getData().filter(f => f.index === 2).reduce((t, c) => t + c.debt, 0), 2)}</th>
+                  <th className="text-right">{FormatNumber(getData().filter(f => f.index === 2).reduce((t, c) => t + c.profit, 0), 2)}</th>
                 </tr>
               </tfoot>
             </table>
@@ -232,8 +264,8 @@ const LabaRugiTanggal = () => {
           </thead>
           <tbody>
             {
-              data.filter(f => f.index === 3).map((item) => (
-                <tr key={item.division} className="border-b-gray-50">
+              getData().filter(f => f.index === 3).map((item) => (
+                <tr key={item.id} className="border-b-gray-50">
                   <td>{item.division}</td>
                   <td className="text-right">{FormatNumber(item.debt, 2)}</td>
                 </tr>
@@ -242,7 +274,7 @@ const LabaRugiTanggal = () => {
           <tfoot>
             <tr className="border-b-1">
               <th>Total</th>
-              <th className="text-right">{FormatNumber(data.filter(f => f.index === 3).reduce((t, c) => t + c.debt, 0), 2)}</th>
+              <th className="text-right">{FormatNumber(getData().filter(f => f.index === 3).reduce((t, c) => t + c.debt, 0), 2)}</th>
             </tr>
           </tfoot>
         </table>
@@ -251,11 +283,11 @@ const LabaRugiTanggal = () => {
         <View><span className={'div-h2'}>4) Keuntungan bersih</span></View>
         <View marginY={'size-200'}>Keuntungan bersih didapatkan dari <b>Keuntungan Bruto</b> dikurangi <b>Beban</b></View>
         <View>
-          <b>{FormatNumber(data.filter(f => f.index === 2).reduce((t, c) => t + c.profit, 0) - data.filter(f => f.index === 3).reduce((t, c) => t + c.debt, 0), 2)}</b>
+          <b>{FormatNumber(getData().filter(f => f.index === 2).reduce((t, c) => t + c.profit, 0) - getData().filter(f => f.index === 3).reduce((t, c) => t + c.debt, 0), 2)}</b>
           {' '}<b>=</b>
-          {' '}{FormatNumber(data.filter(f => f.index === 2).reduce((t, c) => t + c.profit, 0), 2)}
+          {' '}{FormatNumber(getData().filter(f => f.index === 2).reduce((t, c) => t + c.profit, 0), 2)}
           {' '}<b>-</b>
-          {' '}{FormatNumber(data.filter(f => f.index === 3).reduce((t, c) => t + c.debt, 0), 2)}
+          {' '}{FormatNumber(getData().filter(f => f.index === 3).reduce((t, c) => t + c.debt, 0), 2)}
         </View>
       </View>
     </View>
