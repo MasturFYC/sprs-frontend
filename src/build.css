@@ -1,5 +1,7 @@
 @import './font-serif.css';
 @import './font-clean.css';
+@import './fonts/source-code-pro/source-code-pro.css';
+@import './fonts/source-code-pro/source-code-variable.css';
 
 @import '../node_modules/@spectrum-css/vars/dist/spectrum-global.css';
 @import '../node_modules/@spectrum-css/vars/dist/spectrum-dark.css';
@@ -34,6 +36,6 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: 'Source Code Pro', 'Source Code Variable', Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }

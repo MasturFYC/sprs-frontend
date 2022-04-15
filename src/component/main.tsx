@@ -2,6 +2,7 @@ import React from 'react'
 import { Flex } from '@adobe/react-spectrum'
 import { Route, Routes } from 'react-router-dom'
 import logo from '../logo.svg';
+import WaitMe from './waitme';
 
 const Merk = React.lazy(() => import('./Merk'))
 const Wheel = React.lazy(() => import('./Wheel'));
@@ -40,60 +41,60 @@ const Main = () => {
     <Routes>
       <Route path="/" element={<ShowFirstPage />} />
       <Route path="/merk" element={
-        <React.Suspense fallback={<div>Please wait...</div>}>
+        <React.Suspense fallback={<WaitMe />}>
           <Merk />
         </React.Suspense>
       } />
-      <Route path="/wheel" element={<React.Suspense fallback={<div>Please wait...</div>}><Wheel /></React.Suspense>} />
-      <Route path="/vehicle" element={<React.Suspense fallback={<div>Please wait...</div>}><Vehicle /></React.Suspense>} />
-      <Route path="/branch" element={<React.Suspense fallback={<div>Please wait...</div>}><Branch /></React.Suspense>} />
-      <Route path="/warehouse" element={<React.Suspense fallback={<div>Please wait...</div>}><Warehouse /></React.Suspense>} />
-      <Route path="/finance" element={<React.Suspense fallback={<div>Please wait...</div>}><Finance /></React.Suspense>} />
+      <Route path="/wheel" element={<React.Suspense fallback={<WaitMe />}><Wheel /></React.Suspense>} />
+      <Route path="/vehicle" element={<React.Suspense fallback={<WaitMe />}><Vehicle /></React.Suspense>} />
+      <Route path="/branch" element={<React.Suspense fallback={<WaitMe />}><Branch /></React.Suspense>} />
+      <Route path="/warehouse" element={<React.Suspense fallback={<WaitMe />}><Warehouse /></React.Suspense>} />
+      <Route path="/finance" element={<React.Suspense fallback={<WaitMe />}><Finance /></React.Suspense>} />
       <Route path="/order">
-        <Route path=':pid' element={<React.Suspense fallback={<div>Please wait...</div>}><OrderPage /></React.Suspense>} />
-        <Route path=':s/:p' element={<React.Suspense fallback={<div>Please wait...</div>}><Order /></React.Suspense>} />
+        <Route path=':pid' element={<React.Suspense fallback={<WaitMe />}><OrderPage /></React.Suspense>} />
+        <Route path=':s/:p' element={<React.Suspense fallback={<WaitMe />}><Order /></React.Suspense>} />
       </Route>
       <Route path="/invoice">
-        <Route path='list' element={<React.Suspense fallback={<div>Please wait...</div>}><Invoice /></React.Suspense>} />
-        <Route path=":financeId/:invoiceId" element={<React.Suspense fallback={<div>Please wait...</div>}><InvoiceForm /></React.Suspense>} />
+        <Route path='list' element={<React.Suspense fallback={<WaitMe />}><Invoice /></React.Suspense>} />
+        <Route path=":financeId/:invoiceId" element={<React.Suspense fallback={<WaitMe />}><InvoiceForm /></React.Suspense>} />
       </Route>
-      <Route path="/loan" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPage /></React.Suspense>}>
-        <Route path="list" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanListPage /></React.Suspense>} />
-        <Route path=":pid" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPageForm /></React.Suspense>} />
+      <Route path="/loan" element={<React.Suspense fallback={<WaitMe />}><LoanPage /></React.Suspense>}>
+        <Route path="list" element={<React.Suspense fallback={<WaitMe />}><LoanListPage /></React.Suspense>} />
+        <Route path=":pid" element={<React.Suspense fallback={<WaitMe />}><LoanPageForm /></React.Suspense>} />
       </Route>
-      <Route path="/lent" element={<React.Suspense fallback={<div>Please wait...</div>}><LentPage /></React.Suspense>}>
-        <Route path="list" element={<React.Suspense fallback={<div>Please wait...</div>}><LentListPage /></React.Suspense>} />        
-        <Route path=":pid" element={<React.Suspense fallback={<div>Please wait...</div>}><LentPageForm /></React.Suspense>} />        
+      <Route path="/lent" element={<React.Suspense fallback={<WaitMe />}><LentPage /></React.Suspense>}>
+        <Route path="list" element={<React.Suspense fallback={<WaitMe />}><LentListPage /></React.Suspense>} />        
+        <Route path=":pid" element={<React.Suspense fallback={<WaitMe />}><LentPageForm /></React.Suspense>} />        
       </Route>
-      <Route path="/acc-type" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>}>
-        <Route path=":id/:name" element={<React.Suspense fallback={<div>Please wait...</div>}><AccType /></React.Suspense>} />
+      <Route path="/acc-type" element={<React.Suspense fallback={<WaitMe />}><AccType /></React.Suspense>}>
+        <Route path=":id/:name" element={<React.Suspense fallback={<WaitMe />}><AccType /></React.Suspense>} />
       </Route>
-      <Route path="/acc-code" element={<React.Suspense fallback={<div>Please wait...</div>}><AccCode /></React.Suspense>}>
-        <Route path=":id/:name" element={<React.Suspense fallback={<div>Please wait...</div>}><AccCode /></React.Suspense>} />
+      <Route path="/acc-code" element={<React.Suspense fallback={<WaitMe />}><AccCode /></React.Suspense>}>
+        <Route path=":id/:name" element={<React.Suspense fallback={<WaitMe />}><AccCode /></React.Suspense>} />
       </Route>
-      <Route path="/acc-group" element={<React.Suspense fallback={<div>Please wait...</div>}><TrxType /></React.Suspense>} />
-      <Route path="/trx" element={<React.Suspense fallback={<div>Please wait...</div>}><Trx /></React.Suspense>}><Route path=":trxId" element={<Trx />} />
+      <Route path="/acc-group" element={<React.Suspense fallback={<WaitMe />}><TrxType /></React.Suspense>} />
+      <Route path="/trx" element={<React.Suspense fallback={<WaitMe />}><Trx /></React.Suspense>}><Route path=":trxId" element={<Trx />} />
       </Route>
       <Route path="/trx-auto-debet">
         <Route path=":trxId" element={
-          <React.Suspense fallback={<div>Please wait...</div>}>
+          <React.Suspense fallback={<WaitMe />}>
             <TrxAutoDebet />
           </React.Suspense>} />
       </Route>
       <Route path="/report">
         <Route path="trx">
           <Route path=":m/:y" element={
-            <React.Suspense fallback={<div>Please wait...</div>}>
+            <React.Suspense fallback={<WaitMe />}>
               <ReportTrxtByMonth />
             </React.Suspense>} />
         </Route>
-        <Route path="order-status" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>}>
-          <Route path=":m/:y/:f/:b/:t/:tf/:to" element={<React.Suspense fallback={<div>Please wait...</div>}><ReportOrder /></React.Suspense>} />
+        <Route path="order-status" element={<React.Suspense fallback={<WaitMe />}><ReportOrder /></React.Suspense>}>
+          <Route path=":m/:y/:f/:b/:t/:tf/:to" element={<React.Suspense fallback={<WaitMe />}><ReportOrder /></React.Suspense>} />
         </Route>
       </Route>
-      <Route path="/labarugi" element={<React.Suspense fallback={<div>Please wait...</div>}><LabaRugiPage /></React.Suspense>}>
-        <Route path="tanggal/:dari/:ke" element={<React.Suspense fallback={<div>Please wait...</div>}><LabaRugiTanggal /></React.Suspense>} />
-        {/* <Route path="akun" element={<React.Suspense fallback={<div>Please wait...</div>}><LoanPageForm /></React.Suspense>} /> */}
+      <Route path="/labarugi" element={<React.Suspense fallback={<WaitMe />}><LabaRugiPage /></React.Suspense>}>
+        <Route path="tanggal/:dari/:ke" element={<React.Suspense fallback={<WaitMe />}><LabaRugiTanggal /></React.Suspense>} />
+        {/* <Route path="akun" element={<React.Suspense fallback={<WaitMe />}><LoanPageForm /></React.Suspense>} /> */}
       </Route>
 
     </Routes>

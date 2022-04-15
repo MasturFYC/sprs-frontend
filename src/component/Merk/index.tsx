@@ -16,7 +16,7 @@ const Merk = () => {
 
 	return (
 		<Fragment>
-			<h1>Merk Kendaraan</h1>
+			<div className="div-h1">Merk Kendaraan</div>
 			{[initMerk, ...merks.items].map(o => {
 				return o.id === selectedId ?
 					<MerkForm key={o.id} merk={o} callback={(e) => formResponse(e)} />

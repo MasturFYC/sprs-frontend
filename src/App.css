@@ -96,7 +96,7 @@
 
 .div-h2 {
   font-family: adobe-clean-serif;
-  font-size: calc(100% + 2px);
+  font-size: calc(100% + 4px);
   color: indigo
 }
 
@@ -214,7 +214,7 @@ td {
 }
 
 .table-small2 {
-  font-size: 1.25rem;
+  font-size: small;
 }
 
 
@@ -359,7 +359,7 @@ td {
 }
 
 .table-small {
-  font-size: 1.25rem;
+  font-size: small;
   border: none;
 }
 
@@ -471,4 +471,8 @@ td {
 
 .color-gray-700 {
   color: #777;
+}
+
+.code-sm {
+  font-size: small;
 }

@@ -3,12 +3,13 @@ import axios from 'lib/axios-base';
 import { iTrx, dateParam, iAccCode, iTrxDetail } from 'lib/interfaces'
 import {
   Flex,
-  View, Divider, ProgressCircle
+  View, Divider
 } from '@adobe/react-spectrum';
 import { useNavigate, useParams } from 'react-router-dom';
 import RemainSaldo from '../saldo';
 import TrxAutoDebetForm from './form';
 import { useAccountCash } from 'lib/useAccountCash';
+import WaitMe from 'component/waitme';
 
 
 interface accountInfo extends iAccCode {
@@ -78,7 +79,7 @@ const TrxAutoDebet = () => {
   }, [trxId])
 
   if (accountCashes.isLoading) {
-    return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
+    return <WaitMe />
   }
 
   function SetTitle() {

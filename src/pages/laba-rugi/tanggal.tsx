@@ -201,14 +201,14 @@ const LabaRugiTanggal = () => {
           </View>
           <View>
             <View><b>Rumus Cicilan Unit</b></View>
-            <pre style={{fontSize: '0.8rem'}}>
+            <code className="code-sm">
               Keuntungan = Prosentase x Penerimaan<br />
               Modal      = Penerimaan - Keuntungan<br /><br />
 
               dik:<br />
               Prosentase = (BT-Finance - BT-Matel) / BT-Finance<br />
               Penerimaan = Pendapatan
-            </pre>
+            </code>
           </View>
           <View>
 

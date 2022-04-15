@@ -1,10 +1,11 @@
-import { ActionButton, Flex, Link, NumberField, ProgressCircle, Text, View } from '@adobe/react-spectrum';
+import { ActionButton, Flex, Link, NumberField, Text, View } from '@adobe/react-spectrum';
 import React, { Fragment, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from "../lib/axios-base";
 import { FormatDate, FormatNumber } from '../lib/format';
 import MonthComponent from "../component/Bulan";
 import SearchIcon from '@spectrum-icons/workflow/Search'
+import WaitMe from 'component/waitme';
 
 
 type reportTrxAccount = {
@@ -83,7 +84,7 @@ const ReportTrxtByMonth = () => {
 	// }, [m, m2, y])
 
 	if (!loaded) {
-		return <Flex flex justifyContent={'center'}><ProgressCircle size={'S'} aria-label="Loading…" isIndeterminate /></Flex>
+		return <WaitMe />
 	}
 
 	return (
