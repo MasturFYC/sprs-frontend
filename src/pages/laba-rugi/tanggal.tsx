@@ -150,7 +150,7 @@ const LabaRugiTanggal = () => {
           </TabList>
         </Tabs>
       </View>
-      <View>
+      <View marginTop={'size-400'}>
         <View><span className={'div-h2'}>1) Biaya yang dikeluarkan</span></View>
         <View marginY={'size-200'}>
           Yaitu biaya-biaya yang dikeluarkan untuk <i>Biaya Tarik Matel</i>

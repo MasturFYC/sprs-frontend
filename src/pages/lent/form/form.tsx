@@ -16,6 +16,8 @@ const initLent: tsItem = {
 	unit: {
 		id: 0,
 		name: '',
+		branch:'',
+		finance:'',
 		orderAt: dateParam(null),
 		btFinance: 0,
 		btPercent: 0,
