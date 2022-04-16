@@ -1,4 +1,4 @@
-import React from "react";
+//import React from "react";
 import { ComboBox, Item } from "@react-spectrum/combobox";
 import { useWheelList } from "lib/useWheel";
 
@@ -21,7 +21,7 @@ export default function ComboWheel({
   labelAlign
 }: ComboWheelProps) {
 
-  let wheel = useWheelList();
+  const wheel = useWheelList();
 
   return <ComboBox
     flex

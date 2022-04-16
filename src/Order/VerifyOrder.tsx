@@ -18,7 +18,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   //const [accountCashes, setAccountCashes] = React.useState<iAccountSpecific[]>([]);
   const [cashId, setCashId] = React.useState<number>(0);
 
-  let accountCashes = useAccountCash();
+  const accountCashes = useAccountCash();
 
   return (
     <View flex>
@@ -91,18 +91,14 @@ export default function VerifyOrder(props: VerifyOrderProps) {
     await axios
       .post("/trx", xData, { headers: headers })
       .then(response => response.data)
-      .then(data => {
-        if (data) {
-
-        }
-      })
+      .then(data => data)
       .catch(error => {
         console.log(error)
       })
   }
 
   function createTransactionToken(p: iOrder): string {
-    let s: string[] = []
+    const s: string[] = []
 
     s.push('/' + p.name);
 
@@ -173,7 +169,7 @@ export default function VerifyOrder(props: VerifyOrderProps) {
   }
 
   function createMemo(p: iOrder): string {
-    let memo: string = 'Kendaraan ';
+    let memo = 'Kendaraan ';
     if (p.unit && p.unit.type && p.unit.type.merk && p.unit.type.wheel) {
       memo += p.unit.type.wheel.shortName + ' ';
       memo += p.unit.type.merk.name + ' ';

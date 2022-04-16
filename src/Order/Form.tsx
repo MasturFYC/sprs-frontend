@@ -54,7 +54,7 @@ type OrderFormOptions = {
 const OrderForm = (props: OrderFormOptions) => {
 	const { order, callback, updateChild, finances, branchs } = props;
 	const [data, setData] = useState<iOrder>(initOrder)
-	let [tabId, setTabId] = useState(order.verifiedBy ? 1 : 0);
+	const [tabId, setTabId] = useState(order.verifiedBy ? 1 : 0);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>('');
 
@@ -105,7 +105,7 @@ const OrderForm = (props: OrderFormOptions) => {
 				'Content-Type': 'application/json'
 			}
 
-			let res = await axios
+			const res = await axios
 				.get(`/order/name/seq`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
@@ -119,8 +119,8 @@ const OrderForm = (props: OrderFormOptions) => {
 		if (order.id === 0) {
 			getOrderName().then(data => {
 				if (isLoaded) {
-				const nm = ('' + data.id).padStart(9, "0")
-				setData({ ...order, name: nm });
+					const nm = ('' + data.id).padStart(9, "0")
+					setData({ ...order, name: nm });
 				}
 			})
 		}
@@ -438,18 +438,20 @@ const OrderForm = (props: OrderFormOptions) => {
 
 	function setMatel(e: number) {
 		const percent = data.btPercent; // ((data.btFinance - e) / data.btFinance) * 100.0
-		const fin = e + (e * (percent/100.0) )
-  
-		setData(o => ({
-		  ...o,
-		  btFinance: fin,
-		  //btPercent: percent,
-		  btMatel: e,
-		}))
-  
+		const fin = e + (e * (percent / 100.0))
+
+		setData(o => (
+			{
+				...o,
+				btFinance: fin,
+				//btPercent: percent,
+				btMatel: e
+			}
+		))
+
 		setIsDirty(true)
-	 }
-  
+	}
+
 
 	function setMatrix(v: number) {
 		const fin = v - data.stnkPrice
@@ -516,6 +518,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		await axios
 			.put(`/order/${p.id}`, xData, { headers: headers })
 			.then(response => response.data)
+			// eslint-disable-next-line
 			.then(data => {
 				callback({ method: 'save', data: p })
 				setIsDirty(false)
@@ -559,6 +562,7 @@ const OrderForm = (props: OrderFormOptions) => {
 		await axios
 			.delete(`/order/${p}`, { headers: headers })
 			.then(response => response.data)
+			// eslint-disable-next-line
 			.then(data => {
 				callback({ method: 'remove' })
 				// setIsDirty(false)

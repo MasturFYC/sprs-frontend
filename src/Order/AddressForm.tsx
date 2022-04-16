@@ -32,7 +32,7 @@ const AddressForm = (props: AddressFormOptions) => {
 				'Content-Type': 'application/json'
 			}
 
-			let res = await axios
+			const res = await axios
 				.get(`/${apiAddress}/${id}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
@@ -128,7 +128,7 @@ const AddressForm = (props: AddressFormOptions) => {
 									<Button
 										isDisabled={data.orderId === 0}
 										type='button' alignSelf={'flex-end'} variant='negative'
-										onPress={() => deleteData(data)}>Clear</Button>
+										onPress={() => deleteData()}>Clear</Button>
 								</View>
 							}
 						</Flex>
@@ -181,7 +181,7 @@ const AddressForm = (props: AddressFormOptions) => {
 		await axios
 			.put(`/${apiAddress}/${orderId}`, xData, { headers: headers })
 			.then(response => response.data)
-			.then(data => {
+			.then(() => {
 				//callback({ method: 'save', address: p })
 				setIsDirty(false)
 			})
@@ -201,6 +201,7 @@ const AddressForm = (props: AddressFormOptions) => {
 		await axios
 			.post(`/${apiAddress}`, xData, { headers: headers })
 			.then(response => response.data)
+      // eslint-disable-next-line
 			.then(data => {
 				changeData("orderId", orderId)
 				//callback({ method: 'save', address: p })
@@ -212,7 +213,7 @@ const AddressForm = (props: AddressFormOptions) => {
 	}
 
 
-	async function deleteData(p: iAddress) {
+	async function deleteData() {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -221,6 +222,7 @@ const AddressForm = (props: AddressFormOptions) => {
 		await axios
 			.delete(`/${apiAddress}/${orderId}`, { headers: headers })
 			.then(response => response.data)
+      // eslint-disable-next-line
 			.then(data => {
 				//callback({ method: 'remove' })
 				setShowForm(!showForm)

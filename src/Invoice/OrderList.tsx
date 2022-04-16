@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 import axios from "../lib/axios-base";
 import { Button,Flex, ProgressCircle,  useAsyncList, View } from "@adobe/react-spectrum";
 import TableOrder, { OrderLists } from "./TableOrder";
@@ -11,13 +11,13 @@ type OrderListProps = {
 }
 const OrderList = ({ financeId, onFinish, onCancel, invoiceId }: OrderListProps) => {
 
-  let orders = useAsyncList<OrderLists>({
-    async load({ signal }) {
+  const orders = useAsyncList<OrderLists>({
+    async load() {
       const headers = {
         'Content-Type': 'application/json'
       }
 
-      let res = await axios
+      const res = await axios
         .get(`/invoice/order/${financeId}/${invoiceId}`, { headers: headers })
         .then(response => response.data)
         .then(data => {

@@ -1,10 +1,10 @@
 import { iTrx, iAccCodeType} from "./interfaces";
 
-const numberFormat = new Intl.NumberFormat("id-ID", {
-	useGrouping: true,
-	minimumFractionDigits: 0,
-	maximumFractionDigits: 2
-});
+// const numberFormat = new Intl.NumberFormat("id-ID", {
+// 	useGrouping: true,
+// 	minimumFractionDigits: 0,
+// 	maximumFractionDigits: 2
+// });
 
 const dateFormat = (month?: "numeric" | "2-digit" | "long" | "short" | "narrow" | undefined) => new Intl.DateTimeFormat("id-ID", {
 	year: 'numeric',
@@ -16,7 +16,7 @@ export const FormatDate = (e: string, options: "numeric" | "2-digit" | "long" | 
 	return dateFormat(options).format(new Date(e));
 }
 
-export const FormatNumber = (e: number, minimumFractionDigits: number = 0) => {
+export const FormatNumber = (e: number, minimumFractionDigits = 0) => {
 	return new Intl.NumberFormat("id-ID", {
 		useGrouping: true,
 		minimumFractionDigits: minimumFractionDigits,

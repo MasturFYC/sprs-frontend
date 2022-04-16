@@ -1,4 +1,4 @@
-import React from "react";
+//import React from "react";
 import { ComboBox, Item } from "@react-spectrum/combobox";
 import { Text  } from "@react-spectrum/text";
 import { useBranchList } from "lib/useBranch";
@@ -22,7 +22,7 @@ export default function ComboBranch({
   selectedKey
 }: ComboBranchProps) {
 
-  let branch = useBranchList()
+  const branch = useBranchList()
     
  
   return <ComboBox

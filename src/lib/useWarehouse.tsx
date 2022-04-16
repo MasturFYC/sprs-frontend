@@ -13,7 +13,7 @@ export function useWarehouseList() {
         'Content-Type': 'application/json'
       };
 
-      let res = await axios
+      const res = await axios
         .get("/warehouse", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))

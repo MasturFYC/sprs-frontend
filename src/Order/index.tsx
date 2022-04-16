@@ -11,14 +11,14 @@ import { useFinanceList, useBranchList, useOrderList } from 'lib'
 const OrderForm = React.lazy(() => import('./Form'))
 
 const Order = () => {
-	let { s, p } = useParams();
+	const { s, p } = useParams();
 	const navigate = useNavigate();
 	const [selectedId, setSelected] = React.useState<number>(-1);
 	const [txtSearch, setTxtSearch] = useState<string | undefined>(p ? p === '0' ? '' : p : '');
 
-	let finances = useFinanceList()
-	let branchs = useBranchList()
-	let { items: orders, isLoading,	removeItem, getItem: orderGetItem, addNewItem: orderAddNewItem,
+	const finances = useFinanceList()
+	const branchs = useBranchList()
+	const { items: orders, isLoading,	removeItem, getItem: orderGetItem, addNewItem: orderAddNewItem,
 		updateItem: orderUpdateItem } = useOrderList(s, p)
 
 	return (
@@ -173,7 +173,7 @@ function TableOrder(props: TableOrderProp) {
 					<td className='text-center text-no-wrap'>{FormatDate(item.orderAt)}</td>
 					<td className='text-center'>
 						{selectedId < 0 ?
-							<Link isQuiet variant="primary" onPress={(e) => {
+							<Link isQuiet variant="primary" onPress={() => {
 								setSelectedId(item.id);
 							}}><span className={"font-bold"}>{item.name}</span></Link>
 							:

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Flex, ProgressCircle, View } from '@adobe/react-spectrum';
 import axios from "../lib/axios-base";
 import { tOrderInvoiced } from './interface';
@@ -28,7 +28,7 @@ export function ReportOrderAllWaiting({
 
       const url = `/report/order-all-waiting/${financeId}/${branchId}/${typeId}`
 
-      let res = await axios
+      const res = await axios
         .get(url, { headers: headers })
         .then(response => response.data)
         .then(data => data)

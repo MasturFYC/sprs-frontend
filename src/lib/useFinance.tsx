@@ -14,7 +14,7 @@ export function useFinanceList() {
         'Content-Type': 'application/json'
       };
 
-      let res = await axios
+      const res = await axios
         .get("/finance", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))

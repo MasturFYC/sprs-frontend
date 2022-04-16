@@ -13,7 +13,7 @@ export function useBranchList() {
         'Content-Type': 'application/json'
       };
 
-      let res = await axios
+      const res = await axios
         .get("/branch", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))

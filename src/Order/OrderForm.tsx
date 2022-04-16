@@ -64,7 +64,7 @@ type OrderFormProps = {
 
 const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, branches }: OrderFormProps) => {
   const [order, setOrder] = useState<iOrder>(initOrder)
-  let [tabId, setTabId] = useState(order.verifiedBy ? 1 : 0);
+  const [tabId, setTabId] = useState(order.verifiedBy ? 1 : 0);
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
   const [newId, setNewId] = useState("");
@@ -98,7 +98,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
         'Content-Type': 'application/json'
       }
 
-      let res = await axios
+      const res = await axios
         .get(`/order/name/seq`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
@@ -115,7 +115,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
         'Content-Type': 'application/json'
       }
 
-      let res = await axios
+      const res = await axios
         .get(`/order/item/${orderId}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
@@ -497,6 +497,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
     await axios
       .put(`/order/${p.id}`, xData, { headers: headers })
       .then(response => response.data)
+      // eslint-disable-next-line
       .then(data => {
         setIsDirty(false)
         if (onUpdate) onUpdate(p.id, p)
@@ -540,6 +541,7 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
     await axios
       .delete(`/order/${p}`, { headers: headers })
       .then(response => response.data)
+      // eslint-disable-next-line
       .then(data => {
         setIsDirty(false)
         if (onDelete) onDelete(p)

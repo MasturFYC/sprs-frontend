@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ComboBox, Text, Flex, Item, ProgressCircle, SearchField, View, Divider, NumberField } from "@adobe/react-spectrum";
 import MonthComponent from "component/Bulan";
 import { InvoiceList } from "./InvoiceList";
@@ -14,8 +14,8 @@ const Invoice = () => {
 	const [bulan, setBulan] = useState<number>(0);
 	const [year, setYear] = useState<number>(defaultYear);
 
-	let finances = useFinanceList()
-	let invoices = useInvoiceList()
+	const finances = useFinanceList()
+	const invoices = useInvoiceList()
 
 	if (invoices.isLoading || finances.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
@@ -81,7 +81,7 @@ const Invoice = () => {
 				</ComboBox>
 			</Flex>
 			<Divider size="S" marginY={'size-100'} />
-			{invoices.items.map((e, i) => <InvoiceList key={e.id} invoice={e} />)}
+			{invoices.items.map((e) => <InvoiceList key={e.id} invoice={e} />)}
 		</View>
 	)
 }

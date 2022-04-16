@@ -149,7 +149,7 @@ export function useLoan(loanId: number) {
 				'Content-Type': 'application/json'
 			};
 
-			let res = await axios
+			const res = await axios
 				.get(`/loan/${loanId}`, { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))

@@ -102,7 +102,7 @@ const InvoiceForm = () => {
 		[invoice]
 	)
 
-	let accountCashes = useAccountCash()
+	const accountCashes = useAccountCash()
 
 	
 	useEffect(() => {
@@ -114,7 +114,7 @@ const InvoiceForm = () => {
 				'Content-Type': 'application/json'
 			}
 
-			let res = await axios
+			const res = await axios
 				.get(`/invoice/item/${id}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
@@ -131,7 +131,7 @@ const InvoiceForm = () => {
 				'Content-Type': 'application/json'
 			}
 
-			let res = await axios
+			const res = await axios
 				.get(`/finance/${id}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
@@ -378,7 +378,7 @@ const InvoiceForm = () => {
 		setIsDirty(true)
 	}
 
-	async function removeInvoice(id: number): Promise<Boolean> {
+	async function removeInvoice(id: number): Promise<boolean> {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -596,7 +596,7 @@ const InvoiceForm = () => {
 		return []
 	}
 
-	async function insertInvoice(p: InvoiceById): Promise<Boolean> {
+	async function insertInvoice(p: InvoiceById): Promise<boolean> {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'
@@ -615,7 +615,7 @@ const InvoiceForm = () => {
 		return res
 	}
 
-	async function updateInvoice(id: number, p: InvoiceById): Promise<Boolean> {
+	async function updateInvoice(id: number, p: InvoiceById): Promise<boolean> {
 		const headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json'

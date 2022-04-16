@@ -24,7 +24,7 @@ type financeGroupMenu = {
 const Aside = () => {
 
   function getToday(): string {
-    var d = new Date()
+    const d = new Date()
     return '' + d.getDate() + '-' + d.toLocaleString("id-ID", { month: "short" }).toLowerCase() + '-' + d.getFullYear()
   }
   return (
@@ -100,13 +100,13 @@ const Aside = () => {
 
 
 type MasterMenuProps = {
-  title: String | React.ReactNode
+  title: string | React.ReactNode
   children: React.ReactNode
   onLinkPress?: (show: boolean) => void
 }
 function MasterMenu(props: MasterMenuProps) {
   const { title, children, onLinkPress } = props;
-  const [show, setShow] = useState<Boolean>(false);
+  const [show, setShow] = useState<boolean>(false);
 
 
   return (
@@ -126,13 +126,13 @@ function MasterMenu(props: MasterMenuProps) {
 
 function FinanceMenu() {
 
-  let groups = useAsyncList<financeGroupMenu>({
-    async load({ signal }) {
+  const groups = useAsyncList<financeGroupMenu>({
+    async load() {
       const headers = {
         'Content-Type': 'application/json'
       }
 
-      let res = await axios
+      const res = await axios
         .get("/finance-group/finances", { headers: headers })
         .then(response => response.data)
         .then(data => data)
@@ -189,7 +189,7 @@ function AutoMenu() {
       const headers = {
         'Content-Type': 'application/json'
       }
-      let res = await axios
+      const res = await axios
         .get(`/acc-group/all-accounts`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
@@ -214,7 +214,7 @@ function AutoMenu() {
   }
 
   return (
-    <MasterMenu title={<div><TransferToPlatform  size='S' marginEnd={'size-100'}/>Transaksi</div>} onLinkPress={(e) => setShow(!show)}>
+    <MasterMenu title={<div><TransferToPlatform  size='S' marginEnd={'size-100'}/>Transaksi</div>} onLinkPress={() => setShow(!show)}>
       <Flex direction={'column'} rowGap={'size-100'}>
         <Link isQuiet variant='primary'>
           <RouterLink to="/trx"><b>Ledger (Buku Besar)</b></RouterLink>

@@ -32,7 +32,7 @@ export default function LentPageForm() {
 	const navigate = useNavigate();
 	let [isEdit, setIsEdit] = useState(false)
 
-	const lent = useLent(pid ? pid : '0')
+	const lent = useLent(pid ? +pid : 0)
 
 	if (lent.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>

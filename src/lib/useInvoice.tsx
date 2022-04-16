@@ -20,7 +20,7 @@ export function useInvoiceList() {
         'Content-Type': 'application/json'
       };
 
-      let res = await axios
+      const res = await axios
         .get("/invoice", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))

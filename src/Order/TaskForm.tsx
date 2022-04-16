@@ -56,7 +56,7 @@ const TaskForm = (props: TaskFormOptions) => {
         'Content-Type': 'application/json'
       }
 
-      let res = await axios
+      const res = await axios
         .get(`/task/${id}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
@@ -214,6 +214,7 @@ const TaskForm = (props: TaskFormOptions) => {
     await axios
       .put(`/task/${p.orderId}`, xData, { headers: headers })
       .then(response => response.data)
+      // eslint-disable-next-line
       .then(data => {
         //callback({ method: 'save', task: p })
         setOldData(p)
@@ -235,6 +236,7 @@ const TaskForm = (props: TaskFormOptions) => {
     await axios
       .post(`/task`, xData, { headers: headers })
       .then(response => response.data)
+      // eslint-disable-next-line
       .then(data => {
         //callback({ method: 'save', task: p })
         changeData("orderId", orderId)
@@ -256,6 +258,7 @@ const TaskForm = (props: TaskFormOptions) => {
     await axios
       .delete(`/task/${p.orderId}`, { headers: headers })
       .then(response => response.data)
+      // eslint-disable-next-line
       .then(data => {
         //callback({ method: 'remove' })
         setData(initTask)

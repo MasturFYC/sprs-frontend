@@ -39,11 +39,11 @@ export function useLentList() {
 
 	return {
 		items: list,
-		count: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').length,
-		totalDebt: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.debt, 0),
-		totalPiutang: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.piutang, 0),
-		totalCred: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.cred, 0),
-		totalSaldo: (r: string = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.saldo, 0),
+		count: (r = '') => list.filter(f => f.unit.wheel === r || r === '').length,
+		totalDebt: (r = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.debt, 0),
+		totalPiutang: (r = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.piutang, 0),
+		totalCred: (r = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.cred, 0),
+		totalSaldo: (r = '') => list.filter(f => f.unit.wheel === r || r === '').reduce((t, c) => t + c.payment.saldo, 0),
 		isLoading: isLoading,
 		getItem: (id: number) => getItem(id)
 	};
@@ -83,7 +83,7 @@ const initLent = {
 	name: ''
 }
 
-export function useLent(orderId: string) {
+export function useLent(orderId: number) {
 	
 	const [lent, setLent] = useState<tsLentItem>(initLent)
 	const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +97,7 @@ export function useLent(orderId: string) {
 				'Content-Type': 'application/json'
 			};
 
-			let res = await axios
+			const res = await axios
 				.get(`/lent/item/${orderId}`, { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))

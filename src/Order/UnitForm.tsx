@@ -54,8 +54,8 @@ const UnitForm = (props: UnitFormOptions) => {
 		[data]
 	)
 
-	let vehicle = useVehicleList()
- 	let houses = useWarehouseList()
+	const vehicle = useVehicleList()
+	const houses = useWarehouseList()
 
 	React.useEffect(() => {
 		let isLoaded = true;
@@ -129,7 +129,7 @@ const UnitForm = (props: UnitFormOptions) => {
 										</Text>
 									</Item>}
 								</ComboBox>
-								<ActionButton isDisabled={isReadOnly} onPress={(e) => {
+								<ActionButton isDisabled={isReadOnly} onPress={() => {
 									setOpen(true)
 								}
 								}><AddIcon size="S" /></ActionButton>
@@ -289,6 +289,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		await axios
 			.put(`/unit/${p.orderId}`, xData, { headers: headers })
 			.then(response => response.data)
+			// eslint-disable-next-line
 			.then(data => {
 				callback({ method: 'save', dataUnit: p })
 				setIsDirty(false)
@@ -310,6 +311,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		await axios
 			.post(`/unit`, xData, { headers: headers })
 			.then(response => response.data)
+			// eslint-disable-next-line
 			.then(data => {
 				callback({ method: 'save', dataUnit: p })
 				setIsDirty(false)
@@ -329,6 +331,7 @@ const UnitForm = (props: UnitFormOptions) => {
 		await axios
 			.delete(`/unit/${p.orderId}`, { headers: headers })
 			.then(response => response.data)
+			// eslint-disable-next-line
 			.then(data => {
 				callback({ method: 'remove' })
 				setIsDirty(false)

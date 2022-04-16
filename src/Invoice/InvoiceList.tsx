@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link as RouterLink } from 'react-router-dom';
 import { Flex, Link, View, Divider, ProgressCircle } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "lib/format";
@@ -92,8 +92,8 @@ export function InvoiceList({
 		const blob = new Blob([data], {
 			type: "application/pdf",
 		});
-		var url = window.URL.createObjectURL(blob)
-		var a = document.createElement('a')
+		const url = window.URL.createObjectURL(blob)
+		const a = document.createElement('a')
 		a.href = url
 		a.download = `invoice#${id}.pdf`
 		a.click()
@@ -103,7 +103,7 @@ export function InvoiceList({
 
 	async function downloadInvoice(id: number) {
 		const url = `/invoice/download/${invoice.finance?.groupId}/${id}`;
-		let res = await axios.get(url, {
+		const res = await axios.get(url, {
 			responseType: 'arraybuffer',
 			headers: {
 				Accept: 'application/pdf',

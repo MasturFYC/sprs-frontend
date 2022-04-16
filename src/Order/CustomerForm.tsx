@@ -42,7 +42,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 				'Content-Type': 'application/json'
 			}
 
-			let res = await axios
+			const res = await axios
 				.get(`/customer/${id}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
@@ -157,6 +157,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		await axios
 			.put(`/customer/${p.orderId}`, xData, { headers: headers })
 			.then(response => response.data)
+      // eslint-disable-next-line
 			.then(data => {
 				setIsDirty(false)
 				setOldData(p)
@@ -177,6 +178,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		await axios
 			.post(`/customer`, xData, { headers: headers })
 			.then(response => response.data)
+      // eslint-disable-next-line
 			.then(data => {
 				changeData("orderId", orderId)
 				setOldData({ ...p, orderId: orderId })
@@ -197,6 +199,7 @@ const CustomerForm = (props: CustomerFormOptions) => {
 		await axios
 			.delete(`/customer/${p.orderId}`, { headers: headers })
 			.then(response => response.data)
+      // eslint-disable-next-line
 			.then(data => {
 				setIsDirty(false)
 				setData(initCustomer)

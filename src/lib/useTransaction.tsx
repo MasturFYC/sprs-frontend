@@ -5,7 +5,7 @@ import { iTrx } from "./interfaces";
 export function useTransactionList() {
   const [list, setList] = useState<iTrx[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  let [count, setCount] = useState(0);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     let isLoaded = false;
@@ -14,7 +14,7 @@ export function useTransactionList() {
         'Content-Type': 'application/json'
       };
 
-      let res = await axios
+      const res = await axios
         .get("/trx", { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))

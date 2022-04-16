@@ -9,12 +9,12 @@ const OrderForm = React.lazy(() => import('./OrderForm'))
 
 const OrderPage = () => {
   const {state} = useLocation();
-  let { pid } = useParams();
+  const { pid } = useParams();
   const navigate = useNavigate();
   const [orderId, setOrderId] = useState(0)
 
-  let finances = useFinanceList()
-  let branches = useBranchList()
+  const finances = useFinanceList()
+  const branches = useBranchList()
 
   useEffect(() => {
     let isLoaded = false

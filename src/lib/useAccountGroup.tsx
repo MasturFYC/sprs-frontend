@@ -10,7 +10,7 @@ export function useAccountGroupList() {
     let isLoaded = false;
     async function load() {
 
-      let res = await axios
+      const res = await axios
         .get("/acc-group" )
         .then(response => response.data)
         .catch(error => console.log(error))

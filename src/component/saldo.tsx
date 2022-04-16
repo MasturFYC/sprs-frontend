@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Checkbox, Flex, Link, View } from '@adobe/react-spectrum'
 import { FormatNumber } from '../lib/format'
 import useSWR from 'swr'

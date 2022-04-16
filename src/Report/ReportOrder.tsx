@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { TextField, Form, Checkbox, ComboBox, Flex, Item, NumberField, ProgressCircle, Text, View, Tabs, TabList, Divider, Button } from '@adobe/react-spectrum';
 import axios from "lib/axios-base";
@@ -14,9 +14,9 @@ import { useFinanceList } from 'lib/useFinance';
 
 const ReportOrder = () => {
   const navigate = useNavigate();
-  let { m: pmonth, y: pyear, f: pfinance, b: pbranch, t: ptype, tf: pfrom, to: pto } = useParams();
-  let [monthId, setMonthId] = useState<number>(0);
-  let [yearId, setYearId] = useState<number>(0);
+  const { m: pmonth, y: pyear, f: pfinance, b: pbranch, t: ptype, tf: pfrom, to: pto } = useParams();
+  const [monthId, setMonthId] = useState<number>(0);
+  const [yearId, setYearId] = useState<number>(0);
   const [financeId, setFinanceId] = useState<number>(0);
   const [branchId, setBranchId] = useState<number>(0);
   const [orders, setOrders] = useState<tOrderInvoiced[]>([])
@@ -29,7 +29,7 @@ const ReportOrder = () => {
   const [tabId, setTabId] = useState(0)
 
   const status: string[] = ['Not verified', 'Invoiced', 'Waiting', 'Installment']
-  let finances = useFinanceList()
+  const finances = useFinanceList()
 
 
   const isFromValid = useMemo(
@@ -53,7 +53,7 @@ const ReportOrder = () => {
       const url = `/report/order-status/${pfinance}/${pbranch}/${ptype}/${pmonth}/${pyear}/${pfrom}/${pto}`
       //const url = `orders/{finance}/{branch}/{type}/{month}/{year}/{from}/{to}`
 
-      let res = await axios
+      const res = await axios
         .get(url, { headers: headers })
         .then(response => response.data)
         .then(data => data)

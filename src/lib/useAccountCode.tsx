@@ -28,7 +28,7 @@ export function useAccountCodeList(typeId: number): [
         'Content-Type': 'application/json'
       };
 
-     let res = await axios
+      const res = await axios
         .get(`/acc-code/group-type/${typeId}`, { headers: headers })
         .then(response => response.data)
         .catch(error => console.log(error))

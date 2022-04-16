@@ -22,7 +22,7 @@ export function useOrderList(search: string | undefined, filter: string | undefi
         method: "get",
       }
 
-    let res = await axios({
+    const res = await axios({
         ...config,
         url: `/order/${search}/${filter}`,
         headers: headers,

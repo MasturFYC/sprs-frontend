@@ -38,15 +38,15 @@ type reportTrxByMonth = {
 
 
 const ReportTrxtByMonth = () => {
-	let { m, y } = useParams();
+	const { m, y } = useParams();
 	const navigate = useNavigate();
 	// let [month, setMonth] = useState<number>(0);
 	// let [year, setYear] = useState<number>(0);
-	let [trxs, setTrxs] = useState<reportTrxByMonth[]>([]);
-	let [loaded, setLoaded] = useState<boolean>(false);
-	let [monthId, setMonthId] = useState<number>(m ? +m : 0);
+	const [trxs, setTrxs] = useState<reportTrxByMonth[]>([]);
+	const [loaded, setLoaded] = useState<boolean>(false);
+	const [monthId, setMonthId] = useState<number>(m ? +m : 0);
 	//let [monthTo, setMonthTo] = useState<number>(m2 ? +m2 : 0);
-	let [yearId, setYearId] = useState<number>(y ? +y : 0);
+	const [yearId, setYearId] = useState<number>(y ? +y : 0);
 
 	React.useEffect(() => {
 		let isLoaded = false
@@ -60,7 +60,7 @@ const ReportTrxtByMonth = () => {
 				.get(`/report/trx/month/${month}/${year}`, { headers: headers })
 				.then(response => response.data)
 				.then(data => data)
-				.catch(error => {
+				.catch(() => {
 					setLoaded(true)
 				})
 
@@ -212,7 +212,7 @@ type DetailByAccountPRops = {
 }
 
 function DetailByAccount({ rpt, index }: DetailByAccountPRops) {
-	let [isDetail, showDetail] = useState(false)
+	const [isDetail, showDetail] = useState(false)
 
 	return (<Fragment>
 		<tr className={`bg-gray-50 text-left border-b-1 ${index % 2 === 0 ? '' : 'back-green-200'}`}>

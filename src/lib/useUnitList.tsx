@@ -18,7 +18,7 @@ export function useUnitList() {
 				'Content-Type': 'application/json'
 			};
 
-			let res = await axios
+			const res = await axios
         .get("/lent/get/units", { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))

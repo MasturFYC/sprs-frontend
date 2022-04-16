@@ -17,7 +17,7 @@ export function useAccountCash() {
 				'Content-Type': 'application/json'
 			};
 
-			let res = await axios
+			const res = await axios
 				.get("/acc-code/spec/1", { headers: headers })
 				.then(response => response.data)
 				.catch(error => console.log(error))
