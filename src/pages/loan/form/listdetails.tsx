@@ -47,7 +47,7 @@ type LoanListDetailProps = {
 
 const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDetailProps) => {
 	const [open, setOpen] = React.useState(false)
-	let [trx, setTrx] = useState<Trx>(initTrx)
+	const [trx, setTrx] = useState<Trx>(initTrx)
 
 	return (
 		<View>
@@ -132,7 +132,7 @@ const LoanListDetails = ({ trxs, onChange, onDelete, name, loanId }: LoanListDet
 
 	function getDetailDebt() {
 		return trxs.reduce((t, c) => t + c.detail.debt, 0)
-	 }
+	}
 	// function getDetailCred() {
 	// 	return trxs.reduce((t, c) => t + c.detail.cred, 0)
 	// }
@@ -172,9 +172,9 @@ type FormDetailProps = {
 
 function FormDetail({ loanId, name, editedTrx, onCancel, onUpdate, onInsert, onDelete }: FormDetailProps) {
 	const [isDirty, setIsDirty] = useState<boolean>(false);
-	let [trx, setTrx] = useState<Trx>(initTrx)
+	const [trx, setTrx] = useState<Trx>(initTrx)
 
-	let account = useAccountCash()
+	const account = useAccountCash()
 
 	const isDescriptionsValid = React.useMemo(
 		() => trx.descriptions ? trx.descriptions.length > 5 : false,

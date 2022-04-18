@@ -15,6 +15,8 @@ interface tsItem extends iLent {
 const initLent: tsItem = {
 	unit: {
 		id: 0,
+		branch:'',
+		finance:'',
 		name: '',
 		orderAt: dateParam(null),
 		btFinance: 0,
@@ -58,8 +60,8 @@ type LentFormProps = {
 const LentForm = ({ data, onInsert, onUpdate, onDelete, onCancel }: LentFormProps) => {
 	const [lent, setLent] = useState<tsItem>(initLent)
 	const [isDirty, setIsDirty] = React.useState<boolean>(false);
-	let [isNew, setIsNew] = useState(false)
-	let [showUnit, setShowUnit] = useState(false)
+	const [isNew, setIsNew] = useState(false)
+	const [showUnit, setShowUnit] = useState(false)
 
 	const isDescriptionsValid = React.useMemo(
 		() => {

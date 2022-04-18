@@ -41,7 +41,7 @@ export function FormPayment({ name, trxData, onCancel, onUpdate, onInsert, onDel
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [trx, setTrx] = useState<lentTrx>(initTrx);
 
-	let account = useAccountCash()
+	const account = useAccountCash()
 
 	const isDescriptionsValid = React.useMemo(
 		() => trx.descriptions ? trx.descriptions.length > 5 : false,

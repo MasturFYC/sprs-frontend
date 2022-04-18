@@ -11,9 +11,9 @@ type ListUnitProps = {
 const ListUnit = ({ onSelectionChange }: ListUnitProps): JSX.Element => {
   //let [selectedKeys, setSelectedKeys] = React.useState<'all' | Set<React.Key>>(new Set([0]));
  // let collator = useCollator({ numeric: true });
-  let  [value, setValue] = React.useState(0);
+  const  [value, setValue] = React.useState(0);
 
-  let cols = [
+  const cols = [
     { id: 0, name: "", className: "text-center" },
     { id: 1, name: "ID", className:"text-center" },
     { id: 2, name: "TANGGAL", className:"text-center" },
@@ -25,7 +25,7 @@ const ListUnit = ({ onSelectionChange }: ListUnitProps): JSX.Element => {
     { id: 8, name: "BT-MATEL", className: "text-right" },
   ]
 
-  let unit = useUnitList();
+  const unit = useUnitList();
 
   return (
     <View>

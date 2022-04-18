@@ -15,8 +15,8 @@ const AccCode = () => {
   const [typeId, setTypeId] = useState<number>(0);
   const [txtSearch, setTxtSearch] = useState<string>('');
 
-  let types = useAccountTypeList(0)
-  let [items, isLoading, accs, reload] = useAccountCodeList(paramId ? +paramId : 0)
+  const types = useAccountTypeList(0)
+  const [items, isLoading, accs, reload] = useAccountCodeList(paramId ? +paramId : 0)
 
   if (isLoading || types.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>

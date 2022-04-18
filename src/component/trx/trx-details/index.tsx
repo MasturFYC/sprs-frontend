@@ -19,13 +19,13 @@ const TrxDetails = (props: TrxDetailsParam) => {
   const [selectedId, setSelectedId] = useState<number>(-1)
   const [detail, setDetail] = useState<iTrxDetail>({} as iTrxDetail);
 
-  let details = useAsyncList<iTrxDetail>({
+  const details = useAsyncList<iTrxDetail>({
     async load({ signal }) {
       const headers = {
         'Content-Type': 'application/json'
       }
 
-      let res = await axios
+      const res = await axios
         .get(`/trx-detail/${trxId}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
@@ -97,7 +97,7 @@ const TrxDetails = (props: TrxDetailsParam) => {
 
     const test = [...details.items.filter(o => o.id !== 0)];
     let i = -1;
-    for (var c = 0; c < test.length; c++) {
+    for (let c = 0; c < test.length; c++) {
       if (test[c].id === p.id) {
         i = c;
         break;

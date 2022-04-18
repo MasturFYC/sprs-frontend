@@ -22,13 +22,13 @@ const Trx = () => {
   const [lastPage, setLastPage] = useState(0)
   //const navigate = useNavigate();
 
-  let accs = useAsyncList<iAccCodeType>({
+  const accs = useAsyncList<iAccCodeType>({
     async load({ signal }) {
       const headers = {
         'Content-Type': 'application/json'
       }
 
-      let res = await axios
+      const res = await axios
         .get("/acc-code/props", { headers: headers })
         .then(response => response.data)
         .then(data => {
@@ -43,8 +43,8 @@ const Trx = () => {
     getKey: (item: iAccCodeType) => item.id
   })
 
-  let groups = useAccountGroupList() 
-  let trx = useTransactionList();
+  const groups = useAccountGroupList() 
+  const trx = useTransactionList();
 
   useEffect(() => {
     const onScroll = function () {

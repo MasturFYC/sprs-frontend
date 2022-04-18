@@ -7,7 +7,7 @@ import { useWarehouseList } from "lib/useWarehouse";
 
 const Wheel = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	let warehouses = useWarehouseList();
+	const warehouses = useWarehouseList();
 
 	return (
 		<Fragment>

@@ -26,7 +26,7 @@ const LoanListPage = () => {
   const { pathname } = useLocation();
   //	const { id: paramId, name: typeName } = useParams()
 
-  let loan = useLoanList()
+  const loan = useLoanList()
 
   if (loan.isLoading) {
     return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>

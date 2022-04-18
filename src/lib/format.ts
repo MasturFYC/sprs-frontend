@@ -1,4 +1,4 @@
-import { iTrx, iAccCodeType} from "./interfaces";
+import { iTrx, iAccCodeType } from "./interfaces";
 
 // const numberFormat = new Intl.NumberFormat("id-ID", {
 // 	useGrouping: true,
@@ -16,13 +16,14 @@ export const FormatDate = (e: string, options: "numeric" | "2-digit" | "long" | 
 	return dateFormat(options).format(new Date(e));
 }
 
-export const FormatNumber = (e: number, minimumFractionDigits = 0) => {
+export const FormatNumber = (e: number, minimumFractionDigits = 0, useGrouping = true, maximumFractionDigits = 2) => {
 	return new Intl.NumberFormat("id-ID", {
-		useGrouping: true,
+		useGrouping: useGrouping,
 		minimumFractionDigits: minimumFractionDigits,
-		maximumFractionDigits: 2
+		maximumFractionDigits: maximumFractionDigits
 	}).format(e);
 }
+
 
 export function createToken(p: iTrx, accs: iAccCodeType[], ids: number[]): string {
 	const s: string[] = [];
@@ -32,15 +33,15 @@ export function createToken(p: iTrx, accs: iAccCodeType[], ids: number[]): strin
 
 	for (let c = 0; c < ids.length; c++) {
 		const d = ids[c];
-			const acc = accs.filter(o => o.id === d)[0]
-			if (acc) {
-				s.push(acc.name)
-				s.push(acc.typeName)
-			}
+		const acc = accs.filter(o => o.id === d)[0]
+		if (acc) {
+			s.push(acc.name)
+			s.push(acc.typeName)
 		}
+	}
 
 	if (p.id > 0) {
-		s.push('/id-'+p.id)
+		s.push('/id-' + p.id)
 	}
 
 	if (p.refId > 0) {

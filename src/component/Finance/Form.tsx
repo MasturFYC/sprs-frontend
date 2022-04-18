@@ -45,13 +45,13 @@ const FinanceForm = (props: FinanceFormOptions) => {
 	)
 
 
-	let groups = useAsyncList<iFinanceGroup>({
+	const groups = useAsyncList<iFinanceGroup>({
 		async load({ signal }) {
 			const headers = {
 				'Content-Type': 'application/json'
 			}
 
-			let res = await axios
+			const res = await axios
 				.get("/finance-group", { headers: headers })
 				.then(response => response.data)
 				.then(data => {

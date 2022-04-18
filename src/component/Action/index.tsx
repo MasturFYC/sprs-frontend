@@ -16,7 +16,7 @@ const Action = (prop: ActionParam) => {
 	const { orderId } = prop;
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 	
-	let actions = useActionList(orderId)
+	const actions = useActionList(orderId)
 
 	return (
 		<View>

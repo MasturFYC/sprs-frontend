@@ -11,7 +11,7 @@ import { useFinanceList } from "lib/useFinance";
 const Finance = () => {
 	const [selectedId, setSelected] = React.useState<number>(-1);
 
-	let fin = useFinanceList()
+	const fin = useFinanceList()
 
 	if (fin.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>

@@ -16,10 +16,10 @@ const LoanForm = React.lazy(() => import('./form'));
 export default function PageForm() {
 	const { pid } = useParams()
 	const navigate = useNavigate();
-	let [isEdit, setIsEdit] = useState(false)
+	const [isEdit, setIsEdit] = useState(false)
 
-	let account = useAccountCash();
-	let loan = useLoan(pid ? +pid : 0);
+	const account = useAccountCash();
+	const loan = useLoan(pid ? +pid : 0);
 
 	if (account.isLoading || loan.isLoading) {
 		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>

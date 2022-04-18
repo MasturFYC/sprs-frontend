@@ -30,7 +30,7 @@ const initTrx: lentTrx = {
 export default function LentPageForm() {
 	const { pid } = useParams()
 	const navigate = useNavigate();
-	let [isEdit, setIsEdit] = useState(false)
+	const [isEdit, setIsEdit] = useState(false)
 
 	const lent = useLent(pid ? +pid : 0)
 

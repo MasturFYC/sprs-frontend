@@ -3,18 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@adobe/react-spectrum": "^3.16.5",
+    "@adobe/react-spectrum": "^3.16.3",
     "@spectrum-icons/workflow": "^3.2.4",
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.0.1",
+    "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^14.1.0",
     "ansi-html-community": "^0.0.8",
+    "async": "3.2.3",
+    "async-es": "^3.2.3",
     "axios": "^0.26.1",
     "moment": "^2.29.2",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
+    "svgo": "^2.8.0",
     "swr": "^1.3.0",
     "typescript": "^4.6.3",
     "web-vitals": "^2.1.4"
@@ -47,12 +50,16 @@
   "devDependencies": {
     "@types/jest": "^27.4.1",
     "@types/node": "^17.0.24",
-    "@types/react": "^18.0.5",
-    "@types/react-dom": "^18.0.1",
+    "@types/react": "^16.8.0",
+    "@types/react-dom": "^16.8.0",
     "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
     "cssnano": "^5.1.7",
+    "eslint": "^8.13.0",
+    "eslint-plugin-react": "^7.29.4",
     "postcss-dropunusedvars": "^1.2.1",
     "postcss-import": "^14.1.0",
     "postcss-varfallback": "^1.1.2"
-	 }
+  }
 }

@@ -7,7 +7,7 @@ import { useWheelList } from "lib/useWheel";
 
 const Wheel = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	let wheel = useWheelList()
+	const wheel = useWheelList()
 
 	return (
 		<Fragment>

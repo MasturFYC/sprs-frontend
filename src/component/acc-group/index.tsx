@@ -11,7 +11,7 @@ const AccountType = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 	
 
-	let groups = useAccountGroupList()
+	const groups = useAccountGroupList()
 
 	return (
 		<View>

@@ -27,13 +27,13 @@ type labaRugi = {
 const LabaRugiTanggal = () => {
   const { dari, ke } = useParams()
   const navigate = useNavigate();
-  let [isLoading, setLoaded] = React.useState(false)
-  let [data, setData] = React.useState<labaRugi[]>([])
-  let [isDirty, setDirty] = React.useState(false)
-  let [dateFrom, setDateFrom] = React.useState(dateOnly(dateParam(null)))
-  let [dateTo, setDateTo] = React.useState(dateOnly(dateParam(null)))
-  let [tab, setTab] = React.useState(0)
-  let info = [
+  const [isLoading, setLoaded] = React.useState(false)
+  const [data, setData] = React.useState<labaRugi[]>([])
+  const [isDirty, setDirty] = React.useState(false)
+  const [dateFrom, setDateFrom] = React.useState(dateOnly(dateParam(null)))
+  const [dateTo, setDateTo] = React.useState(dateOnly(dateParam(null)))
+  const [tab, setTab] = React.useState(0)
+  const info = [
     { id: 1, group: 1, title: 'Biaya Order', division: 'trx-order' },
     { id: 2, group: 1, title: 'Biaya Pinjaman Unit', division: 'trx-lent' },
     { id: 3, group: 1, title: 'Biaya Piutang', division: 'trx-loan' },
@@ -43,17 +43,17 @@ const LabaRugiTanggal = () => {
     { id: 7, group: 3, title: 'Beban', division: 'trx-auto' },
   ]
 
-  const {items: tabs, isLoading: branchIsLoading} = useBranchList();
+  const { items: tabs, isLoading: branchIsLoading } = useBranchList();
 
   const isFromValid = React.useMemo(
     () => {
       const d = new Date(dateFrom);
       const t = new Date(dateTo);
-      
+
       return d <= t
     },
     [dateFrom, dateTo]
-  )  
+  )
 
   React.useEffect(() => {
     let isLoaded = true;
@@ -66,11 +66,11 @@ const LabaRugiTanggal = () => {
       const d = dari ? dari : dateParam(null);
       const k = ke ? ke : dateParam(null);
 
-      let res = await axios
+      const res = await axios
         .get(`/labarugi/bydate/${d}/${k}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
-        .catch(error => {console.log(error)})
+        .catch(error => { console.log(error) })
 
       return res
     }
@@ -96,14 +96,14 @@ const LabaRugiTanggal = () => {
   return (
     <View>
       <Flex direction='row' columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
-       <View><span className="div-h2 font-bold">Laporan Laba Rugi</span></View>
+        <View><span className="div-h2 font-bold">Laporan Laba Rugi</span></View>
         {(isLoading || branchIsLoading) && <View><ProgressCircle aria-label="Loading…" isIndeterminate /></View>}
       </Flex>
-      <Flex direction={{base:'column', M: 'row'}} rowGap={'size-75'} columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
+      <Flex direction={{ base: 'column', M: 'row' }} rowGap={'size-75'} columnGap='size-200' marginTop={'size-200'} marginBottom={'size-400'}>
         <TextField
           type={'date'}
           labelAlign={'end'}
-          label={<View width={{base: '88px', M:'auto'}}>Dari tanggal</View>}
+          label={<View width={{ base: '88px', M: 'auto' }}>Dari tanggal</View>}
           labelPosition={'side'}
           validationState={isFromValid ? 'valid' : 'invalid'}
           width={'auto'}
@@ -118,7 +118,7 @@ const LabaRugiTanggal = () => {
           labelAlign={'end'}
           labelPosition={'side'}
           validationState={isFromValid ? 'valid' : 'invalid'}
-          label={<View width={{base: '88px', M:'auto'}}>Sampai</View>}
+          label={<View width={{ base: '88px', M: 'auto' }}>Sampai</View>}
           width={'auto'}
           value={dateTo}
           onChange={(e) => {
@@ -126,22 +126,22 @@ const LabaRugiTanggal = () => {
             setDirty(true)
           }}
         />
-        <Button variant="cta" isDisabled={!isDirty || !(isFromValid)} onPress={()=> {
+        <Button variant="cta" isDisabled={!isDirty || !(isFromValid)} onPress={() => {
           navigate(`/labarugi/tanggal/${dateFrom}/${dateTo}`)
           setDirty(false)
         }}>
           <Find />
           <Text>Load</Text>
-        </Button>        
+        </Button>
       </Flex>
       <View>
         <Tabs
           aria-label="Tab-Order"
           density='compact'
-          items={[{ id: 0, name: "All", headBranch: "" },...tabs]}
+          items={[{ id: 0, name: "All", headBranch: "" }, ...tabs]}
           defaultSelectedKey={tab}
           onSelectionChange={(e) => {
-            if(!branchIsLoading || !isLoading) {
+            if (!branchIsLoading || !isLoading) {
               setTab(+e)
             }
           }}>
@@ -150,7 +150,7 @@ const LabaRugiTanggal = () => {
           </TabList>
         </Tabs>
       </View>
-      <View>
+      <View marginTop={'size-400'}>
         <View><span className={'div-h2'}>1) Biaya yang dikeluarkan</span></View>
         <View marginY={'size-200'}>
           Yaitu biaya-biaya yang dikeluarkan untuk <i>Biaya Tarik Matel</i>

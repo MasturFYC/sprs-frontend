@@ -48,7 +48,7 @@ const TrxAutoDebet = () => {
   const navigate = useNavigate();
 
 
-  let accountCashes = useAccountCash();
+  const accountCashes = useAccountCash();
 
   React.useEffect(() => {
     let isLoaded = false;
@@ -57,7 +57,7 @@ const TrxAutoDebet = () => {
       const headers = {
         'Content-Type': 'application/json'
       }
-      let res = await axios
+      const res = await axios
         .get(`/acc-code/item/${id}`, { headers: headers })
         .then(response => response.data)
         .then(data => data)
@@ -123,7 +123,7 @@ const TrxAutoDebet = () => {
   );
 
 
-  function saveTransaction(cashId: number, p: iTrx, createNewOne: boolean = false) {
+  function saveTransaction(cashId: number, p: iTrx, createNewOne = false) {
     const details = createTransactionDetails(cashId, p);
     const token = createTransactionToken(p);
     insertTrx(p, details, token).then(e => {
@@ -134,7 +134,7 @@ const TrxAutoDebet = () => {
   }
 
   function createTransactionToken(p: iTrx): string {
-    let s: string[] = []
+    const s: string[] = []
 
     s.push(p.descriptions);
     if (p.memo && p.memo.length > 0) {
@@ -160,7 +160,7 @@ const TrxAutoDebet = () => {
     })
 
 
-    let res = await axios
+    const res = await axios
       .post(`/trx`, xData, { headers: headers })
       .then(response => response.data)
       .then(data => {

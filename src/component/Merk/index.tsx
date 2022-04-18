@@ -12,7 +12,7 @@ const initMerk: iMerk = {
 
 const Merk = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	let merks = useMerkList()
+	const merks = useMerkList()
 
 	return (
 		<Fragment>

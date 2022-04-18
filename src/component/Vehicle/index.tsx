@@ -7,7 +7,7 @@ import { useVehicleList } from "lib/useVehicle";
 
 const Vehicle = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
-	let vehicles = useVehicleList()
+	const vehicles = useVehicleList()
 
 	return (
 		<Fragment>

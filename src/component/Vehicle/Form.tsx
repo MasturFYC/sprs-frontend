@@ -27,8 +27,8 @@ const TypeForm = (props: TypeFormOptions) => {
 	const isWheelValid = React.useMemo(() => data.wheelId > 0, [data])
 	const isMerkValid = React.useMemo(() => data.merkId > 0, [data])
 
-	let wheels = useWheelList()
-	let merks = useMerkList()
+	const wheels = useWheelList()
+	const merks = useMerkList()
 
 	React.useEffect(() => {
 		let isLoaded = true;

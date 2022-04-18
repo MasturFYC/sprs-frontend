@@ -205,7 +205,7 @@ const LoanForm = ({ data, accCode, onInsert, onUpdate, onDelete, onCancel }: Loa
 									}))
 									setIsDirty(true)
 								}}
-								 />
+								/>
 
 						</Flex>
 						<Flex flex direction={'column'} rowGap='size-75'>

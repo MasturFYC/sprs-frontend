@@ -31,6 +31,8 @@ export type lentPayment = {
 export type lentUnit = {
   id: number,
   name: string,
+  branch: string,
+  finance: string,
   orderAt: string,
   btFinance: number,
   btPercent: number,

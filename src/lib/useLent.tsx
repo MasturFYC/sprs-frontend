@@ -53,6 +53,8 @@ export function useLentList() {
 const initLent = {
 	unit: {
 		id: 0,
+		branch: '',
+		finance: '',
 		name: '',
 		orderAt: dateParam(null),
 		btFinance: 0,

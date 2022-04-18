@@ -13,9 +13,9 @@ const AccType = () => {
 	const [selectedId, setSelectedId] = React.useState<number>(-1);
 	const { id: groupId, name: groupName} = useParams()
 
-	let groups = useAccountGroupList()
+	const groups = useAccountGroupList()
 
-	let accs = useAccountTypeList(groupId ? +groupId : 0)
+	const accs = useAccountTypeList(groupId ? +groupId : 0)
 
 	return (
 		<View>

@@ -7,7 +7,7 @@ import { useBranchList } from "lib/useBranch";
 
 const Branch = () => {
     const [selectedId, setSelectedId] = React.useState<number>(-1);
-    let branchs = useBranchList();
+    const branchs = useBranchList();
 
     return (
         <View>

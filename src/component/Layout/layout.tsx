@@ -37,7 +37,7 @@ import DividePath from "@spectrum-icons/workflow/DividePath";
 export const siteTitle = "SPRS";
 
 const Layout = () => {
-
+  const [isShow, setShow] = React.useState(false)
 
   // let titleStyle = {
   //   fontSize: "110%",
@@ -62,9 +62,11 @@ const Layout = () => {
 
         <View gridArea={'header'}>
           <Provider theme={defaultTheme} colorScheme="dark">
-            <Flex  direction={'row'} height={{ base: 'size-800', M: 'size-800' }} flex columnGap={{ base: "size-50", M: "size-400" }} alignItems={'center'}>
-              <View marginStart={{base:'size-50',M:'size-400'}}>
-                <AssetsLinkedPublished size={'L'} justifySelf='center' alignSelf={'center'} />
+            <Flex direction={'row'} height={{ base: 'size-800', M: 'size-800' }} flex columnGap={{ base: "size-50", M: "size-400" }} alignItems={'center'}>
+              <View marginStart={{ base: 'size-50', M: 'size-400' }}>
+                <ActionButton isQuiet onPress={() => setShow(!isShow)}>
+                  <AssetsLinkedPublished size={'L'} justifySelf='center' alignSelf={'center'}/>
+                </ActionButton>
               </View>
               <View flex>
                 {/* <View height={'size-800'} isHidden={{ base: true, M: false }}>
@@ -75,11 +77,11 @@ const Layout = () => {
                 {/* </View> */}
                 <View margin={'size-50'} isHidden={{ base: true, M: false }}><span className={"div-h2 text-white font-bold"}>SPRS</span></View>
               </View>
-              <View marginEnd={{base:'size-50',M:'size-400'}}>
-                  <MenuMaster />
-                  <MenuCoa />
-                  <MenuReport />
-                  <MenuUser />
+              <View marginEnd={{ base: 'size-50', M: 'size-400' }}>
+                <MenuMaster />
+                <MenuCoa />
+                <MenuReport />
+                <MenuUser />
               </View>
             </Flex>
           </Provider>
@@ -160,11 +162,11 @@ const MenuCoa = () => {
 
   return <MenuTrigger>
     <ActionButton isQuiet><Book /><Text>COA</Text></ActionButton>
-    <Menu items={items} 
+    <Menu items={items}
       shouldFocusWrap={true}
       onAction={(e) => {
-      navigate("/acc-" + e)
-    }}>
+        navigate("/acc-" + e)
+      }}>
       {item => <Item key={item.id} textValue={item.name}>
         {item.icon}
         <Text>{item.name}</Text></Item>}
@@ -184,11 +186,11 @@ const MenuReport = () => {
 
   return <MenuTrigger>
     <ActionButton isQuiet><JourneyReports /><Text>Laporan</Text></ActionButton>
-    <Menu 
+    <Menu
       shouldFocusWrap={true}
       items={items} onAction={(e) => {
-      navigate(items.filter(f => f.id === e)[0].link)
-    }}>
+        navigate(items.filter(f => f.id === e)[0].link)
+      }}>
       {item => <Item key={item.id} textValue={item.name}>
         {item.icon}
         <Text>{item.name}</Text></Item>}
@@ -215,8 +217,8 @@ const MenuMaster = () => {
     <Menu items={items}
       shouldFocusWrap={true}
       onAction={(e) => {
-      navigate("/" + e)
-    }}>
+        navigate("/" + e)
+      }}>
       {item => <Item key={item.id} textValue={item.name}>
         {item.icon}
         <Text>{item.name}</Text></Item>}

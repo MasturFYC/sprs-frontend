@@ -25,7 +25,7 @@ type lentListDetailProps = {
 
 const LentListDetails = ({ trxs, onChange, onDelete, name, lentId }: lentListDetailProps) => {
 	const [isOpen, setOpen] = React.useState(false)
-	let [trx, setTrx] = useState<lentTrx>(initTrx)
+	const [trx, setTrx] = useState<lentTrx>(initTrx)
 
 	return (
 		<View>
