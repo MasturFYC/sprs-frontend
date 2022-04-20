@@ -57,6 +57,7 @@ const OrderForm = (props: OrderFormOptions) => {
 	const [tabId, setTabId] = useState(order.verifiedBy ? 1 : 0);
 	const [isDirty, setIsDirty] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>('');
+	const [isLoading, setLoading] = useState(false)
 
 	const isFinanceValid = React.useMemo(
 		() => data.financeId > 0,
@@ -116,11 +117,14 @@ const OrderForm = (props: OrderFormOptions) => {
 			return await res;
 		}
 
+		setLoading(true)
+
 		if (order.id === 0) {
 			getOrderName().then(data => {
 				if (isLoaded) {
 					const nm = ('' + data.id).padStart(9, "0")
 					setData({ ...order, name: nm });
+					setLoading(false)
 				}
 			})
 		}
@@ -132,6 +136,15 @@ const OrderForm = (props: OrderFormOptions) => {
 		return () => { isLoaded = false }
 
 	}, [order])
+
+	const responseUnitChange = React.useCallback((params: { method: string, dataUnit?: iUnit }) => {
+		const { method, dataUnit } = params
+
+		const u = method === 'remove' ? initUnit : dataUnit;
+
+		setData(o => ({ ...o, unit: u }))
+		updateChild({ ...order, unit: u })
+	}, [order]);
 
 	return (
 		<View backgroundColor={'gray-75'}
@@ -343,7 +356,11 @@ const OrderForm = (props: OrderFormOptions) => {
 						<Tabs
 							aria-label="Tab-Order"
 							density='compact'
-							onSelectionChange={(e) => setTabId(+e)}>
+							onSelectionChange={(e) => {
+								if (!isLoading) {
+									setTabId(+e)
+								}
+							}}>
 							<TabList aria-label="Tab-Order-List">
 								<Item key={'0'}><span style={{ fontWeight: 700, color: 'orangered' }}>Data Asset</span></Item>
 								<Item key={'1'}><span style={{ fontWeight: 700, color: 'green' }}>Data Konsumen</span></Item>
@@ -520,8 +537,8 @@ const OrderForm = (props: OrderFormOptions) => {
 			.then(response => response.data)
 			// eslint-disable-next-line
 			.then(data => {
-				callback({ method: 'save', data: p })
 				setIsDirty(false)
+				callback({ method: 'save', data: p })
 			})
 			.catch(error => {
 				console.log(error)
@@ -573,14 +590,6 @@ const OrderForm = (props: OrderFormOptions) => {
 	}
 
 
-	function responseUnitChange(params: { method: string, dataUnit?: iUnit }) {
-		const { method, dataUnit } = params
-
-		const u = method === 'remove' ? initUnit : dataUnit;
-
-		setData(o => ({ ...o, unit: u }))
-		updateChild({ ...order, unit: u })
-	}
 
 	function changeData(fieldName: string, value: string | number | boolean | undefined | null) {
 		setData(o => ({ ...o, [fieldName]: value }))

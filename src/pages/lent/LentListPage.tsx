@@ -1,11 +1,12 @@
 import React, { Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { View } from "@react-spectrum/view";
-import { Flex, Item, ProgressCircle, TabList, Tabs } from "@adobe/react-spectrum";
+import { Item, TabList, Tabs } from "@adobe/react-spectrum";
 import { FormatDate, FormatNumber } from "lib/format";
 import { useLentList } from "lib/useLent";
 import { iBranch } from "lib/interfaces";
 import { useBranchList } from "lib/useBranch";
+import Waitme from "component/waitme";
 
 const LentListPage = () => {
   const { pathname } = useLocation();
@@ -14,8 +15,8 @@ const LentListPage = () => {
   const lent = useLentList()
   const { items: tabs, isLoading: branchIsLoading } = useBranchList();
 
-  if (lent.isLoading) {
-    return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+  if (lent.isLoading || branchIsLoading) {
+    return <Waitme />
   }
 
   return (<View>
@@ -27,7 +28,7 @@ const LentListPage = () => {
         items={[{ id: 0, name: "All", headBranch: "" }, ...tabs]}
         defaultSelectedKey={tab}
         onSelectionChange={(e) => {
-          if (!branchIsLoading) {
+          if (!branchIsLoading && !lent.isLoading) {
             setTab(+e)
           }
         }}>

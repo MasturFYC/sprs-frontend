@@ -150,6 +150,11 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
 
   }, [orderId])
 
+  const handleChange = (fieldName: string, value: string | number | boolean | undefined | null) => {
+    setOrder(o => ({ ...o, [fieldName]: value }))
+    setIsDirty(true)
+  }
+
   return (
     <View>
       <Form onSubmit={(e) => handleSubmit(e)} isReadOnly={order.verifiedBy ? true : false}>
@@ -559,11 +564,6 @@ const OrderForm = ({ orderId, onInsert, onUpdate, onDelete, onCancle, finances, 
 
     setOrder(o => ({ ...o, unit: u }))
     //if (onUpdate) onUpdate(order.id, { ...order, unit: u })
-  }
-
-  function handleChange(fieldName: string, value: string | number | boolean | undefined | null) {
-    setOrder(o => ({ ...o, [fieldName]: value }))
-    setIsDirty(true)
   }
 
 

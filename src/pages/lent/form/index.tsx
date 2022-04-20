@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Flex, View, ProgressCircle, ActionButton, Text, Divider } from '@adobe/react-spectrum';
+import { Flex, View, ActionButton, Text, Divider } from '@adobe/react-spectrum';
 import { FormatDate, FormatNumber } from 'lib/format';
 import EditCircle from '@spectrum-icons/workflow/EditCircle';
 import Back from '@spectrum-icons/workflow/BackAndroid';
@@ -8,6 +8,7 @@ import { lentTrx } from '../interfaces';
 import { dateParam } from 'lib/interfaces'
 import LentListDetails from './LentListDetails';
 import { useLent } from 'lib/useLent';
+import Waitme from 'component/waitme';
 
 const LentForm = React.lazy(() => import('./form'));
 
@@ -35,7 +36,7 @@ export default function LentPageForm() {
 	const lent = useLent(pid ? +pid : 0)
 
 	if (lent.isLoading) {
-		return <Flex flex justifyContent={'center'}><ProgressCircle aria-label="Loading…" isIndeterminate /></Flex>
+		return <Waitme />
 	}
 
 	return (
@@ -56,7 +57,7 @@ export default function LentPageForm() {
 
 			<Divider size={'S'} marginBottom={'size-200'} />
 
-			{isEdit || lent.item.orderId === 0 ? <React.Suspense fallback={<div>Please wait...</div>}>
+			{isEdit || lent.item.orderId === 0 ? <React.Suspense fallback={<Waitme />}>
 				<LentForm data={getEditedLent()}
 					onCancel={(id) => {
 						setIsEdit(false)
